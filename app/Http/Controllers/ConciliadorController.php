@@ -9,8 +9,10 @@ use App\Persona;
 use App\Disponibilidad;
 use App\Incidencia;
 use App\RolConciliador;
+use App\HorarioInhabil;
 use Validator;
 use Illuminate\Support\Collection;
+use App\Services\FechaAudienciaService;
 class ConciliadorController extends Controller
 {
     protected $request;
@@ -231,5 +233,25 @@ class ConciliadorController extends Controller
     
     public function conciliadorAudiencias(){
         return view('centros.conciliadores.agenda');
+    }
+    public function GetHorarioComida(){
+        $conciliador = Conciliador::find($this->request->conciliador_id);
+        $centro = $conciliador->centro;
+        list($hours, $minutes, $seg) = explode(':', $centro->duracionAudiencia);
+        $duracion = $hours . '.' . $minutes / 60 * 100;
+        $tiempoAdd = $duracion * 3600;
+        $arreglo_horas = FechaAudienciaService::obtener_horas($centro->disponibilidades,1,$tiempoAdd);
+        $horario = $conciliador->horario_comida;
+        return array("horas" => $arreglo_horas,"horario" => $horario);
+    }
+    public function GuardarHorarioComida(){
+        if($this->request->horario_inhabil_id != ""){
+            $HorarioInhabil = HorarioInhabil::find($this->request->horario_inhabil_id);
+            $HorarioInhabil->update(["hora_inicio" => $this->request->hora_inicio,"hora_fin" => $this->request->hora_fin]);
+        }else{
+            $conciliador = Conciliador::find($this->request->conciliador_id);
+            $HorarioInhabil = $conciliador->horario_comida()->create(["hora_inicio" => $this->request->hora_inicio,"hora_fin" => $this->request->hora_fin]);
+        }
+        return $HorarioInhabil;
     }
 }

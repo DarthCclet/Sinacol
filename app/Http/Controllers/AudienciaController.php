@@ -37,6 +37,7 @@ use App\TerminacionBilateral;
 use App\Documento;
 use App\Estado;
 use App\TipoContacto;
+use App\BitacoraBuzon;
 use App\Traits\ValidateRange;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,12 +52,15 @@ use App\Events\RatificacionRealizada;
 use App\Genero;
 use App\LenguaIndigena;
 use App\Mail\CambioFecha;
+use App\Mail\EnviarNotificacionBuzon;
 use App\TipoAsentamiento;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Nacionalidad;
 use App\Providers\AudienciaServiceProvider;
+use Illuminate\Support\Arr;
+use App\Providers\HerramientaServiceProvider;
 
 class AudienciaController extends Controller {
 
@@ -163,7 +167,12 @@ class AudienciaController extends Controller {
                 return $this->sendResponseDatatable($total, $filtered, $draw, $audiencias, null);
             }
         }
-        $audiencias_reagendar = Audiencia::where("solictud_cancelcacion", true)->where("cancelacion_atendida", false)->get();
+        $query = Audiencia::where("solictud_cancelcacion", true)->where("cancelacion_atendida", false);
+        $conciliador_n = auth()->user()->persona->conciliador;
+        $query->whereHas('conciliadoresAudiencias', function ($q) use ($conciliador_n) {
+            return $q->where('conciliador_id', $conciliador_n->id);
+        });
+        $audiencias_reagendar = $query->get();
         $reagendar = count($audiencias_reagendar);
         return view('expediente.audiencias.index', compact('reagendar'));
     }
@@ -229,10 +238,13 @@ class AudienciaController extends Controller {
         $comparecientes = array();
         $conceptos_pago = array();
         $solicitantesComparecientes = array();
+        $citadosComparecientes = array();
 
         foreach ($audiencia->audienciaParte as $key => $parte) {
             $parte->parte->tipoParte = $parte->parte->tipoParte;
             $parte->parte->tipo_notificacion = $parte->tipo_notificacion;
+            $parte->parte->finalizado = $parte->finalizado;
+            $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
             $partes[$key] = $parte->parte;
         }
         foreach ($audiencia->conciliadoresAudiencias as $key => $conciliador) {
@@ -255,7 +267,11 @@ class AudienciaController extends Controller {
             if ($compareciente->parte->tipo_parte_id == 1) {
                 $solicitantesComparecientes[$key] = $compareciente;
             }
+            if($compareciente->parte->tipo_parte_id == 2){
+                $citadosComparecientes[$key] = $compareciente;
+            }
         }
+        $audiencia->citadosComparecientes = $citadosComparecientes;
         $audiencia->solicitantesComparecientes = $solicitantesComparecientes;
 
         $audiencia->resolucionPartes = $audiencia->resolucionPartes;
@@ -271,15 +287,39 @@ class AudienciaController extends Controller {
         // $audiencia->resolucionPartes->conceptoPagoResolucion;
         foreach ($audiencia->solicitantes as $audienciaParte) {
             $totalConceptos = 0;
+            $totalDeducciones = 0;
             $conceptos = [];
             foreach ($audienciaParte->parteConceptos as $concepto) {
-                $totalConceptos += floatval($concepto->monto);
+                if($concepto->concepto_pago_resoluciones_id ==13){
+                    $totalDeducciones += floatval($concepto->monto);
+                }else{
+                    $totalConceptos += floatval($concepto->monto);
+                }
                 $conceptosP = $concepto;
                 $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
                 $conceptosP->idSolicitante = $audienciaParte->solicitante_id;
                 array_push($conceptos, $conceptosP);
             }
-            array_push($conceptos_pago, ['idSolicitante' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => $totalConceptos]);
+            array_push($conceptos_pago, ['idSolicitante' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => ($totalConceptos-$totalDeducciones) ]);
+        }
+        foreach ($audiencia->solicitados as $audienciaParte) {
+            $totalConceptos = 0;
+            $totalDeducciones = 0;
+            $conceptos = [];
+            foreach ($audienciaParte->parteConceptos as $concepto) {
+                if($concepto->concepto_pago_resoluciones_id == 13){
+                    $totalDeducciones += floatval($concepto->monto);
+                }else{
+                    $totalConceptos += floatval($concepto->monto);
+                }
+                //$totalConceptos += floatval($concepto->monto);
+                $conceptosP = $concepto;
+                $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
+                $conceptosP->idSolicitante = $audienciaParte->solicitante_id;
+                array_push($conceptos, $conceptosP);
+            }
+            array_push($conceptos_pago, ['idCitado' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => ($totalConceptos-$totalDeducciones)]);
+            
         }
         // foreach ($audiencia->resolucionPartes as $resolucionParte) {
         //     $totalConceptos = 0;
@@ -320,6 +360,7 @@ class AudienciaController extends Controller {
         $partes = array();
         $solicitud = $audiencia->expediente->solicitud;
         $solicitud_id = $solicitud->id;
+        $tipo_solicitud = $solicitud->tipo_solicitud_id;
         $estatus_solicitud_id = $solicitud->estatus_solicitud_id;
         $solicitudPartes = $solicitud->partes;
         $obligar = false;
@@ -357,6 +398,21 @@ class AudienciaController extends Controller {
                 $documento->audiencia_id = $audienciaSol->id;
                 $doc->push($documento);
             }
+            foreach ($audienciaSol->audienciaParte as $parte) {
+                $documentos = $parte->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    if ($parte->parte->tipo_persona_id == 1) {
+                        $documento->audiencia = $parte->parte->nombre . " " . $parte->parte->primer_apellido . " " . $parte->parte->segundo_apellido;
+                    } else {
+                        $documento->audiencia = $parte->parte->nombre_comercial;
+                    }
+                    $documento->tipo_doc = 3;
+                    $doc->push($documento);
+                }
+            }
         }
         $documentos = $doc->sortBy('id');
         $virtual = $solicitud->virtual;
@@ -373,7 +429,11 @@ class AudienciaController extends Controller {
         if($tipo_resolucion_reagendar == $audiencia->resolucion_id && !$solicitud->finalizada && !$audiencia->audiencia_creada){
             $permitir_crear = true;
         }
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear'));
+        $clasificacion_justificante = ClasificacionArchivo::whereNombre("Otro")->first();
+        $fecha_notificador = FechaAudienciaService::calcularFechaNotificador(date("Y-m-d"));
+        
+//        Obtenemos a los que no comparecieron
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear','tipo_solicitud','clasificacion_justificante','fecha_notificador'));
     }
 
     /**
@@ -448,11 +508,20 @@ class AudienciaController extends Controller {
         } else {
             $rol = \App\RolAtencion::where("nombre", "Conciliador virtual")->first();
         }
-        $conciliadores = Conciliador::join("roles_conciliador", "conciliadores.id", "roles_conciliador.conciliador_id")
-                ->where("roles_conciliador.rol_atencion_id", $rol->id)
-                ->where("conciliadores.centro_id", auth()->user()->centro_id)
-                ->select("conciliadores.*")
-                ->get();
+        $conciliadores = [];
+        foreach(auth()->user()->centro->conciliadores as $conciliador){
+            if(FechaAudienciaService::validarHoraComida($conciliador, $horaInicio, $horaFin)){
+                $pasa = false;
+                foreach($conciliador->rolesConciliador as $rol_atencion){
+                    if($rol_atencion->rol_atencion_id == $rol->id){
+                        $pasa = true;
+                    }
+                }
+                if($pasa){
+                    $conciliadores[] = $conciliador;
+                }
+            }
+        }
         foreach ($conciliadores as $conciliadorE) {
             $conciliador = Conciliador::find($conciliadorE->id);
             $pasa = false;
@@ -521,48 +590,50 @@ class AudienciaController extends Controller {
         $conciliadores = Conciliador::where("centro_id", $centro->id)->get();
         $conciliadoresResponse = [];
         foreach ($conciliadores as $conciliador) {
-            $pasa = false;
-            if (count($conciliador->disponibilidades) > 0) {
-                foreach ($conciliador->disponibilidades as $disp) {
-                    if ($disp["dia"] == $diaSemana) {
-                        $pasa = true;
-                    }
-                }
-            } else {
+            if(FechaAudienciaService::validarHoraComida($conciliador, $horaInicio, $horaFin)){
                 $pasa = false;
-            }
-            if ($pasa) {
-                foreach ($conciliador->incidencias as $inci) {
-                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
-                        $pasa = false;
+                if (count($conciliador->disponibilidades) > 0) {
+                    foreach ($conciliador->disponibilidades as $disp) {
+                        if ($disp["dia"] == $diaSemana) {
+                            $pasa = true;
+                        }
                     }
+                } else {
+                    $pasa = false;
                 }
                 if ($pasa) {
-                    $ConciliadorExiste = ConciliadorAudiencia::join('audiencias', "audiencia_id", "audiencias.id")
-                            ->where("conciliadores_audiencias.conciliador_id", $conciliador->id)
-                            ->where("audiencias.fecha_audiencia", $fechaInicioSola)
-                            ->where("hora_inicio", $horaInicio)
-                            ->where("hora_fin", $horaFin)
-                            ->first();
-                    if ($ConciliadorExiste != null) {
-                        $pasa = false;
+                    foreach ($conciliador->incidencias as $inci) {
+                        if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
+                            $pasa = false;
+                        }
                     }
+                    if ($pasa) {
+                        $ConciliadorExiste = ConciliadorAudiencia::join('audiencias', "audiencia_id", "audiencias.id")
+                                ->where("conciliadores_audiencias.conciliador_id", $conciliador->id)
+                                ->where("audiencias.fecha_audiencia", $fechaInicioSola)
+                                ->where("hora_inicio", $horaInicio)
+                                ->where("hora_fin", $horaFin)
+                                ->first();
+                        if ($ConciliadorExiste != null) {
+                            $pasa = false;
+                        }
+                    }
+    //                if ($pasa) {
+    //                    $conciliadoresAudiencia = array();
+    //                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
+    //                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
+    //                            //Buscamos que la hora inicio no este entre una audiencia
+    //                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
+    //                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
+    //                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+    //                        }
+    //                    }
+    //                }
                 }
-//                if ($pasa) {
-//                    $conciliadoresAudiencia = array();
-//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-//                            //Buscamos que la hora inicio no este entre una audiencia
-//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-//                        }
-//                    }
-//                }
-            }
-            if ($pasa) {
-                $conciliador->persona = $conciliador->persona;
-                $conciliadoresResponse[] = $conciliador;
+                if ($pasa) {
+                    $conciliador->persona = $conciliador->persona;
+                    $conciliadoresResponse[] = $conciliador;
+                }
             }
         }
         return $conciliadoresResponse;
@@ -777,7 +848,7 @@ class AudienciaController extends Controller {
             foreach ($solicitud->partes as $key => $parte) {
                 if (count($parte->documentos) == 0) {
                     $parte->ratifico = true;
-                    $parte->update();
+                    $parte->save();
                 }
             }
 //                obtenemos el domicilio del centro
@@ -787,7 +858,7 @@ class AudienciaController extends Controller {
             $domicilio_citado = null;
             foreach ($partes as $parte) {
                 if ($parte->tipo_parte_id == 2) {
-                    $domicilio_citado = $parte->domicilios()->first();
+                    $domicilio_citado = $parte->domicilios->last();
                     break;
                 }
             }
@@ -1032,31 +1103,28 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasIndividuales() {
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)
-                ->where("ratificada", true)
-                ->where("incidencia", false)
-                ->whereIn("tipo_solicitud_id", [1, 2])
-                ->with(["expediente", "expediente.audiencia"])
-                ->get();
-        $audiencias = [];
-        foreach ($solicitudes as $solicitud) {
-            $audienciasSolicitud = $solicitud->expediente->audiencia;
-            foreach ($audienciasSolicitud as $audiencia) {
-//                if (new Carbon($audiencia->fecha_audiencia) >= date("Y-m-d")) {
-                array_push($audiencias, $audiencia);
-//                }
-            }
-        }
+        $fecha = date("Y-m-d");
+        $query = Audiencia::whereDate("fecha_audiencia", ">=" , $fecha);
+        $data = $query->whereHas('expediente.solicitud', function ($q) {
+            return $q->where('centro_id',auth()->user()->centro_id)->where("ratificada", true)->whereIn("tipo_solicitud_id", [1, 2])->where("incidencia", false);
+        });
+        $audiencias = $data->with('expediente','expediente.solicitud')->get();
+        $pagos = ResolucionPagoDiferido::whereDate("fecha_pago",">=",$fecha);
+        $data_pagos = $pagos->whereHas("audiencia.expediente.solicitud", function ($q) {
+            return $q->where('centro_id',auth()->user()->centro_id)->where("ratificada", true)->whereIn("tipo_solicitud_id", [1, 2])->where("incidencia", false);
+        });
+        $pagos_diferidos = $data_pagos->with('audiencia')->get();
+
         $arrayEventos = [];
         foreach ($audiencias as $audiencia) {
             $start = $audiencia->fecha_audiencia . " " . $audiencia->hora_inicio;
             $end = $audiencia->fecha_audiencia . " " . $audiencia->hora_fin;
             array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->id,"tipo" => "audiencia"));
-            foreach($audiencia->pagosDiferidos as $pago){
-                $fechaInicio = new Carbon($pago->fecha_pago);
-                $fechaFin = $fechaInicio->addMinutes(15);
-                array_push($arrayEventos, array("start" => $pago->fecha_pago, "end" => $fechaFin->format("Y-m-d H:i:s"), "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#ffa500", "audiencia_id" => $audiencia->id,"tipo" => "pago"));
-            }   
+        }
+        foreach($pagos_diferidos as $pago){
+            $fechaInicio = new Carbon($pago->fecha_pago);
+            $fechaFin = $fechaInicio->addMinutes(15);
+            array_push($arrayEventos, array("start" => $pago->fecha_pago, "end" => $fechaFin->format("Y-m-d H:i:s"), "title" => $pago->audiencia->folio . "/" . $pago->audiencia->anio, "color" => "#ffa500", "audiencia_id" => $pago->audiencia->id,"tipo" => "pago"));
         }
         return $arrayEventos;
     }
@@ -1124,6 +1192,11 @@ class AudienciaController extends Controller {
                 } else {
                     $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1,'fecha_resolucion'=>now()));
                     foreach ($request->comparecientes as $compareciente) {
+                        $parteComparece = Parte::find($compareciente);
+                        $parteComparece->update(['notificacion_buzon'=>true]);
+                        if($parteComparece->parte_representada_id != null){
+                            Parte::find($parteComparece->parte_representada_id)->update(['notificacion_buzon'=>true]);
+                        }
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
@@ -1140,7 +1213,7 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "evidencia" => $evidencia
                 ]);
-                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago);
+                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago, $request->listaTipoPropuestas);
             }
 
             DB::commit();
@@ -1159,58 +1232,306 @@ class AudienciaController extends Controller {
      * @param Audiencia $audiencia
      * @param type $arrayRelaciones
      */
-    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array()) {
-        $partes = $audiencia->audienciaParte;
+    // public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array()) {
+    //     $partes = $audiencia->audienciaParte;
+    //     $solicitantes = $this->getSolicitantes($audiencia);
+    //     $solicitados = $this->getSolicitados($audiencia);
+    //     $arrayMultado = [];
+    //     $arrayMultadoNotificacion = [];
+    //     $huboConvenio = false;
+    //     $notificar = false;
+    //     foreach ($solicitantes as $solicitante) {
+    //         foreach ($solicitados as $solicitado) {
+    //             $bandera = true;
+    //             if ($arrayRelaciones != null) {
+    //                 foreach ($arrayRelaciones as $relacion) {
+    //                     //
+    //                     $parte_solicitante = Parte::find($relacion["parte_solicitante_id"]);
+    //                     if ($parte_solicitante->tipo_parte_id == 3) {
+    //                         $parte_solicitante = Parte::find($parte_solicitante->parte_representada_id);
+    //                     }
+    //                     //
+    //                     $parte_solicitado = Parte::find($relacion["parte_solicitado_id"]);
+    //                     if ($parte_solicitado->tipo_parte_id == 3) {
+    //                         $parte_solicitado = Parte::find($parte_solicitado->parte_representada_id);
+    //                     }
+
+    //                     if ($solicitante->parte_id == $parte_solicitante->id && $solicitado->parte_id == $parte_solicitado->id) {
+    //                         $terminacion = 3;
+    //                         $huboConvenio = true;
+    //                         // se genera convenio
+    //                         // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
+    //                     } else {
+    //                         $collectRelaciones = collect($arrayRelaciones);
+    //                         $convino = $collectRelaciones->where('parte_solicitante_id',$solicitante->parte_id)->first();
+    //                         if($convino){
+    //                             $terminacion =4;
+    //                         }else{
+    //                             $terminacion = 5;
+    //                         }
+    //                     }
+    //                     $bandera = false;
+    //                     $resolucionParte = ResolucionPartes::create([
+    //                                 "audiencia_id" => $audiencia->id,
+    //                                 "parte_solicitante_id" => $solicitante->parte_id,
+    //                                 "parte_solicitada_id" => $solicitado->parte_id,
+    //                                 "terminacion_bilateral_id" => $terminacion
+    //                     ]);
+    //                 }
+    //             }
+    //             if ($bandera) {
+    //                 //Se consulta comparecencia de solicitante
+    //                 $parteS = $solicitante->parte;
+    //                 if ($parteS->tipo_persona_id == 2) {
+    //                     $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
+    //                     if ($compareciente_parte != null) {
+    //                         $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+    //                     } else {
+    //                         $comparecienteSol = null;
+    //                     }
+    //                 } else {
+    //                     $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
+    //                 }
+    //                 //Se consulta comparecencia de citado
+    //                 $comparecienteCit = null;
+    //                 $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+    //                 if ($comparecienteCit == null) {
+    //                     $compareciente_parte = Parte::where("parte_representada_id", $solicitado->parte_id)->first();
+    //                     if($compareciente_parte){
+    //                         $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+    //                     }
+    //                 }
+
+    //                 $terminacion = 1;
+    //                 if ($audiencia->resolucion_id == 3) {
+    //                     //no hubo convenio, guarda resolucion para todas las partes
+    //                     $terminacion = 5;
+    //                     //se genera el acta de no conciliacion para todos los casos
+    //                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
+
+    //                     $parte = $solicitado->parte;
+    //                     if ($parte->tipo_persona_id == 2) {
+    //                         $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
+    //                         if ($compareciente_parte != null) {
+    //                             $compareciente = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+    //                         } else {
+    //                             $compareciente = null;
+    //                         }
+    //                     } else {
+    //                         $compareciente = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+    //                     }
+    //                     // Si no es compareciente se genera multa
+    //                     if ($compareciente == null) {
+    //                         $multable = false;
+    //                         $audienciaParte = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id', $solicitado->parte_id)->first();
+    //                         if ($audienciaParte && $audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE") {
+    //                             if (array_search($solicitado->parte_id, $arrayMultado) === false) {
+    //                                 // Se genera archivo de acta de multa
+    //                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
+    //                                 array_push($arrayMultado, $solicitado->parte_id);
+    //                                 array_push($arrayMultadoNotificacion, $audienciaParte->id);
+    //                                 $notificar = true;
+    //                             }
+    //                         }
+    //                         // Se genera multa
+    //                     }
+    //                 } else if ($audiencia->resolucion_id == 1) {
+    //                     if ($comparecienteSol != null && $comparecienteCit != null) {
+    //                         $terminacion = 3;
+    //                         $huboConvenio = true;
+    //                     } else if ($comparecienteSol != null) {
+    //                         $terminacion = 4;
+    //                     } else {
+    //                         $terminacion = 1;
+    //                     }
+    //                 } else if ($audiencia->resolucion_id == 2) {
+    //                     //no hubo convenio pero se agenda nueva audiencia, guarda para todos las partes
+    //                     $terminacion = 2;
+    //                     // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
+    //                 }
+    //                 $resolucionParte = ResolucionPartes::create([
+    //                             "audiencia_id" => $audiencia->id,
+    //                             "parte_solicitante_id" => $solicitante->parte_id,
+    //                             "parte_solicitada_id" => $solicitado->parte_id,
+    //                             "terminacion_bilateral_id" => $terminacion
+    //                 ]);
+    //             }
+    //             //guardar conceptos de pago para Convenio
+    //             if (isset($resolucionParte)) { //Hubo conciliacion
+    //                 // if($audiencia->resolucion_id == 1 ){ //Hubo conciliacion
+    //                 // if (isset($listaConceptos)) {
+    //                 //     if (count($listaConceptos) > 0) {
+    //                 //         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
+    //                 //             // foreach($conceptosSolicitante as $ke=>$conceptosPago){//conceptos por solicitante
+    //                 //             if ($key == $solicitante->parte_id) {
+    //                 //                 foreach ($conceptosSolicitante as $k => $concepto) {
+    //                 //                     ResolucionParteConcepto::create([
+    //                 //                         "resolucion_partes_id" => $resolucionParte->id,
+    //                 //                         "parte_id" => $solicitante->parte_id,
+    //                 //                         "concepto_pago_resoluciones_id" => $concepto["concepto_pago_resoluciones_id"],
+    //                 //                         "dias" => intval($concepto["dias"]),
+    //                 //                         "monto" => $concepto["monto"],
+    //                 //                         "otro" => $concepto["otro"]
+    //                 //                     ]);
+    //                 //                 }
+    //                 //             }
+    //                 //             // }
+    //                 //         }
+    //                 //     }
+    //                 // }
+    //                 if ($terminacion == 3) {
+    //                     $huboConvenio = true;
+    //                     //Se consulta comparecencia de citado
+    //                     $parte = $solicitado->parte;
+    //                     if ($parte->tipo_persona_id == 2) {
+    //                         $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
+    //                         if ($compareciente_parte != null) {
+    //                             $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+    //                             // dd($comparecienteCit);
+    //                         } else {
+    //                             $comparecienteCit = null;
+    //                         }
+    //                     } else {
+    //                         $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+    //                     }
+    //                     // Termina consulta de comparecencia de citado
+    //                     //Se consulta comparecencia de solicitante
+    //                     $parteS = $solicitante->parte;
+    //                     if ($parteS->tipo_persona_id == 2) {
+    //                         $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
+    //                         if ($compareciente_parte != null) {
+    //                             $comparcomparecienteSoleciente = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+    //                         } else {
+    //                             $comparecienteSol = null;
+    //                         }
+    //                     } else {
+    //                         $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         $solicitanteComparecio = $solicitante->parte->compareciente->where('audiencia_id', $audiencia->id)->first();
+    //         if ($solicitanteComparecio != null) {
+    //             if (isset($listaConceptos)) {
+    //                 if (count($listaConceptos) > 0) {
+    //                     foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
+    //                         if ($key == $solicitante->parte_id) {
+    //                             foreach ($conceptosSolicitante as $k => $concepto) {
+    //                                 ResolucionParteConcepto::create([
+    //                                     "resolucion_partes_id" => null, //$resolucionParte->id,
+    //                                     "audiencia_parte_id" => $solicitante->id,
+    //                                     "concepto_pago_resoluciones_id" => $concepto["concepto_pago_resoluciones_id"],
+    //                                     "dias" => intval($concepto["dias"]),
+    //                                     "monto" => $concepto["monto"],
+    //                                     "otro" => $concepto["otro"]
+    //                                 ]);
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // Termina consulta de comparecencia de solicitante
+    //     if ($huboConvenio) {
+    //         if (isset($listaFechasPago)) { //se registran pagos diferidos
+    //             if (count($listaFechasPago) > 0) {
+    //                 foreach ($listaFechasPago as $key => $fechaPago) {
+    //                     ResolucionPagoDiferido::create([
+    //                         "audiencia_id" => $audiencia->id,
+    //                         "solicitante_id" => $fechaPago["idSolicitante"],
+    //                         "monto" => $fechaPago["monto_pago"],
+    //                         "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i')
+    //                     ]);
+    //                 }
+    //             }
+    //         }
+    //         foreach ($solicitantes as $solicitante) {
+    //             $part = Parte::find($solicitante->parte_id);
+    //             $datoLaboral_solicitante = $part->dato_laboral()->orderBy('id', 'desc')->first();
+    //             if ($datoLaboral_solicitante->labora_actualmente) {
+    //                 $date = Carbon::now();
+    //                 $datoLaboral_solicitante->fecha_salida = $date;
+    //                 $datoLaboral_solicitante->save();
+    //             }
+    //             $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 3)->first();
+    //             if ($convenio != null) {
+    //                 //generar convenio
+    //                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));
+    //             } else {
+    //                 $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();
+    //                 if ($noConciliacion != null) {
+    //                     foreach ($solicitados as $solicitado) {
+    //                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     $solicitud = $audiencia->expediente->solicitud();
+    //     $solicitud->update(['url_virtual' => null]);
+    //     //generar acta de audiencia
+    //     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3));
+    //     if ($notificar) {
+    //         foreach ($arrayMultadoNotificacion as $parte) {
+    //             event(new RatificacionRealizada($audiencia->id, "multa", false, $parte));
+    //         }
+    //     }
+    // }
+    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array(), $listaTipoPropuestas = array()) {
         $solicitantes = $this->getSolicitantes($audiencia);
         $solicitados = $this->getSolicitados($audiencia);
         $arrayMultado = [];
         $arrayMultadoNotificacion = [];
         $huboConvenio = false;
         $notificar = false;
+        $convienenTodos = true;
+        $arrayCitConvino = array();
+        $arraySolConvino = array();
+        if($arrayRelaciones && count($arrayRelaciones) > 0){
+            foreach($arrayRelaciones as $relacion){
+                $parte_solicitante = Parte::find($relacion["parte_solicitante_id"]);
+                if ($parte_solicitante->tipo_parte_id == 3) {
+                    $parte_solicitante = Parte::find($parte_solicitante->parte_representada_id);
+                }
+                if(!in_array($parte_solicitante->id, $arraySolConvino, true)){
+                    array_push($arraySolConvino, $parte_solicitante->id);
+                }
+
+                $parte_solicitado = Parte::find($relacion["parte_solicitado_id"]);
+                if ($parte_solicitado->tipo_parte_id == 3) {
+                    $parte_solicitado = Parte::find($parte_solicitado->parte_representada_id);
+                }
+                if(!in_array($parte_solicitado->id, $arrayCitConvino, true)){
+                    array_push($arrayCitConvino, $parte_solicitado->id);
+                }
+                $resolucionParte = ResolucionPartes::create([
+                    "audiencia_id" => $audiencia->id,
+                    "parte_solicitante_id" => $parte_solicitante->id,
+                    "parte_solicitada_id" => $parte_solicitado->id,
+                    "terminacion_bilateral_id" => 3
+                ]);
+                $huboConvenio = true;
+            }
+            $convienenTodos = false;
+        }
+        $totalPagoC = [];
+        $totalDeduccionC = [];
         foreach ($solicitantes as $solicitante) {
             foreach ($solicitados as $solicitado) {
-                $bandera = true;
-                if ($arrayRelaciones != null) {
-                    foreach ($arrayRelaciones as $relacion) {
-                        //
-                        $parte_solicitante = Parte::find($relacion["parte_solicitante_id"]);
-                        if ($parte_solicitante->tipo_parte_id == 3) {
-                            $parte_solicitante = Parte::find($parte_solicitante->parte_representada_id);
-                        }
-                        //
-                        $parte_solicitado = Parte::find($relacion["parte_solicitado_id"]);
-                        if ($parte_solicitado->tipo_parte_id == 3) {
-                            $parte_solicitado = Parte::find($parte_solicitado->parte_representada_id);
-                        }
+                $existeRes = ResolucionPartes::where('parte_solicitante_id',$solicitante->parte_id)->where('parte_solicitada_id',$solicitado->parte_id)->where('audiencia_id',$audiencia->id)->first();
 
-                        if ($solicitante->parte_id == $parte_solicitante->id && $solicitado->parte_id == $parte_solicitado->id) {
-                            $terminacion = 3;
-                            $huboConvenio = true;
-                            // se genera convenio
-                            // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
-                            $bandera = false;
-                        } else {
-
-                            $bandera = false;
-                            $terminacion = 4;
-                        }
-                        $resolucionParte = ResolucionPartes::create([
-                                    "audiencia_id" => $audiencia->id,
-                                    "parte_solicitante_id" => $solicitante->parte_id,
-                                    "parte_solicitada_id" => $solicitado->parte_id,
-                                    "terminacion_bilateral_id" => $terminacion
-                        ]);
-                    }
-                }
-                if ($bandera) {
+                if ($existeRes == null) {
                     //Se consulta comparecencia de solicitante
                     $parteS = $solicitante->parte;
+                    $comparecienteSol = null;
                     if ($parteS->tipo_persona_id == 2) {
-                        $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
-                        if ($compareciente_parte != null) {
-                            $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                        } else {
-                            $comparecienteSol = null;
+                        $compareciente_partes = Parte::where("parte_representada_id", $parteS->id)->first();
+                        foreach ($compareciente_partes as $key => $compareciente_parte) {
+                            $comparecienteSolicitud = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                            if($comparecienteSolicitud != null){
+                                $comparecienteSol = $comparecienteSolicitud;
+                            }
                         }
                     } else {
                         $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
@@ -1219,17 +1540,32 @@ class AudienciaController extends Controller {
                     $comparecienteCit = null;
                     $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
                     if ($comparecienteCit == null) {
-                        $compareciente_parte = Parte::where("parte_representada_id", $solicitado->parte_id)->first();
-                        if($compareciente_parte){
-                            $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                        $compareciente_partes = Parte::where("parte_representada_id", $solicitado->parte_id)->get();
+                        if (count($compareciente_partes) > 0) {
+                            foreach ($compareciente_partes as $key => $compareciente_parte) {
+                                $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                            }
                         }
                     }
 
                     $terminacion = 1;
+                    //Se valida si se selecciono que no hubo convenio
                     if ($audiencia->resolucion_id == 3) {
                         //no hubo convenio, guarda resolucion para todas las partes
                         $terminacion = 5;
                         //se genera el acta de no conciliacion para todos los casos
+                        if($solicitante->parte->tipo_persona_id == 1){
+                            $busqueda = $solicitante->parte->curp;
+                        }else{
+                            $busqueda = $solicitante->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$solicitante->parte_id,'descripcion'=>'Se genera el documento de constancia de no conciliación','tipo_movimiento'=>'Documento','clabe_identificacion' => $busqueda]);
+                        if($solicitado->parte->tipo_persona_id == 1){
+                            $busqueda = $solicitado->parte->curp;
+                        }else{
+                            $busqueda = $solicitado->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$solicitado->parte_id,'descripcion'=>'Se genera el documento de constancia de no conciliación','tipo_movimiento'=>'Documento','clabe_identificacion' => $busqueda]);
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
 
                         $parte = $solicitado->parte;
@@ -1247,9 +1583,10 @@ class AudienciaController extends Controller {
                         if ($compareciente == null) {
                             $multable = false;
                             $audienciaParte = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id', $solicitado->parte_id)->first();
-                            if ($audienciaParte && $audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE") {
+                            if ($audienciaParte && ($audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaParte->finalizado == "EXITOSO POR INSTRUCTIVO")) {
                                 if (array_search($solicitado->parte_id, $arrayMultado) === false) {
                                     // Se genera archivo de acta de multa
+
                                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
                                     array_push($arrayMultado, $solicitado->parte_id);
                                     array_push($arrayMultadoNotificacion, $audienciaParte->id);
@@ -1258,85 +1595,70 @@ class AudienciaController extends Controller {
                             }
                             // Se genera multa
                         }
-                    } else if ($audiencia->resolucion_id == 1) {
-                        if ($comparecienteSol != null && $comparecienteCit != null) {
-                            $terminacion = 3;
-                            $huboConvenio = true;
-                        } else if ($comparecienteSol != null) {
-                            $terminacion = 4;
-                        } else {
-                            $terminacion = 1;
-                        }
                     } else if ($audiencia->resolucion_id == 2) {
                         //no hubo convenio pero se agenda nueva audiencia, guarda para todos las partes
                         $terminacion = 2;
-                        // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
-                    }
-                    $resolucionParte = ResolucionPartes::create([
-                                "audiencia_id" => $audiencia->id,
-                                "parte_solicitante_id" => $solicitante->parte_id,
-                                "parte_solicitada_id" => $solicitado->parte_id,
-                                "terminacion_bilateral_id" => $terminacion
-                    ]);
-                }
-                //guardar conceptos de pago para Convenio
-                if (isset($resolucionParte)) { //Hubo conciliacion
-                    // if($audiencia->resolucion_id == 1 ){ //Hubo conciliacion
-                    // if (isset($listaConceptos)) {
-                    //     if (count($listaConceptos) > 0) {
-                    //         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
-                    //             // foreach($conceptosSolicitante as $ke=>$conceptosPago){//conceptos por solicitante
-                    //             if ($key == $solicitante->parte_id) {
-                    //                 foreach ($conceptosSolicitante as $k => $concepto) {
-                    //                     ResolucionParteConcepto::create([
-                    //                         "resolucion_partes_id" => $resolucionParte->id,
-                    //                         "parte_id" => $solicitante->parte_id,
-                    //                         "concepto_pago_resoluciones_id" => $concepto["concepto_pago_resoluciones_id"],
-                    //                         "dias" => intval($concepto["dias"]),
-                    //                         "monto" => $concepto["monto"],
-                    //                         "otro" => $concepto["otro"]
-                    //                     ]);
-                    //                 }
-                    //             }
-                    //             // }
-                    //         }
-                    //     }
-                    // }
-                    if ($terminacion == 3) {
-                        $huboConvenio = true;
-                        //Se consulta comparecencia de citado
-                        $parte = $solicitado->parte;
-                        if ($parte->tipo_persona_id == 2) {
-                            $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
-                            if ($compareciente_parte != null) {
-                                $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                                // dd($comparecienteCit);
-                            } else {
-                                $comparecienteCit = null;
-                            }
-                        } else {
-                            $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
-                        }
-                        // Termina consulta de comparecencia de citado
+                    } else if ($audiencia->resolucion_id == 1) {
+                        //Se valida si hubo convenio por parte del solicitante o el citado
+                        // $citadoConvino = Arr::exists($arrayCitConvino, $solicitado->parte_id);
+                        $solicitanteConvino ="";
+                        $solicitanteConvino = array_search($solicitante->parte_id,$arraySolConvino);
                         //Se consulta comparecencia de solicitante
                         $parteS = $solicitante->parte;
                         if ($parteS->tipo_persona_id == 2) {
                             $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
                             if ($compareciente_parte != null) {
-                                $comparcomparecienteSoleciente = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                                $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
                             } else {
                                 $comparecienteSol = null;
                             }
                         } else {
                             $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
                         }
+                        //Termina consulta comparecencia de solicitante
+                        //Se consulta comparecencia de citado
+                        $comparecienteCit = null;
+                        $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                        if ($comparecienteCit == null) {
+                            $compareciente_partes = Parte::where("parte_representada_id", $solicitado->parte_id)->get();
+                            foreach ($compareciente_partes as $key => $compareciente_parte) {
+                                $comparecienteCitado = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                                if($comparecienteCitado != null){
+                                    $comparecienteCit = $comparecienteCitado;
+                                }
+                            } 
+                        }
+
+                        //Termina consulta comparecencia de citado
+                        if ($comparecienteSol != null && $comparecienteCit != null && $convienenTodos) {
+                            $terminacion = 3;
+                            $huboConvenio = true;
+                        } else if ($comparecienteSol != null) {
+
+                            if($solicitanteConvino === false){
+                                $terminacion = 5;
+                            }else{
+                                $terminacion = 4;
+                            }
+                        } else {
+                            $terminacion = 1;
+                        }
                     }
+
+                    $resolucionParte = ResolucionPartes::create([
+                        "audiencia_id" => $audiencia->id,
+                        "parte_solicitante_id" => $solicitante->parte_id,
+                        "parte_solicitada_id" => $solicitado->parte_id,
+                        "terminacion_bilateral_id" => $terminacion
+                    ]);
                 }
             }
             $solicitanteComparecio = $solicitante->parte->compareciente->where('audiencia_id', $audiencia->id)->first();
             if ($solicitanteComparecio != null) {
                 if (isset($listaConceptos)) {
                     if (count($listaConceptos) > 0) {
+                        $totalPagoC[$solicitante->parte_id] = 0.0;
+                        $totalDeduccionC[$solicitante->parte_id] = 0.0;
                         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
                             if ($key == $solicitante->parte_id) {
                                 foreach ($conceptosSolicitante as $k => $concepto) {
@@ -1348,6 +1670,21 @@ class AudienciaController extends Controller {
                                         "monto" => $concepto["monto"],
                                         "otro" => $concepto["otro"]
                                     ]);
+                                    if($concepto["concepto_pago_resoluciones_id"] == 13){
+                                        $totalDeduccionC[$solicitante->parte_id] = floatval($totalDeduccionC[$solicitante->parte_id])  + floatval($concepto["monto"]);
+                                    }else{
+                                        $totalPagoC[$solicitante->parte_id] =  floatval($totalPagoC[$solicitante->parte_id])  + floatval($concepto["monto"]);
+                                    }
+                                }
+                            }
+                        }
+                        foreach ($listaTipoPropuestas as $key => $listaPropuesta) {//solicitantes
+                            if ($key == $solicitante->parte_id) {
+                                $resolucionParte = ResolucionPartes::where("audiencia_id",$audiencia->id)->where("parte_solicitante_id",$solicitante->parte_id)->get();
+                                foreach ($resolucionParte as $resolucion) {//solicitantes
+                                    $resolucion->update([
+                                        "tipo_propuesta_pago_id" => $listaPropuesta
+                                    ]);
                                 }
                             }
                         }
@@ -1355,7 +1692,7 @@ class AudienciaController extends Controller {
                 }
             }
         }
-        // Termina consulta de comparecencia de solicitante
+        //Se valida si hubo al menos un convenio
         if ($huboConvenio) {
             if (isset($listaFechasPago)) { //se registran pagos diferidos
                 if (count($listaFechasPago) > 0) {
@@ -1364,11 +1701,14 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "solicitante_id" => $fechaPago["idSolicitante"],
                             "monto" => $fechaPago["monto_pago"],
-                            "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i')
+                            "descripcion_pago" => $fechaPago["descripcion_pago"],
+                            "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i'),
+                            "diferido"=>true
                         ]);
                     }
                 }
             }
+            //Se recorre a los solicitantes para ver si se genera convenio o acta de no conciliacion
             foreach ($solicitantes as $solicitante) {
                 $part = Parte::find($solicitante->parte_id);
                 $datoLaboral_solicitante = $part->dato_laboral()->orderBy('id', 'desc')->first();
@@ -1377,10 +1717,40 @@ class AudienciaController extends Controller {
                     $datoLaboral_solicitante->fecha_salida = $date;
                     $datoLaboral_solicitante->save();
                 }
+                //Se valida si hubo convenio para esta parte para generar convenio o si se genera acta de no conciliacion
                 $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 3)->first();
                 if ($convenio != null) {
-                    //generar convenio
-                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));
+                    if (!isset($listaFechasPago)) {//si no se registraron pagos diferidos crear pago NO diferido
+                        $totalPagoC[$solicitante->parte_id] = $totalPagoC[$solicitante->parte_id] - $totalDeduccionC[$solicitante->parte_id];
+                        ResolucionPagoDiferido::create([
+                            "audiencia_id" => $audiencia->id,
+                            "solicitante_id" => $solicitante->parte_id,
+                            "monto" => $totalPagoC[$solicitante->parte_id],
+                            "descripcion_pago" => "Convenio",
+                            "fecha_pago" => $audiencia->fecha_audiencia ." ".$audiencia->hora_fin,
+                            "diferido"=>false
+                        ]);
+                    }
+                    // $pagos = ResolucionPagoDiferido::where('audiencia_id',$audiencia->id)->get();
+                    if($convenio->tipo_propuesta_pago_id == 4){
+                        //generar convenio reinstalacion
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 9, $solicitante->parte_id));
+                    }elseif($convenio->tipo_propuesta_pago_id == 5){
+                        //generar convenio de prestaciones
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 16, $solicitante->parte_id));
+                    }else{
+                        //generar convenio
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));//15
+                    }
+
+                    //generar constancia de cumplimiento si no tiene pagos diferidos
+                    // if ($listaFechasPago == null) {
+                    //     if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){//solicitud individual
+                    //         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,$solicitante->parte_id));
+                    //     }else{
+                    //         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,null,$solicitante->partte_id));
+                    //     }
+                    // }
                 } else {
                     $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();
                     if ($noConciliacion != null) {
@@ -1417,7 +1787,7 @@ class AudienciaController extends Controller {
         if($solicitud->tipo_solicitud_id == 1){//solicitud individual
             event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,$pagoDiferido->solicitante_id));
         }else{
-            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,null,$pagoDiferido->solicitante_id)); 
+            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,null,$pagoDiferido->solicitante_id));
         }
         return $pagoDiferido;
     }
@@ -1431,30 +1801,37 @@ class AudienciaController extends Controller {
         try {
             $solicitud = Solicitud::find($request->solicitud_id);
             $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
+
+            $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
+            $totalPagos = count($pagos);
+            $ultimoPago = $pagos->last()->id;
             if($pagoDiferido){
                 $pagoDiferido->update([
-                    "pagado" => true
+                    "pagado" => true,
+                    "informacion_pago"=> $request->informacionPago,
+                    "fecha_cumplimiento" => Carbon::createFromFormat('d/m/Y', $request->fecha_cumplimiento)->format('Y-m-d'),
                 ]);
-                //generar constacia de pago parcial
-                if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+                //generar constacia de pago parcial si no es ultimo pago
+                if($solicitud->tipo_solicitud_id == 1 && $pagoDiferido->id != $ultimoPago){//solicitud individual
                     event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
-                }else{
+                }else if($solicitud->tipo_solicitud_id != 1 && $pagoDiferido->id != $ultimoPago){
                     event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,null,$pagoDiferido->solicitante_id));
                 }
             }
-
             $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
-            $ultimoPago = $pagos->last()->id;
             $pagados = true;
             foreach ($pagos as $pago) {
                 if ($pago->pagado == false) {
                     $pagados = false;
                 }
             }
-            //si los pagos anteriores han sido pagados y es el ultimo pago
-            //generar constancia de cumplimiento de convenio
             //if($pagados && ($ultimoPago == $request->idPagoDiferido)){
-            if ($pagados) {
+                //si los pagos anteriores han sido pagados y es el ultimo pago
+            if ($pagados && $ultimoPago == $pagoDiferido->id ) {
+                if($totalPagos > 1){
+                    //generar pago parcial y cumplimiento si son 2 o mas pagos
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
+                }
                 //generar constancia de cumplimiento de convenio
                 if($solicitud->tipo_solicitud_id == 1){//solicitud individual
                     event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,$pagoDiferido->solicitante_id));
@@ -1497,6 +1874,9 @@ class AudienciaController extends Controller {
         foreach ($audiencia->audienciaParte as $audienciaParte) {
             if ($audienciaParte->parte->tipo_persona_id == 1) {
                 $audienciaParte->parte->tipoParte = $audienciaParte->parte->tipoParte;
+                if ($audienciaParte->parte->tipoParte->id == 3) {
+                   $audienciaParte->parte->parteRepresentada = Parte::find($audienciaParte->parte->parte_representada_id);
+                }
                 $audienciaParte->parte->documentos;
                 $partes[] = $audienciaParte->parte;
             }
@@ -1556,7 +1936,7 @@ class AudienciaController extends Controller {
             if ($parte->parte->tipo_parte_id == 2) {
                 $solicitados[] = $parte;
             }
-        }
+        } 
         return $solicitados;
     }
 
@@ -1585,17 +1965,18 @@ class AudienciaController extends Controller {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
+        $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
-                    "expediente_id" => $audiencia->expediente_id,
-                    "multiple" => $multiple,
-                    "fecha_audiencia" => $fecha_audiencia,
-                    "hora_inicio" => $hora_inicio,
-                    "hora_fin" => $hora_fin,
-                    "conciliador_id" => $audiencia->conciliador_id,
-                    "numero_audiencia" => 1,
-                    "reprogramada" => true,
-                    "anio" => $folio->anio,
-                    "folio" => $folio->contador
+            "expediente_id" => $audiencia->expediente_id,
+            "multiple" => $multiple,
+            "fecha_audiencia" => $fecha_audiencia,
+            "hora_inicio" => $hora_inicio,
+            "hora_fin" => $hora_fin,
+            "conciliador_id" => $audiencia->conciliador_id,
+            "numero_audiencia" => $n_audiencia,
+            "reprogramada" => true,
+            "anio" => $folio->anio,
+            "folio" => $folio->contador
         ]);
         ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
         if ($request->nuevaCalendarizacion == "S") {
@@ -1628,10 +2009,10 @@ class AudienciaController extends Controller {
                 $arregloPartesAgregadas[] = $relacion["parte_solicitante_id"];
                 AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $relacion["parte_solicitante_id"], "tipo_notificacion_id" => $tipo_notificacion_id]);
                 // buscamos representantes legales de esta parte
-                $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id", $relacion["parte_solicitante_id"])->first();
-                if ($parte != null) {
-                    AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
-                }
+                // $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id", $relacion["parte_solicitante_id"])->first();
+                // if ($parte != null) {
+                //     AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                // }
             }
             ##Validamos que el solicitado no exista
             $pasaSolicitado = true;
@@ -1646,10 +2027,10 @@ class AudienciaController extends Controller {
                 //generar citatorio de audiencia
                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud->id, 14, 4, null, $relacion["parte_solicitada_id"]));
                 // buscamos representantes legales de esta parte
-                $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id", $relacion["parte_solicitada_id"])->first();
-                if ($parte != null) {
-                    AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
-                }
+                // $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id", $relacion["parte_solicitada_id"])->first();
+                // if ($parte != null) {
+                //     AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                // }
             }
             $resolucion = ResolucionPartes::find($relacion["id"]);
             $resolucion->update(["nuevaAudiencia" => true]);
@@ -1677,13 +2058,20 @@ class AudienciaController extends Controller {
             $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro, $diasHabilesMin, $diasHabilesMax, $conciliador, $audiencia->expediente->solicitud->virtual);
             $multiple = false;
         }
+        if($datos_audiencia['encontro_audiencia']){
+            if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                DB::rollback();
+                return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+            }
+        }
 
         //Obtenemos el contador
         $ContadorController = new ContadorController();
         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
         $etapa = \App\EtapaNotificacion::where("etapa", "ilike", "%Cambio de Fecha%")->first();
-        
+
         //creamos el registro de la audiencia
+        $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
                     "expediente_id" => $audiencia->expediente_id,
                     "multiple" => $audiencia->multiple,
@@ -1691,13 +2079,13 @@ class AudienciaController extends Controller {
                     "hora_inicio" => $datos_audiencia["hora_inicio"],
                     "hora_fin" => $datos_audiencia["hora_fin"],
                     "conciliador_id" => $datos_audiencia["conciliador_id"],
-                    "numero_audiencia" => 2,
+                    "numero_audiencia" => $n_audiencia,
                     "reprogramada" => true,
                     "anio" => $folioAudiencia->anio,
                     "folio" => $folioAudiencia->contador,
                     "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
                     "etapa_notificacion_id" => $etapa->id
-        ]);
+        ]); 
         if ($datos_audiencia["encontro_audiencia"]) {
             // guardamos la sala y el consiliador a la audiencia
             ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador_id"], "solicitante" => true]);
@@ -1710,41 +2098,117 @@ class AudienciaController extends Controller {
         $notificar = 0;
         $partes_notificar = [];
         $tipo_parte = TipoParte::where("nombre", "ilike", "%CITADO%")->first()->id;
+        $tipo_parte_representante = TipoParte::where("nombre", "ilike", "%OTRO%")->first()->id;
+        $tipoNotificacion = \App\TipoNotificacion::where("nombre", "ilike", "%B)%")->first()->id;
+        $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%D)%")->first()->id;
+        $tipoNotificacionComparecencia = \App\TipoNotificacion::where("nombre", "ilike", "%G)%")->first()->id;
+        $tipoBuzon = $tipoNotificacionBuzon;
+        $tipoNotificacionRenuente = \App\TipoNotificacion::where("nombre", "ilike", "%E)%")->first()->id;
         foreach ($audiencia->expediente->solicitud->partes as $parte) {
-            $tipoNotificacion = \App\TipoNotificacion::where("nombre", "ilike", "%B)%")->first()->id;
-            $fecha_notificacion = null;
-            $finalizado = null;
-            if (isset($request->listaRelaciones)) {
-                foreach ($request->listaRelaciones as $sin_notificar) {
-                    if ($parte->id == $sin_notificar) {
-                        $tipoNotificacion = null;
-                        $fecha_notificacion = now();
-                        $finalizado = "Notificado al comparecer";
+            $notificar_check = false;
+            $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%D)%")->first()->id;
+            $fecha_notificacion = now();
+            $finalizado = "FINALIZADO EXITOSAMENTE";
+            //Buscamos si fue multado en la audiencia anterior
+            $ap = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id',$parte->id)->first();
+            if($ap != null){
+                if($ap->multa){
+                    //Si la multa se genero en la audiencia anterior se deberá enviar al notificador
+                    $tipoNotificacionBuzon = $tipoNotificacion;
+                    $fecha_notificacion = null;
+                    $finalizado = null;
+                }else{
+                    if (isset($request->listaRelaciones)) {
+                        foreach ($request->listaRelaciones as $notificar) {
+                            if ($parte->id == $notificar) {
+        //                        Si se encuantra que la parte se debe notificar se deberá indicar el tipo
+        //                        Si la parte ya fue notificada por notificador de forma exitosa se colocará el tipo renuente
+                                if($parte->notificacion_exitosa){
+                                    if(!$parte->comparecio){
+                                        $tipoNotificacionBuzon = $tipoNotificacionRenuente;
+                                        $fecha_notificacion = null;
+                                        $finalizado = null;
+                                    }else{
+                                        if(!$parte->notificacion_buzon){
+                                            $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                            if($parte->tipo_persona_id == 1){
+                                                $busqueda = $parte->curp;
+                                            }else{
+                                                $busqueda = $parte->rfc;
+                                            }
+                                            BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea nofificación por comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->id));
+                                        }
+                                    }
+                                }else{
+        //                            Si no fue notificada de forma exitosa por notificacador evaluamos si ha comparecido
+        //                            En el caso de tener una comparecencia validaremos si acepto el buzón
+                                    if($parte->comparecio){
+                                        if(!$parte->notificacion_buzon){
+                                            $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                            if($parte->tipo_persona_id == 1){
+                                                $busqueda = $parte->curp;
+                                            }else{
+                                                $busqueda = $parte->rfc;
+                                            }
+                                            BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea nofificación por comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->id));
+                                        }
+                                    }else{
+        //                                Si no ha sido notificado y no ah comparecido se enviará nuevamente al conciliador
+                                        $tipoNotificacionBuzon = $tipoNotificacion;
+                                        $fecha_notificacion = null;
+                                        $finalizado = null;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-            }
-            $audiencia_parte = AudienciaParte::create([
+                if($parte->tipo_parte_id != $tipo_parte_representante){
+                    $audiencia_parte = AudienciaParte::create([
                         "audiencia_id" => $audienciaN->id,
                         "parte_id" => $parte->id,
-                        "tipo_notificacion_id" => $tipoNotificacion,
+                        "tipo_notificacion_id" => $tipoNotificacionBuzon,
                         "fecha_notificacion" => $fecha_notificacion,
                         "finalizado" => $finalizado
-            ]);
-            if ($tipoNotificacion != null && $parte->tipo_parte_id == $tipo_parte) {
-                $notificar++;
-                $partes_notificar[] = $audiencia_parte->id;
-            }
-            $parte->update(["asignado" => true]);
-            if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
-                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
+                    ]);
+                    if ($tipoNotificacionBuzon == $tipoNotificacion && $parte->tipo_parte_id == $tipo_parte) {
+                        $notificar++;
+                        $partes_notificar[] = $audiencia_parte->id;
+                    }
+                    $parte->update(["asignado" => true]);
+                }
+                if ($parte->tipo_parte_id == $tipo_parte && $datos_audiencia["encontro_audiencia"]) {
+                    if($parte->tipo_persona_id == 1){
+                        $busqueda = $parte->curp;
+                    }else{
+                        $busqueda = $parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
+                }elseif($parte->tipo_parte_id == 1){
+                    if($parte->tipo_persona_id == 1){
+                        $busqueda = $parte->curp;
+                    }else{
+                        $busqueda = $parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, $parte->id, null));
+                }
             }
         }
-        DB::commit();
+        foreach($audienciaN->audienciaParte as $audiencia_parte){
+            if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
+                Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
+            }
+        }
         if ($notificar > 0) {
             foreach ($partes_notificar as $parte) {
                 event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $parte));
             }
         }
+        DB::commit();
         return $audienciaN;
     }
 
@@ -1753,7 +2217,7 @@ class AudienciaController extends Controller {
         ##Obtenemos la audiencia origen
         $audiencia = Audiencia::find($request->audiencia_id);
         $audiencia->update(["audiencia_creada" => true]);
-        
+
         $fecha_audiencia = $request->fecha_audiencia;
         $hora_inicio = $request->hora_inicio;
         $hora_fin = $request->hora_fin;
@@ -1766,6 +2230,7 @@ class AudienciaController extends Controller {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
+        $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
             "expediente_id" => $audiencia->expediente_id,
             "multiple" => $multiple,
@@ -1773,7 +2238,7 @@ class AudienciaController extends Controller {
             "hora_inicio" => $hora_inicio,
             "hora_fin" => $hora_fin,
             "conciliador_id" => $audiencia->conciliador_id,
-            "numero_audiencia" => 1,
+            "numero_audiencia" => $n_audiencia,
             "reprogramada" => true,
             "anio" => $folio->anio,
             "folio" => $folio->contador
@@ -1787,13 +2252,98 @@ class AudienciaController extends Controller {
             ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $conciliador->conciliador_id, "solicitante" => $conciliador->solicitante]);
         }
 
+        ##Buscamos los comparecientes
+        $array_comparecientes = [];
+        foreach ($audiencia->comparecientes as $compareciente) {
+            if ($compareciente->parte->tipo_parte_id == 1 || $compareciente->parte->tipo_parte_id == 2) {
+                $array_comparecientes[] = $compareciente->parte;
+            } else {
+                $parte_representada = Parte::find($compareciente->parte->parte_representada_id);
+                if ($parte_representada != null) {
+                    $array_comparecientes[] = $parte_representada;
+                }
+            }
+        }
+
         ##Finalmente guardamos los datos de las partes recibidas
         $arregloPartesAgregadas = array();
         $tipo_citado = TipoParte::where("nombre","ilike","%CITADO%")->first();
+        $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%d)%")->first()->id;
+        $tipoNotificacionComparecencia = \App\TipoNotificacion::where("nombre", "ilike", "%G)%")->first()->id;
+        $tipoNotificacionRenuente = \App\TipoNotificacion::where("nombre", "ilike", "%E)%")->first()->id;
+        $tipoNotificacionNoNotificable = \App\TipoNotificacion::where("nombre", "ilike", "%F)%")->first()->id;
         foreach ($audiencia->audienciaParte as $parte) {
-            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => null,"finalizada"=> "Notificado al comparecer","fecha_notificacion" => now()]);
-            if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
-                event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
+            if($parte->parte->tipo_parte_id != 3){
+                if($parte->multa && $parte->parte->tipo_parte_id == 2){
+                    $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2,"finalizado"=> null,"fecha_notificacion" => null]);
+                    if($parte->parte->tipo_persona_id == 1){
+                        $busqueda = $parte->parte->curp;
+                    }else{
+                        $busqueda = $parte->parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->parte_id));
+                    event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $part_aud->id));
+                }else{
+                    $comparece = false;
+                    foreach ($array_comparecientes as $compareciente) {
+                        if ($compareciente->id == $parte->parte_id) {
+                            $comparece = true;
+                        }
+                    }
+                    if ($comparece) {
+                        if($parte->parte->notificacion_buzon){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                        }else{
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionComparecencia,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            if($parte->parte->tipo_parte_id == $tipo_citado->id){
+                                if($parte->parte->tipo_persona_id == 1){
+                                    $busqueda = $parte->parte->curp;
+                                }else{
+                                    $busqueda = $parte->parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación por comparecencia','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$part_aud->parte->id));
+                            }
+                        }
+                    }else{
+                        if($parte->tipo_notificacion_id == 1){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2,"finalizado"=> null,"fecha_notificacion" => null]);
+                            if($parte->parte->tipo_parte_id == $tipo_citado->id){
+                                event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $part_aud->id));
+                            }
+                        }else{
+                            if($parte->parte->notificacion_exitosa){
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionRenuente]);
+                            }else{
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionNoNotificable]);
+                            }
+                        }
+                    }
+
+                    if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
+                        if($parte->parte->tipo_persona_id == 1){
+                            $busqueda = $parte->parte->curp;
+                        }else{
+                            $busqueda = $parte->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                        event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
+                    }elseif($part_aud->parte->tipo_parte_id == 1){
+                        if($parte->parte->tipo_persona_id == 1){
+                            $busqueda = $parte->parte->curp;
+                        }else{
+                            $busqueda = $parte->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $part_aud->parte->id,null));
+                    }
+                }
+            }
+        }
+        foreach($audienciaN->audienciaParte as $audiencia_parte){
+            if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
+                Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
             }
         }
         DB::commit();
@@ -1804,7 +2354,15 @@ class AudienciaController extends Controller {
     ############################### A partir de este punto comienzan las funciones para el chacklist ########################################
 
     public function AgendaConciliador() {
-        return view('expediente.audiencias.agendaConciliador');
+        $mostrar_caducos = $this->request->get('alert');
+        $caducan = [];
+        if($mostrar_caducos){
+            $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar(true);
+            if(count($caducan) == 0){
+                $mostrar_caducos = null;
+            }
+        }
+        return view('expediente.audiencias.agendaConciliador',compact('mostrar_caducos','caducan'));
     }
 
     public function GetAudienciaConciliador() {
@@ -1873,8 +2431,8 @@ class AudienciaController extends Controller {
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $conciliador = Conciliador::find($audiencia->conciliador_id);
         $motivos_archivo = MotivoArchivado::all();
-        $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id', '<=', 9)->get();
-        $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id', [8, 9, 10])->get();
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id', '!=', 10)->orderBy('nombre')->get();
+        $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id', [8, 9, 10])->orderBy('nombre')->get();
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $estados = Estado::all();
@@ -1901,10 +2459,11 @@ class AudienciaController extends Controller {
             if (!$audiencia->finalizada) {
 
                 if ($request->timeline) {
-                    $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1));
+                    $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1,'fecha_resolucion'=>now()));
                 } else {
-                    $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1));
+                    $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1,'fecha_resolucion'=>now()));
                     foreach ($request->comparecientes as $compareciente) {
+                        Parte::find($compareciente)->update(['notificacion_buzon'=>true]);
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
@@ -1921,7 +2480,7 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "evidencia" => $evidencia
                 ]);
-                AudienciaServiceProvider::guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago);
+                AudienciaServiceProvider::guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago, $request->listaTipoPropuestas);
             }
 
             DB::commit();
@@ -1974,8 +2533,8 @@ class AudienciaController extends Controller {
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $conciliador = Conciliador::find($audiencia->conciliador_id);
         $motivos_archivo = MotivoArchivado::all();
-        $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id', '<=', 9)->get();
-        $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id', [8, 9, 10])->get();
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id', '!=', 10)->orderBy('nombre')->get();
+        $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id', [8, 9, 10,13])->get();
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $estados = Estado::all();
@@ -2201,6 +2760,7 @@ class AudienciaController extends Controller {
             $citatorio = false;
             $audiencia_notificar_id = null;
             $tipo_solicitud_individual = \App\TipoSolicitud::whereNombre("Trabajador")->first();
+            $tipo_notificacion_solicitante = \App\TipoNotificacion::where("nombre","ilike","%A)%")->first();
             if (!$audiencia->finalizada) {
                 $totalCitados = 0;
                 foreach ($audiencia->audienciaParte as $parte) {
@@ -2212,6 +2772,7 @@ class AudienciaController extends Controller {
                 if (isset($this->request->comparecientes)) {
                     foreach ($this->request->comparecientes as $compareciente) {
                         $parte_compareciente = Parte::find($compareciente);
+                        $parte_compareciente->update(["comparecio" => true]);
                         if ($parte_compareciente->tipo_parte_id == 1) {
                             $solicitantes = true;
                         } else if ($parte_compareciente->tipo_parte_id == 2) {
@@ -2222,6 +2783,7 @@ class AudienciaController extends Controller {
                             }
                         } else if ($parte_compareciente->tipo_parte_id == 3) {
                             $parte_representada = Parte::find($parte_compareciente->parte_representada_id);
+                            $parte_representada->update(["comparecio" => true]);
                             if ($parte_representada->tipo_parte_id == 1) {
                                 $solicitantes = true;
                             } else if ($parte_representada->tipo_parte_id == 2) {
@@ -2236,9 +2798,9 @@ class AudienciaController extends Controller {
                     // Aqui aplica el caso 1 donde no comparece el solicitante y se finaliza la solicitud por no comparecencia
                     //Archivado y se genera formato de acta de archivado por no comparecencia
                     if (!$citados) {
-                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true, "tipo_terminacion_audiencia_id" => 4));
+                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true, "tipo_terminacion_audiencia_id" => 4,'fecha_resolucion'=>now()));
                     } else {
-                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true, "tipo_terminacion_audiencia_id" => 2));
+                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true, "tipo_terminacion_audiencia_id" => 2,'fecha_resolucion'=>now()));
                     }
                     $solicitantesA = $this->getSolicitantes($audiencia);
                     $solicitados = $this->getSolicitados($audiencia);
@@ -2250,7 +2812,7 @@ class AudienciaController extends Controller {
                                         "parte_solicitada_id" => $solicitado->parte_id,
                                         "terminacion_bilateral_id" => 1
                             ]);
-                            if ($audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
+                            if ($audiencia->expediente->solicitud->tipo_solicitud_id == 1 || $audiencia->expediente->solicitud->tipo_solicitud_id == 2) {
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
                             }
                         }
@@ -2263,15 +2825,17 @@ class AudienciaController extends Controller {
 //                    dd($solicitantes);
                 }
                 if ($solicitantes && !$citados) {
-                    $audiencia->update(array("resolucion_id" => 3, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3));
                     $solicitados = $this->getSolicitados($audiencia);
-                    $tipo_notificacion = 1;
+                    $tipo_notificacion = $tipo_notificacion_solicitante->id;
+                    $conNotificador = false;
                     foreach ($audiencia->audienciaParte as $parte) {
-                        if ($parte->parte->tipo_parte_id == 2) {
+                        if ($parte->parte->tipo_parte_id == 2 && $parte->tipo_notificacion_id != $tipo_notificacion_solicitante->id) {
                             $tipo_notificacion = $parte->tipo_notificacion_id;
+                            $conNotificador = true;
                         }
                     }
-                    if ($tipo_notificacion != 1) {
+                    if ($conNotificador) {
+                        $audiencia->update(array("resolucion_id" => 3, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3,'fecha_resolucion'=>now()));
                         /*
                          * Aqui se cumple el caso 3 dónde no acudieron las partes citadas con notificador
                          * Se gernerarán tres cosas
@@ -2295,12 +2859,25 @@ class AudienciaController extends Controller {
                                 if($tipo_solicitud_individual->id == $audiencia->expediente->solicitud->tipo_solicitud_id){
                                     $multable = false;
                                     $audienciaParte = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id', $solicitado->parte_id)->first();
-                                    if ($audienciaParte && $audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE") {
-                                        if (array_search($solicitado->parte_id, $arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
-                                            // Se genera archivo de acta de multa
-                                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
-                                            array_push($arrayMultado, $solicitado->parte_id);
-                                            array_push($arrayMultadoNotificacion, $audienciaParte->id);
+                                    if($audienciaParte != null){
+                                        if($audienciaParte->tipo_notificacion_id != $tipo_notificacion_solicitante->id){
+                                            if(!$audienciaParte->parte->multado){
+                                                if ($audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaParte->finalizado == "EXITOSO POR INSTRUCTIVO") {
+                                                    if (array_search($solicitado->parte_id, $arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == $tipo_solicitud_individual->id) {
+                                                        // Se genera archivo de acta de multa
+                                                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
+                                                        if($audienciaParte->parte->tipo_persona_id == 1){
+                                                            $busqueda = $audienciaParte->parte->curp;
+                                                        }else{
+                                                            $busqueda = $audienciaParte->parte->rfc;
+                                                        }
+                                                        BitacoraBuzon::create(['parte_id'=>$audienciaParte->parte_id,'descripcion'=>'Se crea acta de multa','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                                        array_push($arrayMultado, $solicitado->parte_id);
+                                                        array_push($arrayMultadoNotificacion, $audienciaParte->id);
+                                                        $audienciaParte->update(["multa" => true]);
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -2315,6 +2892,8 @@ class AudienciaController extends Controller {
                         $audiencia_notificar_id = $audiencia->id;
                         $response = array("tipo" => 2, "response" => $audiencia);
                     } else {
+                        $solicitud = Solicitud::find($audiencia->expediente->solicitud_id);
+                        $audiencia->update(array("resolucion_id" => 2, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3,'fecha_resolucion'=>now()));
                         /*
                          * Aqui se cumple el caso 2 dónde no acudieron las partes citadas con solicitante
                          * Se generará una nueva audiencia entre 15 y 18 días hábiles
@@ -2333,11 +2912,19 @@ class AudienciaController extends Controller {
                             $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro, $diasHabilesMin, $diasHabilesMax, $conciliador, $audiencia->expediente->solicitud->virtual);
                             $multiple = false;
                         }
+                        if($datos_audiencia['encontro_audiencia']){
+                            if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                                DB::rollback();
+                                return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+                            }
+                        }
+
                         //Obtenemos el contador
                         $ContadorController = new ContadorController();
                         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                         $etapa = \App\EtapaNotificacion::where("etapa", "ilike", "No comparecio el citado")->first();
                         //creamos el registro de la audiencia
+                        $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
                         $audienciaN = Audiencia::create([
                                     "expediente_id" => $audiencia->expediente_id,
                                     "multiple" => $audiencia->multiple,
@@ -2345,7 +2932,7 @@ class AudienciaController extends Controller {
                                     "hora_inicio" => $datos_audiencia["hora_inicio"],
                                     "hora_fin" => $datos_audiencia["hora_fin"],
                                     "conciliador_id" => $datos_audiencia["conciliador_id"],
-                                    "numero_audiencia" => 2,
+                                    "numero_audiencia" => $n_audiencia,
                                     "reprogramada" => false,
                                     "anio" => $folioAudiencia->anio,
                                     "folio" => $folioAudiencia->contador,
@@ -2367,9 +2954,29 @@ class AudienciaController extends Controller {
                             $acuse->delete();
                         }
                         foreach ($audiencia->audienciaParte as $parte) {
-                            AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 3]);
+                            AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
                             if ($parte->parte->tipo_parte_id == 2) {
+                                if($parte->parte->tipo_persona_id == 1){
+                                    $busqueda = $parte->parte->curp;
+                                }else{
+                                    $busqueda = $parte->parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
+                            }elseif($parte->parte->tipo_parte_id == 1){
+                                if($parte->parte->tipo_persona_id == 1){
+                                    $busqueda = $parte->parte->curp;
+                                }else{
+                                    $busqueda = $parte->parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->parte_id);
+                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $parte->parte_id,null));
+                            }
+                        }
+                        foreach($audienciaN->audienciaParte as $audiencia_parte){
+                            if($audiencia_parte->parte->password_buzon == null  && $audiencia_parte->parte->correo_buzon != null){
+                                Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
                             }
                         }
 
@@ -2403,7 +3010,7 @@ class AudienciaController extends Controller {
                                 $comp[] = $compareciente_aud->parte->parte_representada_id;
                             }
                         }
-                        
+
                         $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                         foreach ($audiencia_partes as $key => $audienciaP) {
                             if ($audienciaP->parte->tipo_parte_id == 1) {
@@ -2414,6 +3021,12 @@ class AudienciaController extends Controller {
                                     }
                                 }
                                 if(!$comparecio){
+                                    if($audienciaP->parte->tipo_persona_id == 1){
+                                        $busqueda = $audienciaP->parte->curp;
+                                    }else{
+                                        $busqueda = $audienciaP->parte->rfc;
+                                    }
+                                    BitacoraBuzon::create(['parte_id'=>$audienciaP->parte_id,'descripcion'=>'Se crea acta de archivado por no comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 41, 8,null, $audienciaP->parte_id));
                                 }
                             }
@@ -2421,13 +3034,14 @@ class AudienciaController extends Controller {
                         $response = array("tipo" => 4, "response" => $audiencia);
                     } else {
                         /*
-                         * Aquí aplica el caso cuando solo acudieron algunos se los citados y no todos
+                         * Aquí aplica el caso cuando solo acudieron algunos de los citados y no todos
                          * Se deberá regresar un mensaje para que el citado indique si desea continuar con la audiencia
                          *
                          */
                          //Obtenemos a los citados
+                         $arrayMultadoNotificacion = [];
                         if($tipo_solicitud_individual->id == $audiencia->expediente->solicitud->tipo_solicitud_id){
-                            $arrayMultadoNotificacion = [];
+                            
                             $tipo_parte = TipoParte::whereNombre("CITADO")->first();
                             $tipo_parte_solicitante = TipoParte::whereNombre("SOLICITANTE")->first();
 
@@ -2446,7 +3060,7 @@ class AudienciaController extends Controller {
 
                             $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                             foreach ($audiencia_partes as $key => $audienciaP) {
-                                if ($audienciaP->parte->tipo_parte_id == 2) {
+                                if ($audienciaP->parte->tipo_parte_id == $tipo_parte->id) {
                                     if(!$audienciaP->parte->multado){
                                         $comparecio = false;
                                         foreach ($comp as $comp_aud) {
@@ -2454,9 +3068,21 @@ class AudienciaController extends Controller {
                                                 $comparecio = true;
                                             }
                                         }
-                                        if(!$comparecio && $audienciaP->finalizado == "FINALIZADO EXITOSAMENTE"){
-                                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
-                                            array_push($arrayMultadoNotificacion, $audienciaP->id);
+                                        if(!$comparecio){
+                                            if($audienciaP->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaP->finalizado == "EXITOSO POR INSTRUCTIVO"){
+                                                if($audienciaP->parte->tipo_persona_id == 1){
+                                                    $busqueda = $audienciaP->parte->curp;
+                                                }else{
+                                                    $busqueda = $audienciaP->parte->rfc;
+                                                }
+                                                BitacoraBuzon::create(['parte_id'=>$audienciaP->parte_id,'descripcion'=>'Se crea acta de multa','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
+                                                array_push($arrayMultadoNotificacion, $audienciaP->id);
+                                                $notificar = true;
+                                                $citatorio = false;
+                                                $audiencia_notificar_id = $audiencia->id;
+                                                $audienciaP->update(["multa" => true]);
+                                            }
                                         }
                                     }
                                 }
@@ -2470,7 +3096,13 @@ class AudienciaController extends Controller {
             DB::commit();
             if ($notificar) {
                 if ($citatorio) {
-                    event(new RatificacionRealizada($audiencia_notificar_id, "citatorio"));
+                    $tipo_parte = TipoParte::whereNombre("CITADO")->first();
+                    $audiencia_nueva = Audiencia::find($audiencia_notificar_id);
+                    foreach($audiencia_nueva->audienciaParte as $audiencia_parte){
+                        if($audiencia_parte->parte->tipo_parte_id == $tipo_parte->id){
+                            event(new RatificacionRealizada($audiencia_nueva->id, "citatorio", false, $audiencia_parte->id));
+                        }
+                    }
                 } else {
                     foreach ($arrayMultadoNotificacion as $parte) {
                         $ap = AudienciaParte::find($parte);
@@ -2508,10 +3140,17 @@ class AudienciaController extends Controller {
                 $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro, $diasHabilesMin, $diasHabilesMax, $conciliador, $audiencia->expediente->solicitud->virtual);
                 $multiple = false;
             }
+            if($datos_audiencia['encontro_audiencia']){
+                if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                    DB::rollback();
+                    return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+                }
+            }
             //Obtenemos el contador
             $ContadorController = new ContadorController();
             $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
             //creamos el registro de la audiencia
+            $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
             $audienciaN = Audiencia::create([
                         "expediente_id" => $audiencia->expediente_id,
                         "multiple" => $audiencia->multiple,
@@ -2519,7 +3158,7 @@ class AudienciaController extends Controller {
                         "hora_inicio" => $datos_audiencia["hora_inicio"],
                         "hora_fin" => $datos_audiencia["hora_fin"],
                         "conciliador_id" => $datos_audiencia["conciliador_id"],
-                        "numero_audiencia" => 2,
+                        "numero_audiencia" => $n_audiencia,
                         "reprogramada" => false,
                         "anio" => $folioAudiencia->anio,
                         "folio" => $folioAudiencia->contador,
@@ -2539,14 +3178,89 @@ class AudienciaController extends Controller {
             if ($acuse != null) {
                 $acuse->delete();
             }
+            $tipo_notificacion = \App\TipoNotificacion::where("nombre","ilike","%D)%")->first();
+            $tipo_parte = TipoParte::whereNombre("CITADO")->first();
+            $arrayCitados = array();
+            $comparecientes = $audiencia->comparecientes;
+            $array_comparecientes = [];
+            foreach($comparecientes as $compareciente){
+                if($compareciente->parte->tipo_parte_id == 1 || $compareciente->parte->tipo_parte_id == 2){
+                    $array_comparecientes[]=$compareciente->parte; 
+                }else{
+                    $parte_representada = Parte::find($compareciente->parte->parte_representada_id);
+                    if($parte_representada != null){
+                        $array_comparecientes[]=$parte_representada;
+                    }
+                }
+            }
             foreach ($audiencia->audienciaParte as $parte) {
-                AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 3]);
-                if ($parte->parte->tipo_parte_id == 2) {
+                if($parte->multa){
+                    $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
+                    event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $part_aud->id));
+                }else{
+                    $comparecio = false;
+                    foreach($array_comparecientes as $compareciente){
+                        if($compareciente->id == $parte->parte_id){
+                            $comparecio = true;
+                        }
+                    }
+                    if($comparecio){
+                        if($parte->parte->tipo_parte_id == 2){
+                            if($parte->parte->notificacion_buzon){
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            }else{
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                                if($part_aud->parte->tipo_persona_id == 1){
+                                    $busqueda = $part_aud->parte->curp;
+                                }else{
+                                    $busqueda = $part_aud->parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$part_aud->parte_id,'descripcion'=>'Se crea nofificación por comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->parte_id));
+                            }
+                        }elseif($parte->parte->tipo_parte_id == 1){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            if($part_aud->parte->tipo_persona_id == 1){
+                                $busqueda = $part_aud->parte->curp;
+                            }else{
+                                $busqueda = $part_aud->parte->rfc;
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$part_aud->parte_id,'descripcion'=>'Se crea nofificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $parte->parte_id,null));
+                        }
+                    }else{
+                        if($parte->parte->tipo_parte_id == 2){
+                            if($parte->parte->notificacion_buzon){
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            }elseif($parte->parte->notificacion_exitosa){
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 5]);
+                            }else{
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
+                            }
+                        }elseif($parte->parte->tipo_parte_id == 1){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            if($part_aud->parte->tipo_persona_id == 1){
+                                $busqueda = $part_aud->parte->curp;
+                            }else{
+                                $busqueda = $part_aud->parte->rfc;
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$part_aud->parte_id,'descripcion'=>'Se crea nofificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 41, 8,  $parte->parte_id, null));
+                        }
+                    }
+                }
+                if ($parte->parte->tipo_parte_id == $tipo_parte->id) {
+                    if($parte->parte->tipo_persona_id == 1){
+                        $busqueda = $part_aud->parte->curp;
+                    }else{
+                        $busqueda = $parte->parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                     event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
                 }
             }
 
-            event(new GenerateDocumentResolution("", $audienciaN->expediente->solicitud_id, 40, 6));
+            //event(new GenerateDocumentResolution("", $audienciaN->expediente->solicitud_id, 40, 6));
             foreach ($audienciaN->salasAudiencias as $sala) {
                 $sala->sala;
             }
@@ -2555,8 +3269,14 @@ class AudienciaController extends Controller {
             }
             $audiencia->tipo_terminacion_audiencia_id = 5;
             $audiencia->finalizada = true;
+            $audiencia->resolucion_id = 2;
+            $audiencia->fecha_resolucion = now();
             $audiencia->save();
-                        
+            foreach($audienciaN->audienciaParte as $audiencia_parte){
+                if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
+                    Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
+                }
+            }
             $response = array("tipo" => 3, "response" => $audienciaN);
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');
@@ -2608,44 +3328,40 @@ class AudienciaController extends Controller {
     }
 
     public function uploadJustificante(Request $request) {
-        DB::beginTransaction();
-        try {
+//        DB::beginTransaction();
+//        try {
             $audiencia = Audiencia::find($request->audiencia_id);
             $audiencia->update(["solictud_cancelcacion" => true]);
             $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $request->audiencia_id;
             Storage::makeDirectory($directorio);
             $archivo = $request->file('justificante');
-            $tipoArchivo = ClasificacionArchivo::find(7);
-//            DB::rollback();
-//            dd($archivos);
-//            foreach($archivos as $archivo) {
             $path = $archivo->store($directorio);
             $uuid = Str::uuid();
+            $clasificacion = ClasificacionArchivo::whereNombre("Otro")->first();
             $audiencia->documentos()->create([
                 "nombre" => str_replace($directorio . "/", '', $path),
                 "nombre_original" => str_replace($directorio, '', $archivo->getClientOriginalName()),
-                "descripcion" => "Justificante " . $tipoArchivo->nombre,
+                "descripcion" => "Justificante ",
                 "ruta" => $path,
                 "uuid" => $uuid,
                 "tipo_almacen" => "local",
                 "uri" => $path,
                 "longitud" => round(Storage::size($path) / 1024, 2),
                 "firmado" => "false",
-                "clasificacion_archivo_id" => 7,
+                "clasificacion_archivo_id" => $clasificacion->id,
             ]);
+//            DB::commit();
+            return redirect()->back()->with('success', 'Se solicitó la reprogramación');
+//        } catch (\Throwable $e) {
+//            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+//                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
+//                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+//            DB::rollback();
+//            if ($this->request->wantsJson()) {
+//                return $this->sendError('Error');
 //            }
-            DB::commit();
-            return redirect()->back()->with('success', 'Se solicitó la cancelación');
-        } catch (\Throwable $e) {
-            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
-                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
-                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
-            DB::rollback();
-            if ($this->request->wantsJson()) {
-                return $this->sendError('Error');
-            }
-            return redirect()->back()->with('error', 'No se pudo solicitar la cancelación');
-        }
+//            return redirect()->back()->with('error', 'No se pudo solicitar la cancelación');
+//        }
     }
 
     /**
@@ -2668,6 +3384,7 @@ class AudienciaController extends Controller {
     public function negarCancelacion() {
         $audiencia = Audiencia::find($this->request->audiencia_id);
         $audiencia->update(["cancelacion_atendida" => true]);
+
         return $audiencia;
     }
 
@@ -2698,6 +3415,23 @@ class AudienciaController extends Controller {
                     $audiencia->update(["conciliador_id" => $id_conciliador, "reprogramada" => true, "etapa_notificacion_id" => $etapa->id]);
                 }
             }
+            foreach($audiencia->audienciaParte as $aud_parte){
+                if($aud_parte->parte->tipo_parte_id == 2){
+                    if($aud_parte->tipo_notificacion_id == 2 || $aud_parte->tipo_notificacion_id == 3){ // Notificación por citado con y sin cita
+                        // Se envia una notificación a signo si no ha habido respuesta
+                        if($aud_parte->finalizado == "FINALIZADO EXITOSAMENTE" || $aud_parte->finalizado == "EXITOSO POR INSTRUCTIVO"){
+                            event(new RatificacionRealizada($audiencia->id, "citatorio",false,$aud_parte->id));
+                        }
+                    }elseif($aud_parte->tipo_notificacion_id == 7){ // Notificación por comparecencia
+                        //Se cambia el tipo de notificación para enviar notificador
+                        $aud_parte->update(["finalizado" => null,"fecha_notificacion" => null,"tipo_notificacion_id" => 2]);
+                        event(new RatificacionRealizada($audiencia->id, "citatorio",false,$aud_parte->id));
+                    }elseif($aud_parte->tipo_notificacion_id == 4){ // Notificación por buzón
+                        // Se cambia la fecha de notificación
+                        $aud_parte->update(["fecha_notificacion" => now()]);
+                    }
+                }
+            }
             // generar citatorio de conciliacion
             $partes = $audiencia->expediente->solicitud->partes;
             foreach ($partes as $parte) {
@@ -2705,9 +3439,22 @@ class AudienciaController extends Controller {
                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4, null, $parte->id));
                 }
             }
+            foreach($audiencia->audienciaParte as $audiencia_parte){
+                if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
+                    Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audiencia, $audiencia_parte->parte));
+                }
+                if($audiencia_parte->parte->tipo_parte_id == 1){
+                    if($audiencia_parte->parte->tipo_persona_id == 1){
+                        $busqueda = $audiencia_parte->parte->curp;
+                    }else{
+                        $busqueda = $audiencia_parte->parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$audiencia_parte->parte_id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, $audiencia_parte->parte_id,null));
+                }
+            }
             DB::commit();
-            $sin_contactar = self::NotificarCambioFecha($audiencia);
-            return array("sin_contactar" => $sin_contactar);
+            return array("sin_contactar" => array());
         } catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensaje: " . $e->getMessage() .
@@ -2722,9 +3469,10 @@ class AudienciaController extends Controller {
         //Buscamos un correo electronico de las partes solicitadas
         $contactados = array();
         $sin_contactar = array();
+        $tipo_parte = TipoParte::whereNombre("CITADO")->first();
         try {
             foreach ($audiencia->audienciaParte as $parte) {
-                if($parte->finalizado != "FINALIZADO EXITOSAMENTE"){
+                if($parte->finalizado != "FINALIZADO EXITOSAMENTE" && $parte->finalizado != "EXITOSO POR INSTRUCTIVO" && $parte->parte->tipo_parte_id == $tipo_parte->id){
                     event(new RatificacionRealizada($audiencia->id, "citatorio",false,$parte->id));
                     $envio = true;
                 }else{
@@ -2856,6 +3604,19 @@ class AudienciaController extends Controller {
             $conciliador->delete();
         }
         return $audiencia;
+    }
+
+    function validarCambioNotificacion(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $cambiar = true;
+        foreach($audiencia->audienciaParte as $aud_parte){
+            if($aud_parte->parte->tipo_parte_id == 2){
+                if(($aud_parte->tipo_notificacion_id == 2 || $aud_parte->tipo_notificacion_id == 3) && ($aud_parte->finalizado == "FINALIZADO EXITOSAMENTE" || $aud_parte->finalizado == "EXITOSO POR INSTRUCTIVO")){
+                    $cambiar = false;
+                }
+            }
+        }
+        return array("cambiar" => $cambiar);
     }
 
     public function renderPDF($html, $plantilla_id, $path = null) {

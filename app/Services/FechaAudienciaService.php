@@ -6,6 +6,7 @@ use App\Sala;
 use App\Conciliador;
 use App\Audiencia;
 use App\Incidencia;
+use App\Solicitud;
 use Carbon\Carbon;
 use App\Traits\ValidateRange;
 use Illuminate\Support\Facades\DB;
@@ -14,12 +15,12 @@ use DateTimeZone;
 
 class FechaAudienciaService{
     use ValidateRange;
-    
-    
+
+
     /**
-     * 
+     *
      * Aquí comienzan las funciones del algoritmo para asignar fecha a una audeincia al ratificar
-     * 
+     *
      */
     public static function obtenerFechaAudiencia(string $hoy,Centro $centro,$min,$max,$virtual){
         //Buscamos la primer fecha según el tipo de notificación
@@ -52,67 +53,74 @@ class FechaAudienciaService{
                         if(!$sala->virtual){
                             $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
                             if($disponibilidad != null){
-                                $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                                ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                                ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                                ->whereRaw('solicitudes.incidencia is not true')
-                                ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                ->where("audiencias.hora_inicio",$hora_inicio)
-                                ->where("audiencias.hora_fin",$hora_fin)
-                                ->where("salas_audiencias.sala_id",$sala->id)
-                                ->select('audiencias.*')
-                                ->get();
-                                if(count($audiencias) == 0){
-                                    $encontroSala=true;
-                                    $sala_id = $sala->id;
-                                    break;
+                                if(self::validarIncidencia($diaHabilCentro["dia"], $sala->id, "App\Sala")){
+                                    $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
+                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                    ->whereRaw('solicitudes.incidencia is not true')
+                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                    ->where("audiencias.hora_inicio",$hora_inicio)
+                                    ->where("audiencias.hora_fin",$hora_fin)
+                                    ->where("salas_audiencias.sala_id",$sala->id)
+                                    ->select('audiencias.*')
+                                    ->get();
+                                    if(count($audiencias) == 0){
+                                        $encontroSala=true;
+                                        $sala_id = $sala->id;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 foreach($conciliadores as $conciliadorE){
-                    $conciliador = Conciliador::find($conciliadorE->id);
-                    $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
-                    if($disponibilidad != null){
-                        $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                                ->select('audiencias.*')
-                                ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                                ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                                ->whereRaw('solicitudes.incidencia is not true')
-                                ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                ->where("audiencias.hora_inicio",$hora_inicio)
-                                ->where("audiencias.hora_fin",$hora_fin)
-                                ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                                ->get();
-                        if(count($audiencias) == 0){
-                            $audienciasQ = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                                ->select('audiencias.*')
-                                ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                                ->orderBy('audiencias.hora_fin', 'asc')
-                                ->get();
-                            if(count($audienciasQ) > 0){
-                                $choca_audiencia = false;
-                                foreach($audienciasQ as $audienciaQ){
-                                    $hora_inicio_audiencia = $audienciaQ->hora_inicio;
-                                    $hora_fin_audiencia = $audienciaQ->hora_fin;
-                                    $hora_inicio_audiencia_nueva = $hora_inicio;
-                                    $hora_fin_audiencia_nueva = $hora_fin;
-
-                                    if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
-                                        $choca_audiencia = true;
+                    //Validamos que la hora de inicio del conciliador no sea igual a la hora de inicio de la audiencia
+                    if(self::validarHoraComida($conciliadorE,$hora_inicio,$hora_fin)){
+                        $conciliador = Conciliador::find($conciliadorE->id);
+                        $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
+                        if($disponibilidad != null){
+    //                        Validamos si el conciliador no tiene una incidencia
+                            if(self::validarIncidencia($diaHabilCentro["dia"], $conciliador->id, "App\Conciliador")){
+                                $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                        ->select('audiencias.*')
+                                        ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                        ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                        ->whereRaw('solicitudes.incidencia is not true')
+                                        ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                        ->where("audiencias.hora_inicio",$hora_inicio)
+                                        ->where("audiencias.hora_fin",$hora_fin)
+                                        ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                        ->get();
+                                if(count($audiencias) == 0){
+                                    $audienciasQ = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                        ->select('audiencias.*')
+                                        ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                        ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                        ->orderBy('audiencias.hora_fin', 'asc')
+                                        ->get();
+                                    if(count($audienciasQ) > 0){
+                                        $choca_audiencia = false;
+                                        foreach($audienciasQ as $audienciaQ){
+                                            $hora_inicio_audiencia = $audienciaQ->hora_inicio;
+                                            $hora_fin_audiencia = $audienciaQ->hora_fin;
+                                            $hora_inicio_audiencia_nueva = $hora_inicio;
+                                            $hora_fin_audiencia_nueva = $hora_fin;
+                                            if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
+                                                $choca_audiencia = true;
+                                            }
+                                        }
+                                        if(!$choca_audiencia){
+                                            $encontroConciliador = true;
+                                            $conciliador_id = $conciliador->id;
+                                            break;
+                                        }
+                                    }else{
+                                        $encontroConciliador = true;
+                                        $conciliador_id = $conciliador->id;
+                                        break;
                                     }
                                 }
-                                if(!$choca_audiencia){
-                                    $encontroConciliador = true;
-                                    $conciliador_id = $conciliador->id;
-                                    break;
-                                }
-                            }else{
-                                $encontroConciliador = true;
-                                $conciliador_id = $conciliador->id;
-                                break;
                             }
                         }
                     }
@@ -148,7 +156,10 @@ class FechaAudienciaService{
         $diaHabilCentro = Incidencia::siguienteDiaHabilMasDias($hoy,$centro->id ,"App\Centro",$min,$max);
         if($diaHabilCentro["dia"] != "nada"){
             $d = new Carbon($diaHabilCentro["dia"]);
-            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay());
+            list($hours, $minutes, $seg) = explode(':', $centro->duracionAudiencia);
+            $duracion = $hours . '.' . $minutes / 60 * 100;
+            $tiempoAdd = $duracion * 3600;
+            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay(),$tiempoAdd);
             //obtenemos el arreglo de las horas
             $encontroSala = false;
             $encontroConciliador = false;
@@ -163,7 +174,7 @@ class FechaAudienciaService{
             }
             $conciliadores = self::obtenerConciliadores($centro,$rol);
             foreach($arreglo_horas as $hora_inicio){
-                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
+                $hora_fin = date("H:i:s",strtotime($hora_inicio) + $tiempoAdd);
                 if($virtual){
                     $encontroSala=true;
                     $sala_id1 = $sala_virtual->id;
@@ -173,24 +184,26 @@ class FechaAudienciaService{
                         if(!$sala->virtual){
                             $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
                             if($disponibilidad != null){
-                                $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                                    ->whereRaw('solicitudes.incidencia is not true')
-                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                    ->where("audiencias.hora_inicio",$hora_inicio)
-                                    ->where("audiencias.hora_fin",$hora_fin)
-                                    ->where("salas_audiencias.sala_id",$sala->id)
-                                    ->select('audiencias.*')
-                                    ->get();
-                                if(count($audiencias) == 0){
-                                    //Buscamos la segunda audiencia
-                                    $sala_segunda = self::obtenerSegundaSalaAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$sala->id,$salas);
-                                    if($sala_segunda != null){
-                                        $encontroSala=true;
-                                        $sala_id1 = $sala->id;
-                                        $sala_id2 = $sala_segunda;
-                                        break;
+                                if(self::validarIncidencia($diaHabilCentro["dia"], $sala->id, "App\Sala")){
+                                    $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
+                                        ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                        ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                        ->whereRaw('solicitudes.incidencia is not true')
+                                        ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                        ->where("audiencias.hora_inicio",$hora_inicio)
+                                        ->where("audiencias.hora_fin",$hora_fin)
+                                        ->where("salas_audiencias.sala_id",$sala->id)
+                                        ->select('audiencias.*')
+                                        ->get();
+                                    if(count($audiencias) == 0){
+                                        //Buscamos la segunda audiencia
+                                        $sala_segunda = self::obtenerSegundaSalaAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$sala->id,$salas);
+                                        if($sala_segunda != null){
+                                            $encontroSala=true;
+                                            $sala_id1 = $sala->id;
+                                            $sala_id2 = $sala_segunda;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -198,25 +211,29 @@ class FechaAudienciaService{
                     }
                 }
                 foreach($conciliadores as $conciliador){
-                    $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
-                    if($disponibilidad != null){
-                        $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                            ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                            ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                            ->whereRaw('solicitudes.incidencia is not true')
-                            ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                            ->where("audiencias.hora_inicio",$hora_inicio)
-                            ->where("audiencias.hora_fin",$hora_fin)
-                            ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                            ->select('audiencias.*')
-                            ->get();
-                        if(count($audiencias) == 0){
-                            $conciliador_segundo = self::obtenerSegundoConciliadorAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$conciliador->id,$conciliadores);
-                            if($conciliador_segundo != null){
-                                $encontroConciliador=true;
-                                $conciliador_id1 = $conciliador->id;
-                                $conciliador_id2 = $conciliador_segundo;
-                                break;
+                    if(self::validarHoraComida($conciliador,$hora_inicio,$hora_fin)){
+                        $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
+                        if($disponibilidad != null){
+                            if(self::validarIncidencia($diaHabilCentro["dia"], $conciliador->id, "App\Conciliador")){
+                                $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                    ->whereRaw('solicitudes.incidencia is not true')
+                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                    ->where("audiencias.hora_inicio",$hora_inicio)
+                                    ->where("audiencias.hora_fin",$hora_fin)
+                                    ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                    ->select('audiencias.*')
+                                    ->get();
+                                if(count($audiencias) == 0){
+                                    $conciliador_segundo = self::obtenerSegundoConciliadorAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$conciliador->id,$conciliadores);
+                                    if($conciliador_segundo != null){
+                                        $encontroConciliador=true;
+                                        $conciliador_id1 = $conciliador->id;
+                                        $conciliador_id2 = $conciliador_segundo;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -239,7 +256,7 @@ class FechaAudienciaService{
                     "encontro_audiencia" => true
                 );
             }else{
-                return self::obtenerFechaAudiencia($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"]);
+                return self::obtenerFechaAudienciaDoble($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"]);
             }
         }else{
             return array(
@@ -253,23 +270,29 @@ class FechaAudienciaService{
     }
     public static function obtenerSegundaSalaAudiencia(string $fecha,string $hora_inicio,string $hora_fin,$sala_id,$salas){
         $encontroSala = false;
+        $d = new Carbon($fecha);
         foreach($salas as $sala){
             if($sala->id != $sala_id && !$sala->virtual){
-                $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                    ->whereRaw('solicitudes.incidencia is not true')
-                    ->where("audiencias.fecha_audiencia",$fecha)
-                    ->where("audiencias.hora_inicio",$hora_inicio)
-                    ->where("audiencias.hora_fin",$hora_fin)
-                    ->where("salas_audiencias.sala_id",$sala->id)
-                    ->select('audiencias.*')
-                    ->get();
-                if(count($audiencias) == 0){
-                    //Buscamos la segunda audiencia
-                    $encontroSala=true;
-                    $sala_encontrada_id = $sala->id;
-                    break;
+                $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
+                if($disponibilidad != null){
+                    if(self::validarIncidencia($fecha, $sala->id, "App\Sala")){
+                        $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
+                            ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                            ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                            ->whereRaw('solicitudes.incidencia is not true')
+                            ->where("audiencias.fecha_audiencia",$fecha)
+                            ->where("audiencias.hora_inicio",$hora_inicio)
+                            ->where("audiencias.hora_fin",$hora_fin)
+                            ->where("salas_audiencias.sala_id",$sala->id)
+                            ->select('audiencias.*')
+                            ->get();
+                        if(count($audiencias) == 0){
+                            //Buscamos la segunda audiencia
+                            $encontroSala=true;
+                            $sala_encontrada_id = $sala->id;
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -281,20 +304,28 @@ class FechaAudienciaService{
     }
     public static function obtenerSegundoConciliadorAudiencia(string $fecha,string $hora_inicio,string $hora_fin,$conciliador_id,$conciliadores){
         $encontroConciliador = false;
+        $d = new Carbon($fecha);
         foreach($conciliadores as $conciliador){
-            if($conciliador->id != $conciliador_id){
-                $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                    ->select('audiencias.*')
-                    ->where("audiencias.fecha_audiencia",$fecha)
-                    ->where("audiencias.hora_inicio",$hora_inicio)
-                    ->where("audiencias.hora_fin",$hora_fin)
-                    ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                    ->get();
-                if(count($audiencias) == 0){
-                    //Buscamos la segunda audiencia
-                    $encontroConciliador=true;
-                    $conciliador_encontrado_id = $conciliador->id;
-                    break;
+            if(self::validarHoraComida($conciliador,$hora_inicio,$hora_fin)){
+                if($conciliador->id != $conciliador_id){
+                    $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
+                    if($disponibilidad != null){
+                        if(self::validarIncidencia($fecha, $conciliador->id, "App\Conciliador")){
+                            $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                ->select('audiencias.*')
+                                ->where("audiencias.fecha_audiencia",$fecha)
+                                ->where("audiencias.hora_inicio",$hora_inicio)
+                                ->where("audiencias.hora_fin",$hora_fin)
+                                ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                ->get();
+                            if(count($audiencias) == 0){
+                                //Buscamos la segunda audiencia
+                                $encontroConciliador=true;
+                                $conciliador_encontrado_id = $conciliador->id;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -304,15 +335,15 @@ class FechaAudienciaService{
             return null;
         }
     }
-    
-    
-    
+
+
+
     /**
-     * 
+     *
      * Aquí comienzan las funciones del algoritmo para asignar fecha a una audiencia al crearse una a partir de otra
-     * 
+     *
      */
-    
+
     /**
      * Determina la próxima fecha hábil para una cita.
      * @param string $hoy
@@ -342,7 +373,7 @@ class FechaAudienciaService{
                 $salas = $centro->salas()->orderBy('id','asc')->get();
             }
             foreach($arreglo_horas as $hora_inicio){
-                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
+                $hora_fin = date("H:i:s",strtotime($hora_inicio) + $tiempoAdd);
                 if($virtual){
                     $encontroSala=true;
                     $sala_id = $sala_virtual->id;
@@ -351,20 +382,22 @@ class FechaAudienciaService{
                         if(!$sala->virtual){
                             $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
                             if($disponibilidad != null){
-                                $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                                ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                                ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                                ->whereRaw('solicitudes.incidencia is not true')
-                                ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                ->where("audiencias.hora_inicio",$hora_inicio)
-                                ->where("audiencias.hora_fin",$hora_fin)
-                                ->where("salas_audiencias.sala_id",$sala->id)
-                                ->select('audiencias.*')
-                                ->get();
-                                if(count($audiencias) == 0){
-                                    $encontroSala=true;
-                                    $sala_id = $sala->id;
-                                    break;
+                                if(self::validarIncidencia($diaHabilCentro["dia"], $sala->id, "App\Sala")){
+                                    $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
+                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                    ->whereRaw('solicitudes.incidencia is not true')
+                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                    ->where("audiencias.hora_inicio",$hora_inicio)
+                                    ->where("audiencias.hora_fin",$hora_fin)
+                                    ->where("salas_audiencias.sala_id",$sala->id)
+                                    ->select('audiencias.*')
+                                    ->get();
+                                    if(count($audiencias) == 0){
+                                        $encontroSala=true;
+                                        $sala_id = $sala->id;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -372,22 +405,26 @@ class FechaAudienciaService{
                 }
                 $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
                 if($disponibilidad != null){
-                    $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                            ->select('audiencias.*')
-                            ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                            ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                            ->whereRaw('solicitudes.incidencia is not true')
-                            ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                            ->where("audiencias.hora_inicio",$hora_inicio)
-                            ->where("audiencias.hora_fin",$hora_fin)
-                            ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                            ->get();
-                    if(count($audiencias) == 0){
-                        $encontroConciliador = true;
-                        $conciliador_id = $conciliador->id;
+                    if(self::validarHoraComida($conciliador,$hora_inicio,$hora_fin)){
+                        if(self::validarIncidencia($diaHabilCentro["dia"], $conciliador->id, "App\Conciliador")){
+                            $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                    ->select('audiencias.*')
+                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                    ->whereRaw('solicitudes.incidencia is not true')
+                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                    ->where("audiencias.hora_inicio",$hora_inicio)
+                                    ->where("audiencias.hora_fin",$hora_fin)
+                                    ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                    ->get();
+                            if(count($audiencias) == 0){
+                                $encontroConciliador = true;
+                                $conciliador_id = $conciliador->id;
+                            }
+                        }
                     }
                 }
-                
+
                 if($encontroSala && $encontroConciliador){
                     $horaInicioSalaDisponible = $hora_inicio;
                     $horaFinSalaDisponible = $hora_fin;
@@ -438,7 +475,7 @@ class FechaAudienciaService{
                 $salas = $centro->salas()->orderBy('id','asc')->get();
             }
             foreach($arreglo_horas as $hora_inicio){
-                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
+                $hora_fin = date("H:i:s",strtotime($hora_inicio) + $tiempoAdd);
                 if($virtual){
                     $encontroSala=true;
                     $sala_id1 = $sala_virtual->id;
@@ -448,24 +485,26 @@ class FechaAudienciaService{
                         if(!$sala->virtual){
                             $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
                             if($disponibilidad != null){
-                                $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                                    ->whereRaw('solicitudes.incidencia is not true')
-                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                    ->where("audiencias.hora_inicio",$hora_inicio)
-                                    ->where("audiencias.hora_fin",$hora_fin)
-                                    ->where("salas_audiencias.sala_id",$sala->id)
-                                    ->select('audiencias.*')
-                                    ->get();
-                                if(count($audiencias) == 0){
-                                    //Buscamos la segunda audiencia
-                                    $sala_segunda = self::obtenerSegundaSalaAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$sala->id,$salas);
-                                    if($sala_segunda != null){
-                                        $encontroSala=true;
-                                        $sala_id1 = $sala->id;
-                                        $sala_id2 = $sala_segunda;
-                                        break;
+                                if(self::validarIncidencia($diaHabilCentro["dia"], $sala->id, "App\Sala")){
+                                    $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
+                                        ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                        ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                        ->whereRaw('solicitudes.incidencia is not true')
+                                        ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                        ->where("audiencias.hora_inicio",$hora_inicio)
+                                        ->where("audiencias.hora_fin",$hora_fin)
+                                        ->where("salas_audiencias.sala_id",$sala->id)
+                                        ->select('audiencias.*')
+                                        ->get();
+                                    if(count($audiencias) == 0){
+                                        //Buscamos la segunda audiencia
+                                        $sala_segunda = self::obtenerSegundaSalaAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$sala->id,$salas);
+                                        if($sala_segunda != null){
+                                            $encontroSala=true;
+                                            $sala_id1 = $sala->id;
+                                            $sala_id2 = $sala_segunda;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -475,23 +514,27 @@ class FechaAudienciaService{
                 foreach($conciliadores as $conciliador){
                     $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
                     if($disponibilidad != null){
-                        $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                            ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                            ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                            ->whereRaw('solicitudes.incidencia is not true')
-                            ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                            ->where("audiencias.hora_inicio",$hora_inicio)
-                            ->where("audiencias.hora_fin",$hora_fin)
-                            ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                            ->select('audiencias.*')
-                            ->get();
-                        if(count($audiencias) == 0){
-                            $conciliador_segundo = self::obtenerSegundoConciliadorAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$conciliador->id,$conciliadores);
-                            if($conciliador_segundo != null){
-                                $encontroConciliador=true;
-                                $conciliador_id1 = $conciliador->id;
-                                $conciliador_id2 = $conciliador_segundo;
-                                break;
+                        if(self::validarHoraComida($conciliador,$hora_inicio,$hora_fin)){
+                            if(self::validarIncidencia($diaHabilCentro["dia"], $conciliador->id, "App\Conciliador")){
+                                $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                    ->whereRaw('solicitudes.incidencia is not true')
+                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                    ->where("audiencias.hora_inicio",$hora_inicio)
+                                    ->where("audiencias.hora_fin",$hora_fin)
+                                    ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                    ->select('audiencias.*')
+                                    ->get();
+                                if(count($audiencias) == 0){
+                                    $conciliador_segundo = self::obtenerSegundoConciliadorAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$conciliador->id,$conciliadores);
+                                    if($conciliador_segundo != null){
+                                        $encontroConciliador=true;
+                                        $conciliador_id1 = $conciliador->id;
+                                        $conciliador_id2 = $conciliador_segundo;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -535,34 +578,36 @@ class FechaAudienciaService{
             $hora_fin_sala = "23:59:59";
             if($sala2->id != $sala->id){
                 if(!$sala2->virtual){
-                    foreach($sala2->disponibilidades as $disponibilidad){
-                        if($d->weekday() == $disponibilidad->dia){
-                            $hora_inicio_sala = $disponibilidad->hora_inicio;
-                            $hora_fin_sala = $disponibilidad->hora_fin;
-                            $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                                    ->select('audiencias.*')
-                                    ->where("audiencias.fecha_audiencia",$dia)
-                                    ->where("conciliadores_audiencias.conciliador_id",$sala2->id)
-                                    ->get();
-                            if(count($audiencias) > 0){
-                                $choca_audiencia = false;
-                                foreach($audiencias as $audiencia){
-                                    $hora_inicio_audiencia = $audiencia->hora_inicio;
-                                    $hora_fin_audiencia = $audiencia->hora_fin;
-                                    $hora_inicio_audiencia_nueva = $hora_inicio;
-                                    $hora_fin_audiencia_nueva = $hora_fin;
+                    if(self::validarIncidencia($dia, $sala2->id, "App\Sala")){
+                        foreach($sala2->disponibilidades as $disponibilidad){
+                            if($d->weekday() == $disponibilidad->dia){
+                                $hora_inicio_sala = $disponibilidad->hora_inicio;
+                                $hora_fin_sala = $disponibilidad->hora_fin;
+                                $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                        ->select('audiencias.*')
+                                        ->where("audiencias.fecha_audiencia",$dia)
+                                        ->where("conciliadores_audiencias.conciliador_id",$sala2->id)
+                                        ->get();
+                                if(count($audiencias) > 0){
+                                    $choca_audiencia = false;
+                                    foreach($audiencias as $audiencia){
+                                        $hora_inicio_audiencia = $audiencia->hora_inicio;
+                                        $hora_fin_audiencia = $audiencia->hora_fin;
+                                        $hora_inicio_audiencia_nueva = $hora_inicio;
+                                        $hora_fin_audiencia_nueva = $hora_fin;
 
-                                    if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
-                                        $choca_audiencia = true;
+                                        if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
+                                            $choca_audiencia = true;
+                                        }
                                     }
-                                }
-                                if(!$choca_audiencia){
+                                    if(!$choca_audiencia){
+                                        return array("segunda_sala" => true,"segunda_sala_id" => $sala2->id);
+                                        break;
+                                    }
+                                }else{
                                     return array("segunda_sala" => true,"segunda_sala_id" => $sala2->id);
                                     break;
                                 }
-                            }else{
-                                return array("segunda_sala" => true,"segunda_sala_id" => $sala2->id);
-                                break;
                             }
                         }
                     }
@@ -576,32 +621,36 @@ class FechaAudienciaService{
         $d = new Carbon($dia);
         foreach($conciliador->centro->conciliadores()->inRandomOrder()->get() as $conciliador2){
             if($conciliador2->id != $conciliador->id){
-                foreach($conciliador2->disponibilidades as $disponibilidad){
-                    if($d->weekday() == $disponibilidad->dia){
-                        $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                            ->select('audiencias.*')
-                            ->where("audiencias.fecha_audiencia",$dia)
-                            ->where("conciliadores_audiencias.conciliador_id",$conciliador2->id)
-                            ->get();
-                        if(count($audiencias) > 0){
-                            $choca_audiencia = false;
-                            foreach($audiencias as $audiencia){
-                                $hora_inicio_audiencia = $audiencia->hora_inicio;
-                                $hora_fin_audiencia = $audiencia->hora_fin;
-                                $hora_inicio_audiencia_nueva = $hora_inicio;
-                                $hora_fin_audiencia_nueva = $hora_fin;
+                if(self::validarIncidencia($dia, $conciliador2->id, "App\Conciliador")){
+                    if(self::validarHoraComida($conciliador2,$hora_inicio,$hora_fin)){
+                        foreach($conciliador2->disponibilidades as $disponibilidad){
+                            if($d->weekday() == $disponibilidad->dia){
+                                $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                    ->select('audiencias.*')
+                                    ->where("audiencias.fecha_audiencia",$dia)
+                                    ->where("conciliadores_audiencias.conciliador_id",$conciliador2->id)
+                                    ->get();
+                                if(count($audiencias) > 0){
+                                    $choca_audiencia = false;
+                                    foreach($audiencias as $audiencia){
+                                        $hora_inicio_audiencia = $audiencia->hora_inicio;
+                                        $hora_fin_audiencia = $audiencia->hora_fin;
+                                        $hora_inicio_audiencia_nueva = $hora_inicio;
+                                        $hora_fin_audiencia_nueva = $hora_fin;
 
-                                if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
-                                    $choca_audiencia = true;
+                                        if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
+                                            $choca_audiencia = true;
+                                        }
+                                    }
+                                    if(!$choca_audiencia){
+                                        return array("segundo_conciliador" => true,"segundo_conciliador_id" => $conciliador2->id);
+                                        break;
+                                    }
+                                }else{
+                                    return array("segundo_conciliador" => true,"segundo_conciliador_id" => $conciliador2->id);
+                                    break;
                                 }
                             }
-                            if(!$choca_audiencia){
-                                return array("segundo_conciliador" => true,"segundo_conciliador_id" => $conciliador2->id);
-                                break;
-                            }
-                        }else{
-                            return array("segundo_conciliador" => true,"segundo_conciliador_id" => $conciliador2->id);
-                            break;
                         }
                     }
                 }
@@ -609,14 +658,14 @@ class FechaAudienciaService{
         }
         return array("segundo_conciliador" => false,"segundo_conciliador_id" => null);
     }
-    
-    
+
+
     /**
-     * 
+     *
      * Aqui van las funciones que usan los dos algoritmos
-     * 
+     *
      */
-    
+
     public static function getHoraFinalNuevaAudiencia($fecha,$audiencias,$duracion){
         $ultima_audiencia_dia = $audiencias->last();
         $valores = self::obtenerValoresSuma($duracion);
@@ -646,14 +695,14 @@ class FechaAudienciaService{
         //Obtenemos la disponibilidad corresponidiente al día
         $disponibilidad = $disponibilidades->where("dia",$dia)->first();
         if($disponibilidad != null){
-            
+
             //Obtenemos la hora inicio que será la primer hora en el arreglo
-            
+
             $hora_actual_time = strtotime($disponibilidad->hora_inicio);
             $hora_fin_time = strtotime($disponibilidad->hora_fin);
-            $arregloHoras[]=$date = date('H:i:s', $hora_actual_time);
+            $arregloHoras[]= date('H:i:s', $hora_actual_time);
             while($hora_fin_time > $hora_actual_time){
-                $arregloHoras[]=$date = date('H:i:s', $hora_actual_time + $duracion);
+                $arregloHoras[]= date('H:i:s', $hora_actual_time + $duracion);
                 $hora_actual_time = $hora_actual_time + $duracion;
             }
             array_pop($arregloHoras);
@@ -661,7 +710,7 @@ class FechaAudienciaService{
         }else{
             return array();
         }
-        
+
     }
     public static function obtenerConciliadores(Centro $centro,$rol){
 //        Validamos si es la primer confirmación del día
@@ -674,13 +723,66 @@ class FechaAudienciaService{
                 $i++;
             }
         }
-        $conciliadores = $centro->conciliadores()
-                ->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")
-                ->where("roles_conciliador.rol_atencion_id",$rol->id)
-                ->select("conciliadores.*")
-                ->orderBy('orden','asc')
-                ->get();
+        $conciliadores = Centro::find($centro->id)->conciliadores()->whereHas('rolesConciliador',function($q) use ($rol){
+            return $q->where('rol_atencion_id',$rol->id);
+        })->orderBy('orden','asc')->get();
+
         return $conciliadores;
     }
+    public static function validarIncidencia($fecha,$id,$incidencia_type){
+        $d = new Carbon($fecha);
+        if($d->isWeekend()){
+            return false;
+        }
+        $fechaInicioEv = $fecha." 00:00:00";
+        $fechaFinEv = $fecha." 23:59:59";
+        $incidencia = Incidencia::whereDate("fecha_inicio","<=",$fechaFinEv)
+                ->whereDate("fecha_fin",">=",$fechaInicioEv)
+                ->where("incidenciable_type",$incidencia_type)
+                ->where("incidenciable_id",$id)->get();
+        if(count($incidencia) > 0){
+            return false;
+        }else{
+            return true;
+        }
+    }
+    public static function validarHoraComida($inhabilitable, $hora_inicio,$hora_fin){
+        if($inhabilitable->horario_comida != null){
+            if($inhabilitable->horario_comida->hora_inicio != $hora_inicio){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return true;
+    }
+    public static function calcularFechaNotificador($fecha){
+        $fecha_d = new Carbon($fecha);
+        $fecha_nueva = $fecha_d;
+        $num = 0; 
+        for ($i = 1; $i <= 50; $i++) {
+            $fecha_nueva = $fecha_nueva->addDay();
+            if(!$fecha_nueva->isWeekend()){
+                $num++;
+                if($num >= 15){
+                    break;
+                }
+            }
+        }
+        return $fecha_nueva->format("d/m/Y");
+    }
     
+    public static function validarFechasAsignables(Solicitud $solicitud,$fecha_solicitada){
+        if($solicitud->tipo_solicitud_id == 1){
+            $dt = new Carbon($solicitud->created_at);
+            $dt2 = new Carbon($fecha_solicitada);
+            /*$dias = $dt->diffInDaysFiltered(function(Carbon $date) {
+                return !$date->isWeekend();
+            }, $dt2);*/
+            $dias = $dt->diffInDays($dt2);
+            return $dias;
+        }else{
+            return 1;
+        }
+    }
 }

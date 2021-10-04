@@ -158,7 +158,7 @@
                                 <h5>Nota: Los campos marcados con <span style="color: red;">(*)</span> son datos obligatorios, favor de proporcionarlos.</h5>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
+                                <input class="form-control date validaFecha" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
                                 <p class="help-block needed">Fecha de conflicto</p>
                             </div>
                             <div class="col-md-12 row">
@@ -291,7 +291,7 @@
                                             <p class="help-block needed">Raz&oacute;n social</p>
                                         </div>
                                         <div class="col-md-4 personaFisicaSolicitante">
-                                            <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimiento del solicitante" type="text" value="">
+                                            <input class="form-control dateBirth validaFecha" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimiento del solicitante" type="text" value="">
                                             <p class="help-block needed">Fecha de nacimiento</p>
                                         </div>
                                         <div class="col-md-4 personaFisicaSolicitante">
@@ -464,11 +464,11 @@
                                             <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                                         </div>
                                         <div class="col-md-4">
-                                            <input class="form-control requiredLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                            <input class="form-control requiredLaboral validaFecha" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
                                             <p class="help-block needed">Fecha de ingreso</p>
                                         </div>
                                         <div class="col-md-4" id="divFechaSalida">
-                                            <input class="form-control requiredLaboral" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                            <input class="form-control requiredLaboral validaFecha" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
                                             <p class="help-block needed">Fecha salida</p>
                                         </div>
                                     </div>
@@ -634,7 +634,7 @@
                                             <p class="help-block needed">Raz&oacute;n social</p>
                                         </div>
                                         <div class="col-md-4 personaFisicaSolicitadoNO">
-                                            <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del citado" type="text" value="">
+                                            <input class="form-control dateBirth validaFecha" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del citado" type="text" value="">
                                             <p class="help-block">Fecha de nacimiento</p>
                                         </div>
                                         <div class="col-md-4 personaFisicaSolicitadoNO">
@@ -793,11 +793,11 @@
                                             <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmenteCitado" name='labora_actualmenteCitado'/>
                                         </div>
                                         <div class="col-md-4">
-                                            <input class="form-control requiredLaboralCitado" required id="fecha_ingresoCitado" placeholder="Fecha de ingreso" type="text" value="">
+                                            <input class="form-control requiredLaboralCitado validaFecha" required id="fecha_ingresoCitado" placeholder="Fecha de ingreso" type="text" value="">
                                             <p class="help-block needed">Fecha de ingreso</p>
                                         </div>
                                         <div class="col-md-4" id="divFechaSalida">
-                                            <input class="form-control requiredLaboralCitado" required id="fecha_salidaCitado" placeholder="Fecha salida" type="text" value="">
+                                            <input class="form-control requiredLaboralCitado validaFecha" required id="fecha_salidaCitado" placeholder="Fecha salida" type="text" value="">
                                             <p class="help-block needed">Fecha salida</p>
                                         </div>
                                     </div>
@@ -893,11 +893,11 @@
                         </div>
                         <div id="divPasoFinal" class="col-md-12">
                             <div class="col-md-4 showEdit" >
-                                <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de confirmación" type="text" value="">
+                                <input class="form-control dateTime validaFecha" id="fechaRatificacion" disabled placeholder="Fecha de confirmación" type="text" value="">
                                 <p class="help-block">Fecha de confirmaci&oacute;n</p>
                             </div>
                             <div class="col-md-4 showEdit">
-                                <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
+                                <input class="form-control dateTime validaFecha" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
                                 <p class="help-block needed">Fecha de recepción</p>
                             </div>
                             <div class="col-md-4 estatusSolicitud">
@@ -927,8 +927,12 @@
                                 <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
                                 <div class="col-md-12 row"> <div>
                                     <h4>Solicitantes</h4></div> 
-                                    @if($tipo_solicitud_id != 2)
-                                    <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div>
+                                    @if(isset($solicitud) && $solicitud->estatus_solicitud_id == 1 && $tipo_solicitud_id != 2)
+                                        <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div>
+                                    @else
+                                        @if($tipo_solicitud_id != 2)
+                                            <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div>
+                                        @endif
                                     @endif
                                 </div>
                                 <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
@@ -945,7 +949,13 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
+                                <div class="col-md-12 row"> <div><h4>Citados</h4></div> 
+                                @if(isset($solicitud) && $solicitud->estatus_solicitud_id == 1)
+                                    <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div>
+                                @else
+                                    <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div>
+                                @endif
+                                </div>
                                 <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                     <table class="table table-bordered" >
                                         <thead>
@@ -1324,6 +1334,9 @@
         $('.sw-btn-prev').hide();
         $('.sw-btn-next').hide();
         if(edit){
+            $(".no_enVigor").show();
+            $(".estadoSelectsolicitante").select2({width: '100%'});
+            $(".estadoSelectsolicitado").select2({width: '100%'});
             $(".estatusSolicitud").show();
             $(".showEdit").show();
             var solicitud='{{ $solicitud->id ?? ""}}';
@@ -1340,6 +1353,7 @@
             $(".estatusSolicitud").hide();
         }
         $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
+
         $(".select-element").select2();
 
         $(".personaMoralSolicitado").hide();
@@ -1454,6 +1468,10 @@
                             $('#wizard').smartWizard('goToStep', 2);
                         }
                     }else{
+                        visibleCapturaOtro = true;
+                        if($("#ratificada").val() == "true"){
+                            visibleCapturaOtro = false;
+                        }
                         swal({
                             title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
                             text: '',
@@ -1462,7 +1480,7 @@
                                 cancel: {
                                     text: 'Capturar otro solicitante',
                                     value: null,
-                                    visible: true,
+                                    visible: visibleCapturaOtro,
                                     className: 'btn btn-primary',
                                     closeModal: true,
                                 },
@@ -1476,7 +1494,9 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
-                                getAtiendeVirtual();
+                                if(!edit){
+                                    getAtiendeVirtual();
+                                }
                                 if(!editCitado){
                                     editCitado = true;
                                     $('#wizard').smartWizard('goToStep', 2);
@@ -1576,6 +1596,10 @@
                         $("#tipo_persona_fisica_solicitado").click().trigger('change');
                         $(".pasoSolicitado").show();
                         $("#divCancelarSolicitante").hide();
+                        visibleCapturaOtro = true;
+                        if($("#ratificada").val() == "true"){
+                            visibleCapturaOtro = false;
+                        }
                         swal({
                             title: '¿Quieres seguir capturando citados?',
                             text: '',
@@ -1585,7 +1609,7 @@
                                 cancel: {
                                     text: 'Capturar otro citado',
                                     value: null,
-                                    visible: true,
+                                    visible: visibleCapturaOtro,
                                     className: 'btn btn-primary',
                                     closeModal: true,
                                 },
@@ -1599,7 +1623,9 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
-                                getAtiendeVirtual();
+                                if(!edit){
+                                    getAtiendeVirtual();
+                                } 
                                 if(!editCitado){
                                     editCitado = true;
                                     $('#wizard').smartWizard('goToStep', 3);
@@ -1914,6 +1940,8 @@
                     }
                     if(data.virtual){
                         $('#radioVirtual1').prop("checked", true);
+                    }else{
+                        $('#radioVirtual2').prop("checked", true);
                     }
 
                     $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
@@ -2293,8 +2321,8 @@
                     html += "<td></td>";
                 }
 
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
                 if($("#ratificada").val() != "true"){
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a>";
                 }
                 if($('#radioVirtual1').is(":checked") && $("#solicitud_id").val() == ""){
@@ -2337,8 +2365,8 @@
                     html += "<td></td>";
                 }
 
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
                 if($("#ratificada").val() != "true"){
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash'></i></a></td>";
                 }
                 html += "</tr>";
@@ -2958,6 +2986,7 @@
         language: 'es',
         autoclose: true,
     });
+    
     var a = $('#fecha_ingreso').datepicker("getDate");
     $('#fecha_salida').datepicker({
         format: "dd/mm/yyyy",
@@ -3002,6 +3031,15 @@
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
     $(".date").keypress(function(event){
         event.preventDefault();
+    });
+    $(".validaFecha").change(function(){
+        if($(this).val() != ""){
+            var date_regex = /(((0|1)[0-9]|2[0-9]|3[0-1])\/(0[1-9]|1[0-2])\/((19|20)\d\d))$/;
+            if(!date_regex.test($(this).val())){
+                swal({title: 'Error',text: ' El formato de la fecha no es correcta el formato debe ser dd/mm/yyyy ',icon: 'error'});
+                $(this).val("");
+            }
+        }
     });
 
 
@@ -3264,9 +3302,8 @@
                     },
                     success:function(data){
                         try{
-
-                            if(data != null && data != ""){
-                                listaContactos = data;
+                            if(response.success){
+                                listaContactos = response.data;
                                 cargarContactos();
                             }else{
                                 swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});

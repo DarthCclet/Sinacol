@@ -11,6 +11,7 @@ use App\Traits\AppendPolicies;
 use Illuminate\Support\Arr;
 use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\ValidTypes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Parte extends Model implements Auditable
 {
@@ -335,5 +336,19 @@ class Parte extends Model implements Auditable
     public function firmas(){
         return $this->morphMany(FirmaDocumento::class,'firmable');
     }
-    
+    /**
+     * Get all of the bitacora_buzones for the Parte
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function bitacoras_buzon(): HasMany
+    {
+        return $this->hasMany(BitacoraBuzon::class, 'parte_id', 'id');
+    }
+
+    public function getDocumentosFirmarAttribute()
+    {
+        return Documento::whereHas('firma_documentos',function($q){ $q->where('firmable_type','App\Parte')->where('firmable_id',$this->id)->where('firma_electronicamente',true); })->get();    
+    }
+
 }

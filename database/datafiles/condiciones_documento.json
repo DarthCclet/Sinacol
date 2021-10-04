@@ -23,7 +23,9 @@
                   {"catalogo":"Genero",
                     "val":["Masculino", "Femenino"]},
                   {"catalogo":"Tipo_Persona",
-                      "val":["Fisica", "Moral"]}
+                      "val":["Fisica", "Moral"]},
+                  {"catalogo":"Notificacion",
+                    "val":["Buzon_Comparecencia", "NO_Buzon_Comparecencia"]}
                     ]
           },
           {
@@ -54,8 +56,12 @@
             "nombre": "Resolucion",
             "catalogos": [
                 {"catalogo":"Pago",
-                  "val":["diferido","no_diferido"]}
-                  ]
+                  "val":["diferido","no_diferido"]
+                },
+                {"catalogo":"Pagos",
+                    "val":[""]
+                }
+              ]
           },
           {
             "id": "4",

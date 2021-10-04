@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\BitacoraBuzon;
 use App\Estado;
+use App\Events\GenerateDocumentResolution;
 use Illuminate\Http\Request;
 use App\Parte;
 use App\Solicitud;
@@ -12,10 +14,13 @@ use App\Expediente;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\AccesoBuzonMail;
-
+use App\Traits\GenerateDocument;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class BuzonController extends Controller
 {
+    use GenerateDocument;
 	private $request;
     public function __construct(Request $request){
     	$this->request = $request;
@@ -25,65 +30,75 @@ class BuzonController extends Controller
     }
     public function SolicitarAcceso(){
         $busqueda = array("tipo_persona_id" => $this->request->tipo_persona_id);
-    	if($this->request->tipo_persona_id == 2){
-            $parte = Parte::where("rfc",$this->request->rfc)->orderBy('created_at', 'desc')->first();
-            $busqueda["busqueda"] = $this->request->rfc;
-        }else{
-            $parte = Parte::where("curp",$this->request->curp)->orderBy('created_at', 'desc')->first();
-            $busqueda["busqueda"] = $this->request->curp;
-        }
-        $correo = "";
-        if($parte != null){
-            $mail = $parte->contactos()->where("tipo_contacto_id",3)->orderBy('created_at', 'desc')->first();
-            if($mail != null){
-                $correo = $mail->contacto;
-                $busqueda["correo"] = $correo;
-            }
-            if($correo != ""){
-//                Se crea el token
-                $token = app('hash')->make(str_random(8));
-                if (!Cache::has($token)) {
-                    Cache::put($token, $busqueda,now()->addMinutes(50));
-                }
-                $respuesta = Cache::get($token);
-                $parte->token = $token;
-                $parte->email = $correo;
-                $composicion = base64_encode($token)."/".base64_encode($correo);
-                $liga = env('APP_URL')."/validar_token/".$composicion;
-                Mail::to($correo)->send(new AccesoBuzonMail($parte,$liga));
-                return array(["correo" => true,"mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo]);                
+        $expediente = Expediente::whereFolio($this->request->folio)->first();
+        if($expediente != null){
+            if($this->request->tipo_persona_id == 2){
+                $parte = $expediente->solicitud->partes()->where("rfc",$this->request->rfc)->first();
+                $busqueda["busqueda"] = $this->request->rfc;
             }else{
-                return array(["correo" => false,"mensaje" => 'No hay correos registrados']);
+                $parte = $expediente->solicitud->partes()->where("curp",$this->request->curp)->first();
+                $busqueda["busqueda"] = $this->request->curp;
+            }
+            $correo = "";
+            if($parte != null){
+                if($parte->password_buzon != null && $parte->password_buzon != ""){
+                    return array(["correo" => false,"mensaje" => 'No hay correos registrados']);
+                }else{
+                    $correo = $parte->correo_buzon;
+                    $busqueda["correo"] = $correo;
+
+                    $token = app('hash')->make(str_random(8));
+                    if (!Cache::has($token)) {
+                        Cache::put($token, $busqueda,now()->addMinutes(50));
+                    }
+                    $respuesta = Cache::get($token);
+                    $parte->token = $token;
+                    $parte->email = $correo;
+                    $composicion = base64_encode($token)."/".base64_encode($correo);
+                    $liga = env('APP_URL')."/validar_token/".$composicion;
+                    Mail::to($correo)->send(new AccesoBuzonMail($parte,$liga));
+                    return array(["correo" => true,"mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo]);
+                }
+            }else{
+                return $this->sendError('No hay registros con este dato', 'Error');
             }
         }else{
-            return $this->sendError('No hay registros con este dato', 'Error');
+            return $this->sendError('No se encontró el expediente', 'Error');
         }
+    	
     }
     public function AccesoBuzon(){
         $partesBusqueda = Parte::where("correo_buzon", $this->request->correo_buzon)->where("password_buzon",$this->request->password_buzon)->get();
         if($partesBusqueda != null){
+            $identificador = "";
             if($partesBusqueda[0]->tipo_persona_id == 1){
+                $identificador = $partesBusqueda[0]->curp;
                 $partes = Parte::where("curp",$partesBusqueda[0]->curp)->get();
             }else{
+                $identificador = $partesBusqueda[0]->rfc;
                 $partes = Parte::where("rfc",$partesBusqueda[0]->rfc)->get();
             }
             $solicitudes = [];
-            foreach($partes as $parte){
+            foreach($partes as $parte){         
+                // BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento (Nombre documento)','tipo_movimiento'=>'Documento']);
+                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Constancia de consulta realizada','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$identificador]);
                 $solicitud = $parte->solicitud;
                 if($solicitud->expediente != null){
                     $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
                     $solicitud->parte = $parte;
+                    $solicitud->acepto_buzon = "no";
+                    if($parte->notificacion_buzon){
+                        $solicitud->acepto_buzon = "si";
+                    }
                     foreach($solicitud->expediente->audiencia as $audiencia){
                         $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
+                        $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
                     }
                     $solicitudes[]=$solicitud;
                 }
             }
-            $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
-            $estados = Estado::all();
-            $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
-            $municipios = array_pluck(Municipio::all(),'municipio','id');
-            return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
+
+            return view("buzon.buzon", compact('solicitudes'));
         }else{
             return redirect()->back();
         }
@@ -102,22 +117,24 @@ class BuzonController extends Controller
                     }
                     $solicitudes = [];
                     foreach($partes as $parte){
+                        BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Constancia de consulta realizada','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$busqueda["busqueda"]]);
                         $solicitud = $parte->solicitud;
                         if($solicitud->expediente != null){
                             $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
                             $solicitud->parte = $parte;
+                            $solicitud->acepto_buzon = "no";
+                            if($parte->notificacion_buzon){
+                                $solicitud->acepto_buzon = "si";
+                            }
                             foreach($solicitud->expediente->audiencia as $audiencia){
-                                $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
+//                                $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
                                 $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
+                                $audiencia->documentos()->with('clasificacionArchivo')->get();
                             }
                             $solicitudes[]=$solicitud;
                         }
                     }
-                    $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
-                    $estados = Estado::all();
-                    $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
-                    $municipios = array_pluck(Municipio::all(),'municipio','id');
-                    return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
+                    return view("buzon.buzon", compact('solicitudes'));
                 }else{
                     return view("buzon.solicitud")->with("Error","Correo del que ingresas no coincide con el token");
                 }
@@ -157,7 +174,7 @@ class BuzonController extends Controller
                     $extra = $parte->nombre." ".$parte->primer_apellido." ".$parte->segundo_apellido;
                 }else{
                     $extra = $parte->nombre_comercial;
-                }                
+                }
             }else if($audit->auditable_type == 'App\Audiencia'){
                 $table = "Audiencia";
             }else if($audit->auditable_type == 'App\Expediente'){
@@ -189,5 +206,51 @@ class BuzonController extends Controller
             $respuesta = Cache::get($nombre);
         }
         return $respuesta;
+    }
+
+    public function getBitacoraBuzonParte($parte_id){
+        $bitacora = BitacoraBuzon::where('parte_id',$parte_id)->get();
+        return $this->sendResponse($bitacora, 'SUCCESS');
+    }
+    public function generarConstanciaBuzonInterno($parte_id){
+        try{
+            $parte = Parte::find($parte_id);
+            $solicitud = $parte->solicitud;
+            $audiencia = $solicitud->expediente->audiencia->last();
+            $html = "";
+            if($parte->tipo_parte_id == 1){
+                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 63, 25,$parte->id));
+            }else{
+                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 63, 26,null,$parte->id));
+            }
+            return $this->sendResponse($html, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensale: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
+        }
+    }
+    public function generarConstanciaBuzon(Request $request){
+        try{
+            $parte_id=$request->parte_id;
+            $parte = Parte::find($parte_id);
+            $solicitud = $parte->solicitud;
+            $audiencia = $parte->solicitud->expediente->audiencia->last();
+            $html = "";
+            if($parte->tipo_parte_id == 1){
+                $plantilla_id = 27;
+                $html = $this->renderDocumento($audiencia->id,$solicitud->id,$plantilla_id,$parte->id,null,"");
+            }else{
+                $plantilla_id = 28;
+                $html = $this->renderDocumento($audiencia->id,$solicitud->id,$plantilla_id,null,$parte->id,"");
+            }
+            return $this->renderPDF($html,$plantilla_id );
+        }catch(Exception $e){
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensale: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
+        }
     }
 }

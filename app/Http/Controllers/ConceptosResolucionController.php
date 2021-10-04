@@ -170,7 +170,11 @@ class ConceptosResolucionController extends Controller
             $datosL['tiempoVencido']= $tiempoVencido;
             $datosL['salario']= $diasPeriodicidad->nombre .': $'.$datoLaborales->remuneracion ;
             $datosL['fechaIngreso']= Carbon::parse($datoLaborales->fecha_ingreso)->format('d/m/Y');
-            $datosL['fechaSalida']= $fechaSalida;
+            if($fechaSalida == "Labora actualmente"){
+                $datosL['fechaSalida']= $fechaSalida;
+            }else{
+                $datosL['fechaSalida']= Carbon::parse($fechaSalida)->format('d/m/Y');
+            }
             // $anioSalida = Carbon::parse($datoLaboral->fecha_salida);
             // $anioSalida = Carbon::createFromFormat('Y-m-d', $datoLaboral->fecha_salida)->year;
             $anioSalida = Carbon::parse($datoLaborales->fecha_salida)->startOfYear();
@@ -217,7 +221,7 @@ class ConceptosResolucionController extends Controller
             array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2)));
             array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2)));
             array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2)));
-            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 7, "dias"=>$anios_antiguedad *6, "monto"=>round($salarioTopado * $anios_antiguedad *6,2)));
+            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 7, "dias"=>($anios_antiguedad >= 15) ? $anios_antiguedad *12 : $anios_antiguedad *6, "monto"=>($anios_antiguedad >= 15)?round($salarioTopado * $anios_antiguedad *12,2):round($salarioTopado * $anios_antiguedad *6,2) ));
 
             $total = 0;
             $al50['indemnizacion']= round(($remuneracionDiaria * (1 + (15/365) + ($diasVacaciones * .25/365))) * 45,2);

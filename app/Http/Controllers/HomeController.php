@@ -66,11 +66,11 @@ class HomeController extends Controller
     {
         if($request->session()->get('rolActual') != null){
             if($request->session()->get('rolActual')->name == "Personal conciliador"){
-                return redirect('agendaConciliador');
+                return redirect('agendaConciliador?alert=true');
             }else if($request->session()->get('rolActual')->name == "Orientador" || $request->session()->get('rolActual')->name == "Orientador Central"){
                 return redirect('solicitudes');
-            }else if($request->session()->get('rolActual')->name == "Supervisor de conciliación" || $request->session()->get('rolActual')->name == "Administrador del centro"){
-                return redirect('calendariocentro');
+            }else if($request->session()->get('rolActual')->name == "Supervisor de conciliación" || $request->session()->get('rolActual')->name == "Administrador del centro" || $request->session()->get('rolActual')->name == "Jefe de departamento"){
+                return redirect('calendariocentro?alert=true');
             }
 
         }

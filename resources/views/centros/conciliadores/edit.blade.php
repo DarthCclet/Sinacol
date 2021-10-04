@@ -29,7 +29,23 @@
         <!-- end panel-heading -->
         <!-- begin panel-body -->
         <div class="panel-body">
-            @include('centros.conciliadores._form')
+            <div class="row">
+                <input type="hidden" id="persona_id" value="{{$conciliador->persona->id}}">
+                @if(auth()->user()->hasRole('Super Usuario'))
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="centro_id" class="col-sm-6 control-label">Centro de conciliación</label>
+                            <div class="col-sm-10">
+                                <select id="centro_id" class="form-control">
+                                    <option value="">-- Selecciona un centro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    {!! Form::hidden('centro_id',auth()->user()->centro_id ,[]) !!}
+                @endif
+            </div>
         </div>
         <!-- end panel-body -->
         <!-- begin panel-footer -->
@@ -40,7 +56,6 @@
         <!-- end panel-footer -->
     </div>
 {{ Form::close() }}
-<input type="hidden" id="id">
 @endsection
 @push('scripts')
     <script>
@@ -52,7 +67,6 @@
                 dataType:"json",
                 success:function(data){
                     try{
-
                         if(data.data != null && data.data != ""){
                             $("#centro_id").html("<option value=''>-- Selecciona un centro</option>");
                             $.each(data.data,function(index,element){
@@ -73,7 +87,6 @@
                 dataType:"json",
                 success:function(data){
                     try{
-
                         if(data != null && data != ""){
                             $("#persona_id").html("<option value=''>-- Selecciona una persona</option>");
                             $.each(data,function(index,element){
@@ -153,18 +166,18 @@
             $(".select2-selection").css("border-color","");
             var error=false;
             var msgError="";
-            if($("#rol_conciliador_id").val() == ""){
-                $("#rol_conciliador_id").css("border-color","red");
-                error = true;
-            }
+//            if($("#rol_conciliador_id").val() == ""){
+//                $("#rol_conciliador_id").css("border-color","red");
+//                error = true;
+//            }
             if($("#centro_id").val() == ""){
                 $("#select2-selection").css("border-color","red");
                 error = true;
             }
-            if($("#persona_id").val() == ""){
-                $("#persona_id").css("border-color","red");
-                error = true;
-            }
+//            if($("#persona_id").val() == ""){
+//                $("#persona_id").css("border-color","red");
+//                error = true;
+//            }
             return error;
         }
     </script>

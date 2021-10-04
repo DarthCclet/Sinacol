@@ -19,7 +19,7 @@ class Conciliador extends Model implements Auditable
         RequestsAppends,
         AppendPolicies,
         \OwenIt\Auditing\Auditable,
-        \App\Traits\CambiarEventoAudit; 
+        \App\Traits\CambiarEventoAudit;
     protected $table = 'conciliadores';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
     protected $loadable = ['persona'];
@@ -51,14 +51,14 @@ class Conciliador extends Model implements Auditable
      * una conciliador debe tener una persona
      */
     public function persona(){
-    	return $this->belongsTo(Persona::class); 
+    	return $this->belongsTo(Persona::class);
     }
     /*
      * Relacion con la tabla de centros
      * una conciliador debe tener un centro
      */
     public function centro(){
-    	return $this->belongsTo(Centro::class); 
+    	return $this->belongsTo(Centro::class);
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -96,5 +96,8 @@ class Conciliador extends Model implements Auditable
     }
     public function firmas(){
         return $this->morphMany(FirmaDocumento::class,'firmable');
+    }
+    public function horario_comida(){
+        return $this->morphOne(HorarioInhabil::class,'inhabilitable');
     }
 }

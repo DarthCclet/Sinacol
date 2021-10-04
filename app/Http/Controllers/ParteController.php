@@ -11,9 +11,12 @@ use App\AudienciaParte;
 use App\ClasificacionArchivo;
 use App\DatoLaboral;
 use App\Domicilio;
+use App\Events\GenerateDocumentResolution;
 use App\Filters\ParteFilter;
 use App\Solicitud;
+use Carbon\Carbon;
 use Exception;
+use App\BitacoraBuzon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -43,7 +46,7 @@ class ParteController extends Controller
     public function index()
     {
         $partes = Parte::all();
-        
+
         // Filtramos los usuarios con los parametros que vengan en el request
         $partes = (new ParteFilter(Parte::query(), $this->request))
             ->searchWith(Parte::class)
@@ -113,7 +116,7 @@ class ParteController extends Controller
             if(isset($request->asignado)){
                 $parte["asignado"] = $request->asignado;
             }
-            
+
             $parteSaved = Parte::create($parte);
             if ($domicilios && count($domicilios) > 0) {
                 foreach ($domicilios as $key => $domicilio) {
@@ -140,7 +143,7 @@ class ParteController extends Controller
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error'.$e->getMessage());
-        
+
         }
     }
 
@@ -175,29 +178,45 @@ class ParteController extends Controller
      */
     public function update(Request $request, Parte $parte)
     {
-        $validator = Validator::make($request->all(), [
-            'solicitud_id' => 'required|Integer',
-            'tipo_parte_id' => 'required|Integer',
-            'genero_id' => 'required|Integer',
-            'tipo_persona_id' => 'required|Integer',
-            'nacionalidad_id' => 'required|Integer',
-            'entidad_nacimiento_id' => 'required|Integer',
-            'fecha_nacimiento' => 'required|Date',
-            'nombre' => 'required|max:500|String',
-            'primer_apellido' => 'required|max:500|String',
-            'segundo_apellido' => 'required|max:500|String',
-            'nombre_comercial' => 'required|max:500|String',
-            'edad' => 'required|max:500|String',
-            'rfc' => 'required|max:500|String',
-            'curp' => 'required|max:500|String',
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator, 201);
-                        // ->withInput();
+        // $validator = Validator::make($request->all(), [
+        //     // 'solicitud_id' => 'required|Integer',
+        //     // 'tipo_parte_id' => 'required|Integer',
+        //     // 'genero_id' => 'required|Integer',
+        //     // 'tipo_persona_id' => 'required|Integer',
+        //     // 'nacionalidad_id' => 'required|Integer',
+        //     // 'entidad_nacimiento_id' => 'required|Integer',
+        //     // 'fecha_nacimiento' => 'required|Date',
+        //     'nombre' => 'required|max:500|String',
+        //     'primer_apellido' => 'required|max:500|String',
+        //     'segundo_apellido' => 'required|max:500|String',
+        //     'nombre_comercial' => 'required|max:500|String',
+        //     // 'edad' => 'required|max:500|String',
+        //     // 'rfc' => 'required|max:500|String',
+        //     // 'curp' => 'required|max:500|String',
+        // ]);
+        // if ($validator->fails()) {
+        //     return response()->json($validator, 201);
+        //                 // ->withInput();
+        // }
+        DB::beginTransaction();
+        try{
+
+            $parte->update($request->all());
+            $domicilio = $request->domicilio;
+            unset($domicilio['id']);
+            unset($domicilio['activo']);
+            $domicilioSaved = $parte->domicilios()->create($domicilio);
+            DB::commit();
+            $parte->update($request->all());
+
+            return $this->sendResponse($parte, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensale: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error'.$e->getMessage());
         }
-        $parte->update($request->all());
-  
-        return response()->json($parte, 200);
     }
 
     /**
@@ -211,7 +230,7 @@ class ParteController extends Controller
         $parte->delete();
       return response()->json(null,204);
     }
-    
+
     /**
      * Funcion para obtener el representante legal de una parte
      * @param id $id
@@ -227,20 +246,63 @@ class ParteController extends Controller
                     foreach ($documentos as $documento) {
                         $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
                     }
-                    
+
                 }
             }
         }
         return $representantes;
     }
-    
+    /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GetRepresentanteAudiencia(Request $request){
+        $audiencia_id= $request->audiencia_id;
+        $representante = Parte::where("parte_representada_id",$request->parte_id)->where("representante",true)->with('audienciaParte')->whereHas('audienciaParte',function($query) use ($audiencia_id){
+            $query->where('audiencia_id',$audiencia_id);
+        })->first();
+        if($representante != null && $representante != ""){
+            foreach($representante->contactos as $key2 => $contactos){
+                $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                $documentos = $representante->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
+                }
+
+            }
+        }
+        return $representante;
+    }
+     /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GetRepresentanteLegalById($id){
+        $representante = Parte::find($id);
+        if($representante != null && $representante != ""){
+            foreach($representante->contactos as $key2 => $contactos){
+                $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                $documentos = $representante->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
+                }
+
+            }
+        }
+        return $representante;
+    }
+
+
+
     /**
      * Funcion para obtener datos laborales de una parte
      * @param id $id
      * @return parte
      */
     public function GetDatoLaboral($parte_id){
-        $datos_laborales = DatoLaboral::where('parte_id',$parte_id)->get();
+        $datos_laborales = DatoLaboral::with('domicilios')->where('parte_id',$parte_id)->get();
         if(count($datos_laborales) > 1){
             $datos_laborales = $datos_laborales->where("resolucion",true)->first();
         }else{
@@ -273,7 +335,7 @@ class ParteController extends Controller
         ]);
         if($request->resolucion == "true"){
             $datos_laborales = DatoLaboral::find($request->id);
-            
+
             $datos_laborales->update([
                 'ocupacion_id' => $request->ocupacion_id,
                 'nss' => $request->nss,
@@ -320,8 +382,23 @@ class ParteController extends Controller
                 'prestaciones_adicionales' => $request->prestaciones_adicionales,
             ]);
         }
-        
+        $domicilio = $request->get('domicilio_laboral');
+        // dd($domicilio);
+        $this->GuardarActualizarDomicilio($domicilio, $datos_laborales);
         return $datos_laborales;
+    }
+
+    public function GuardarActualizarDomicilio($domicilioRequest, $datos_laborales){
+        $domicilio = $datos_laborales->domicilios->first();
+        if($domicilio == null){
+            if ($domicilioRequest) {
+                unset($domicilioRequest['activo']);
+                $domicilioSaved = $datos_laborales->domicilios()->create($domicilioRequest);
+            }
+        }else{
+            unset($domicilioRequest["activo"]);
+            $domicilio->update($domicilioRequest);
+        }
     }
     
     
@@ -343,41 +420,57 @@ class ParteController extends Controller
                     "feha_instrumento" => $request->feha_instrumento,
                     "detalle_instrumento" => $request->detalle_instrumento
                 ]);
+                // Creamos la relacion en audiencias_partes
+                if(!isset($request->fuente_solicitud)){
+                    $audienciaExiste = AudienciaParte::where('parte_id',$parte->id)->where('audiencia_id',$request->audiencia_id)->first();
+                    if($audienciaExiste == null)
+                    {
+
+                        $partesRep = Parte::where('parte_representada_id',$parte->parte_representada_id)->get();
+                        foreach($partesRep as $parteR){
+                            $ap = AudienciaParte::where('audiencia_id',$request->audiencia_id)->where('parte_id',$parteR->id)->first();
+                            if($ap){
+                                $ap->delete();
+                            }
+                        }
+                        AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    }
+                }
                 // se actualiza doc
                 if(isset($request->fileIdentificacion)){
                     $parte = Parte::find($request->parte_id);
                     $solicitud = Solicitud::find($request->solicitud_id);
-                    
+
                     try{
-                        $existe = false;
-                        $deleted = false;
+                        $existe = true;
+                        $deleted = true;
                         $documentos = $parte->documentos;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 1){
-                                $doc_del_id = $documento->id;
-                                $existe = true;
-                            }
-                        }
-                        if($existe){
-                            $parte->documentos()->find($doc_del_id)->delete();
-                            $deleted = true;
-                        }
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 1){
+                        //         $doc_del_id = $documento->id;
+                        //         $existe = true;
+                        //     }
+                        // }
+                        // if($existe){
+                        //     $parte->documentos()->find($doc_del_id)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existe || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileIdentificacion;
+                                $archivoIde = $request->fileIdentificacion;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= $request->tipo_documento_id;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                                
-                                $path = $archivo->store($directorio);
+
+                                $path = $archivoIde->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
                                     "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre_original" => str_replace($directorio, '',$archivoIde->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoIde->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
                                     "ruta" => $path,
                                     "uuid" => $uuid,
@@ -390,124 +483,124 @@ class ParteController extends Controller
                                 $exito = true;
                             }else{
                                 $exito = false;
-                                
+
                             }
                         }
-                        
+
                     }catch(Exception $e){
                         $exito = false;
                     }
                 }
                 if(isset($request->fileInstrumento)){
-                    
+
                     $parte = Parte::find($request->parte_id);
                     $solicitud = Solicitud::find($request->solicitud_id);
-                    
+
                     try{
-                        $deleted = false;
-                        $documentos = $parte->documentos;
-                        $existeInst = false;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                                $doc_del_idInst = $documento->id;
-                                $existeInst = true;
-                            }
-                        }
-                        
-                        if($existeInst){
-                            
-                            $parte->documentos()->find($doc_del_idInst)->delete();
-                            $deleted = true;
-                        }
+                        $deleted = true;
+                        // $documentos = $parte->documentos;
+                        $existeInst = true;
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                        //         $doc_del_idInst = $documento->id;
+                        //         $existeInst = true;
+                        //     }
+                        // }
+
+                        // if($existeInst){
+
+                        //     $parte->documentos()->find($doc_del_idInst)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existeInst || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileInstrumento;
+                                $archivoInst = $request->fileInstrumento;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= $request->clasificacion_archivo_id;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                                
-                                $path = $archivo->store($directorio);
+
+                                $pathInst = $archivoInst->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre" => str_replace($directorio."/", '',$pathInst),
+                                    "nombre_original" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
-                                    "ruta" => $path,
+                                    "ruta" => $pathInst,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $path,
-                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "uri" => $pathInst,
+                                    "longitud" => round(Storage::size($pathInst) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivo->id ,
                                 ]);
                                 $exito = true;
                             }else{
                                 $exito = false;
-                                
+
                             }
                         }
-                        
+
                     }catch(Exception $e){
                         $exito = false;
                     }
                 }
                 if(isset($request->fileCedula)){
-                    
+
                     $parte = Parte::find($request->parte_id);
                     $solicitud = Solicitud::find($request->solicitud_id);
-                    
+
                     try{
-                        $deleted = false;
-                        $documentos = $parte->documentos;
-                        $existeCed = false;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                                $doc_del_idCed = $documento->id;
-                                $existeCed = true;
-                            }
-                        }
-                        
-                        if($existeCed){
-                            
-                            $parte->documentos()->find($doc_del_idCed)->delete();
-                            $deleted = true;
-                        }
+                        $deleted = true;
+                        // $documentos = $parte->documentos;
+                        $existeCed = true;
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                        //         $doc_del_idCed = $documento->id;
+                        //         $existeCed = true;
+                        //     }
+                        // }
+
+                        // if($existeCed){
+
+                        //     $parte->documentos()->find($doc_del_idCed)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existeCed || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileCedula;
+                                $archivoCed = $request->fileCedula;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= 3;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                                
-                                $path = $archivo->store($directorio);
+
+                                $pathCed = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre" => str_replace($directorio."/", '',$pathCed),
+                                    "nombre_original" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
-                                    "ruta" => $path,
+                                    "ruta" => $pathCed,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $path,
-                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "uri" => $pathCed,
+                                    "longitud" => round(Storage::size($pathCed) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivo->id ,
                                 ]);
                                 $exito = true;
                             }else{
                                 $exito = false;
-                                
+
                             }
                         }
-                        
+
                     }catch(Exception $e){
                         $exito = false;
                     }
@@ -541,10 +634,21 @@ class ParteController extends Controller
                         "tipo_contacto_id" => $contacto->tipo_contacto_id,
                     ]);
                 }
-                
+
                 // Creamos la relacion en audiencias_partes
                 if(!isset($request->fuente_solicitud)){
-                    AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    $audienciaExiste = AudienciaParte::where('parte_id',$parte->id)->where('audiencia_id',$request->audiencia_id)->first();
+                    if($audienciaExiste == null)
+                    {
+                        $partesRep = Parte::where('parte_representada_id',$parte->parte_representada_id)->get();
+                        foreach($partesRep as $parteR){
+                            $ap = AudienciaParte::where('audiencia_id',$request->audiencia_id)->where('parte_id',$parteR->id)->first();
+                            if($ap){
+                                $ap->delete();
+                            }
+                        }
+                        AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    }
                 }
                 // se agrega doc
                 // $parte = $parte_representada;
@@ -559,7 +663,7 @@ class ParteController extends Controller
                             $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                             Storage::makeDirectory($directorio);
                             $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                            
+
                             $path = $archivo->store($directorio);
                             $uuid = Str::uuid();
                             $documento = $parte->documentos()->create([
@@ -584,12 +688,12 @@ class ParteController extends Controller
                             $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                             Storage::makeDirectory($directorio);
                             $tipoArchivoInst = ClasificacionArchivo::find($clasificacion_archivoInst);
-                            
+
                             $pathInst = $archivoInst->store($directorio);
                             $uuid = Str::uuid();
                             $documento = $parte->documentos()->create([
-                                "nombre" => str_replace($directorio."/", '',$path),
-                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                "nombre" => str_replace($directorio."/", '',$pathInst),
+                                "nombre_original" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                 // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                 "descripcion" => $tipoArchivoInst->nombre,
                                 "ruta" => $pathInst,
@@ -609,33 +713,33 @@ class ParteController extends Controller
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivoCed = ClasificacionArchivo::find($clasificacion_archivoCed);
-                                
-                                $pathInst = $archivoCed->store($directorio);
+
+                                $pathCed = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre" => str_replace($directorio."/", '',$pathCed),
+                                    "nombre_original" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                     "descripcion" => $tipoArchivoCed->nombre,
-                                    "ruta" => $pathInst,
+                                    "ruta" => $pathCed,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $pathInst,
-                                    "longitud" => round(Storage::size($pathInst) / 1024, 2),
+                                    "uri" => $pathCed,
+                                    "longitud" => round(Storage::size($pathCed) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivoCed->id ,
                                 ]);
-                            } 
+                            }
                             $exito = true;
                         }else{
                             $exito = false;
-                            
+
                         }
                     }
-                    
+
                 }catch(Exception $e){
                     $exito = false;
-                    
+
                 }
                 // se actualiza doc
             }
@@ -646,7 +750,7 @@ class ParteController extends Controller
                 DB::rollback();
                 return $this->sendError('Error al capturar representante', 'Error');
             }
-            
+
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
@@ -656,7 +760,7 @@ class ParteController extends Controller
 
         }
     }
-    
+
     public function AgregarContactoRepresentante(Request $request){
         $representante = Parte::find($request->parte_id);
         $representante->contactos()->create(["tipo_contacto_id" => $request->tipo_contacto_id,"contacto" => $request->contacto]);
@@ -665,7 +769,7 @@ class ParteController extends Controller
         }
         return $representante->contactos;
     }
-    
+
     public function getParteCurp(Request $request){
         $Parte = Parte::where('curp',$request->curp)->orderBy('id', 'desc')->first();
         return $Parte;
@@ -676,7 +780,7 @@ class ParteController extends Controller
         foreach($representante->contactos as $key2 => $contactos){
             $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
         }
-        return $representante->contactos;
+        return $this->sendResponse($representante->contactos, 'SUCCESS');
     }
     public function getDomicilioParte(){
         $parte = Parte::find($this->request->id);
@@ -704,5 +808,104 @@ class ParteController extends Controller
         $solicitud = Solicitud::find($this->request->solicitud_id);
         $partes = $solicitud->partes()->whereIn("tipo_parte_id",[1,2,3])->get();
         return $partes;
+    }
+    public function validarCorreoParte(){
+        $parte = Parte::find($this->request->parte_id);
+        $array = array();
+        $pasa = false;
+        // foreach($parte->contactos as $contacto){
+        //     if($contacto->tipo_contacto_id == 3){ //si tiene email
+        //         $pasa = true;
+        //     }
+        // }
+        if($parte->notificacion_buzon){
+            $pasa = true;
+        }
+            //devuelve partes sin email
+
+        $parte->tieneCorreo = $pasa;
+        return $parte;
+    }
+
+    public function getCitadosBySolicitudId($solicitud_id){
+        $partes = Solicitud::find($solicitud_id)->partes()->with(['domicilios'=>function($q){$q->orderBy('id','desc');}])->where('tipo_parte_id',2)->whereComparecio(false)->get();
+        return $this->sendResponse($partes, 'SUCCESS');
+    }
+    public function updateCitadosDomicilio(Request $request){
+        DB::beginTransaction();
+        try{
+            $parte = $request->parte;
+            $parteUpd = Parte::find($parte->id);
+            $parteUpd->update(['nombre'=>$parte->nombre,'primer_apellido'=>$parte->primer_apellido,'segundo_apellido'=>$parte->segundo_apellido,'nombre_comercial'=>$parte->nombre_comercial]);
+            $parteUpd->domicilios($parte->domicilio);
+            DB::commit();
+            return $this->sendResponse($parteUpd, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensale: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error'.$e->getMessage());
+        }
+    }
+
+    public function aceptar_buzon(Request $request){
+        DB::beginTransaction();
+        try{
+            $parte = Parte::find($request->parte_id);
+            $solicitud = $parte->solicitud;
+            $audiencia = $solicitud->expediente->audiencia->last();
+            $notificacion_buzon = $request->acepta_buzon;
+            if($parte){
+                if($notificacion_buzon == "true"){
+                    $parte->update(['notificacion_buzon'=>true, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
+                    $identificador = $parte->rfc;
+                    if($parte->tipo_persona_id == 1){
+                        $identificador = $parte->curp;
+                    }
+                    //Genera acta de aceptacion de buzón
+                    if($parte->tipo_parte_id == 1){
+                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
+                    }else if($parte->tipo_parte_id == 2){
+                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
+                    }else{
+                        $representado = Parte::find($parte->parte_representada_id);
+                        if($representado->tipo_parte_id == 1){
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
+                        }else{
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
+                        }
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
+                }else{
+                    $parte->update(['notificacion_buzon'=>false]);
+                    //Genera acta de no aceptacion de buzón
+                    $existe_doc_buzon = $parte->documentos()->where('clasificacion_archivo_id',60)->first();
+                    if($existe_doc_buzon == null){
+                        if($parte->tipo_parte_id == 1){
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
+                        }else if($parte->tipo_parte_id == 2){
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
+                        }else{
+                            $representado = Parte::find($parte->parte_representada_id);
+                            if($representado->tipo_parte_id == 1){
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
+                            }else{
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$representado->id,null,$representado->id));
+                            }
+                        }
+                    }
+                }
+                DB::commit();
+                return $this->sendResponse($parte, 'SUCCESS');
+            }
+            return $this->sendError('Error al aceptar buzón', 'Error');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensale: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error al aceptar buzón', 'Error');
+        }
     }
 }

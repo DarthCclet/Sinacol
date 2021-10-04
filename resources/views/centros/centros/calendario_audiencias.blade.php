@@ -95,10 +95,12 @@
                 <div class="text-right">
                     <label id="labelFinalizada" style="color: red;font-size: 1.2em;">Esta audiencia ya fue finalizada</label>
                     <button class="btn btn-primary btn-sm m-l-5" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-arrow-down"></i> Cerrar</button>
+                    @if(session('rolActual')->name == 'Super Usuario' || session('rolActual')->name == 'Administrador del centro' || session('rolActual')->name == 'Supervisor de conciliación')
                     <button class="btn btn-primary btn-sm m-l-5" id="btnCambiarConciliador"><i class="fa fa-user-friends"></i> Cambiar Conciliador</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnPago"><i class="fa fa-money-bill"></i> Registrar pago</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-calendar"></i> Reprogramar</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnSuspension" title="suspensión de audiencia vía remota por falta de aceptación del citado"><i class="fa fa-calendar"></i> Suspensión de audiencia</button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -151,7 +153,7 @@
                                     @endif
                                 @endforeach
                                 </td>
-                                <td><button class="btn btn-sm btn-primary" title="Asignar" onclick="obtenerAudiencia({{$audiencia->id}},'NoCalendarizada')"><i class="fa fa-calendar"></i></button></td>
+                                <td><button class="btn btn-sm btn-primary" title="Asignar" onclick="obtenerAudiencia({{$audiencia->id}},'audiencia','NoCalendarizada')"><i class="fa fa-calendar"></i></button></td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -235,6 +237,7 @@
         </div>
     </div>
 </div>
+@include('includes.component.modal-caduco')
 <input type="hidden" id="fecha_audiencia"/>
 <input type="hidden" id="hora_inicio_audiencia"/>
 <input type="hidden" id="hora_fin_audiencia"/>
@@ -248,6 +251,9 @@
 <!-- Fin Modal de disponibilidad-->
 @push('scripts')
         <script>
+            if({{ isset($mostrar_caducos) ? $mostrar_caducos : 'false' }}){
+                $("#modal-caduco").modal("show");
+            }
             var multiple = false;
             var audiencia_id = null;
             $(document).ready(function(){
@@ -455,6 +461,15 @@
                 });
             }
             $("#btnFinalizarRatificacion").on("click",function(){
+                $.get("validarCambioNotificacion/"+$("#audiencia_id").val(),function(data){
+                    if(!data.cambiar){
+                        swal({
+                            title: 'Advertencia',
+                            text: 'Esta audiencia ya fue notificada, no se enviará petición de notificación si aplica un cambio.',
+                            icon: 'warning'
+                        });
+                    }
+                });
                 $("#calendarioReagendar").show();
             });
             $("#btnNoAudiencia").on("click",function(){

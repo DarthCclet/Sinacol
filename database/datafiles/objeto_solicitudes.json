@@ -101,20 +101,60 @@
             "tipo_objeto_solicitudes_id": "3"
         },
         {
-            "id": "21",
-            "nombre": "Pago de prestaciones",
-            "tipo_objeto_solicitudes_id": "2"
+          "id" : "21",
+          "nombre" : "Terminación Colectiva de las Relaciones de Trabajo. Agotamiento de la materia, industria extractiva (Art 434, F. III)",
+          "tipo_objeto_solicitudes_id" : "3"
         },
         {
-            "id": "22",
-            "nombre": "Terminación voluntaria de la relación de trabajo",
-            "tipo_objeto_solicitudes_id": "2"
+          "id" : "22",
+          "nombre" : "Terminación Colectiva de las Relaciones de Trabajo. Implementación de maquinaria o procedimientos de trabajo nuevos (Art 439)",
+          "tipo_objeto_solicitudes_id" : "3"
         },
         {
-            "id": "23",
-            "nombre": "Terminación voluntaria de la relación de trabajo",
-            "tipo_objeto_solicitudes_id": "1"
+          "id" : "23",
+          "nombre" : "Solicitud de conciliación por firma de contrato colectivo",
+          "tipo_objeto_solicitudes_id" : "3"
+        },
+        {
+          "id" : "24",
+          "nombre" : "Solicitud de conciliación por revisión de contrato colectivo",
+          "tipo_objeto_solicitudes_id" : "3"
+        },
+        {
+          "id" : "25",
+          "nombre" : "Solicitud de conciliación por incumplimiento de contrato colectivo",
+          "tipo_objeto_solicitudes_id" : "3"
+        },
+        {
+          "id" : "26",
+          "nombre" : "Solicitud de conciliación colectiva en general",
+          "tipo_objeto_solicitudes_id" : "3"
+        },
+        {
+          "id" : "27",
+          "nombre" : "Pago de prestaciones",
+          "tipo_objeto_solicitudes_id" : "2"
+        },
+        {
+          "id" : "28",
+          "nombre" : "Terminación voluntaria de la relación de trabajo",
+          "tipo_objeto_solicitudes_id" : "2"
+        },
+        {
+          "id": "29",
+          "nombre": "Terminación voluntaria de la relación de trabajo",
+          "tipo_objeto_solicitudes_id" : "1"
+        },
+        {
+            "id": "30",
+          "nombre": "Sustitución Patronal",
+          "tipo_objeto_solicitudes_id" : "3"
+        },
+        {
+            "id": "31",
+          "nombre": "Ratificación de convenio",
+          "tipo_objeto_solicitudes_id" : "3"
         }
-    ],
-    "numReg": 20
+   ],
+    "numReg": 31
 }

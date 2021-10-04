@@ -49,7 +49,7 @@
     <input type="hidden" id="estado{{$identificador}}" value="{{isset($domicilio->estado) ? $domicilio->estado : '' }}" name="domicilio[estado]">
     <input type="hidden" id="georeferenciable{{$identificador}}" value="{{isset($domicilio->georeferenciable) ? $domicilio->georeferenciable : 'false' }}" name="domicilio[georeferenciable]">
 
-    @if( isset($tipo_solicitud) && ((($tipo_solicitud == 1 || $tipo_solicitud == 3) && $instancia == 1) || (($tipo_solicitud == 2 || $tipo_solicitud == 4) && $instancia == 2)) )
+    @if( isset($tipo_solicitud) && ((($tipo_solicitud == 1 || $tipo_solicitud == 4) && $instancia == 1) || (($tipo_solicitud == 2 || $tipo_solicitud == 3) && $instancia == 2)) )
         <div class="col-md-3" title="Especifica el Estado o Entidad Federativa donde se encuentra el domicilio." data-toggle="tooltip" data-placement="top">
             <select id="estado_id{{$identificador}}" required="" class="form-control estadoSelect{{$identificador}} direccionUpd{{$identificador}} " name="domicilio[estado_id]" >
                 <option value="">Seleccione una opción</option>
@@ -65,7 +65,7 @@
             <select id="estado_id{{$identificador}}" required="" class="form-control estadoSelect{{$identificador}} direccionUpd{{$identificador}} " name="domicilio[estado_id]" >
                 <option value="">Seleccione una opción</option>
                 @foreach ($estados as $estado)
-                    <option class="{{ $estado->en_vigor ? '' : 'no_enVigor'}}" {{(isset($domicilio->estado_id) && $estado->id == $domicilio->estado_id ) ? 'selected' : '' }}  value="{{$estado->id}}">{{$estado->nombre}}</option>
+                    <option class="{{ $estado->en_vigor ? 'otro' : 'no_enVigor'}}" {{(isset($domicilio->estado_id) && $estado->id == $domicilio->estado_id ) ? 'selected' : '' }}  value="{{$estado->id}}">{{$estado->nombre}}</option>
                 @endforeach
             </select>
             {!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
@@ -74,7 +74,7 @@
     @endif
 
     <div class="col-md-3 " title="Especifica si se trata de una calle, avenida, calzada, etc. Por ejemplo, en Avenida Insurgentes, el tipo de vialidad es Avenida" data-toggle="tooltip" data-placement="top" >
-        {!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
+        {!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => '', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[tipo_vialidad_id]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Tipo de vialidad</p>
     </div>
@@ -86,7 +86,7 @@
         <p class="help-block needed">Nombre de la vialidad o calle</p>
     </div>
     <div class="col-md-4" style="display: none;" title="Un asentamiento no siempre es una colonia, puede ser una unidad habitacional, un ejido, un barrio, etc." data-toggle="tooltip" data-placement="top">
-        {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'placeholder' => 'Seleccione una opción', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
+        {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'placeholder' => ' ', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Tipo de asentamiento</p>
     </div>
@@ -103,7 +103,7 @@
         <p class="help-block">Número interior</p>
     </div>
     <div class="col-md-5" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Si escoges la correcta se llenarán de forma automática los demás campos." data-toggle="tooltip" data-placement="top">
-        <select name="asentamientoAutoc" placeholder="Seleccione"  id="asentamientoAutoc{{$identificador}}" class="form-control">
+        <select name="asentamientoAutoc" placeholder=" "  id="asentamientoAutoc{{$identificador}}" class="form-control">
             @if(isset($domicilio) && isset($domicilio->asentamiento))
                 <option value='{{isset($domicilio) ? $domicilio->asentamiento : ""}}' selected='selected'>{{$domicilio->asentamiento}}</option>
             @endif
@@ -291,11 +291,11 @@
 
         domicilio.getDomicilio = function(){
             if($("#asentamiento"+identifier).val() == ""){
-                swal({
-                    title: '',
-                    text: 'seleccione una colonia para continuar',
-                    icon: 'warning'
-                });
+                // swal({
+                //     title: '',
+                //     text: 'seleccione una colonia para continuar',
+                //     icon: 'warning'
+                // });
                 return ;
             }
             var domicilioLoc = {};
@@ -546,7 +546,7 @@
                 }
                 return data.text;
             },
-            placeholder:'Seleccione una opción',
+            placeholder:'',
             minimumInputLength:4,
             allowClear: true,
             tags: true,
@@ -590,6 +590,7 @@
 
 	<script>
 		var domicilioObj =  DomicilioObject;
+        domicilioObj.initMap();
 	</script>
 @else
 <script src="https://maps.googleapis.com/maps/api/js?callback=DomicilioObject.initMap&libraries=places&key={{env('API_KEY_MAPS')}}"></script>

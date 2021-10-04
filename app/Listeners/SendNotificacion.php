@@ -13,6 +13,8 @@ use App\Incidencia;
 use App\Traits\FechaNotificacion;
 use App\HistoricoNotificacion;
 use App\HistoricoNotificacionRespuesta;
+use App\HistoricoNotificacionPeticion;
+use App\EtapaNotificacion;
 
 class SendNotificacion
 {
@@ -37,20 +39,21 @@ class SendNotificacion
     {
         try{
             DB::beginTransaction();
-            //Creamos una instancia a solicitudesController para usar las funciones que contiene
             $arreglo = array();
             // Consultamos la audiencia
             $audiencia = Audiencia::find($event->audiencia_id);
+            Log::debug('Se recibio esta información:'.json_encode($event));
             if(isset($audiencia->id)){
-                $tipo_notificacion = self::ObtenerTipoNotificacion($audiencia);
+                $tipo_notificacion = $event->tipo_notificacion;
+                $tipo_notificacion_fecha = self::ObtenerTipoNotificacion($audiencia);
                 // Agregamos al arreglo las generalidades de la audiencia
                 $arreglo["folio"] = $audiencia->folio."/".$audiencia->anio;
-                $arreglo["expediente"] = $audiencia->expediente->folio."/";
+                $arreglo["expediente"] = $audiencia->expediente->folio;
                 $arreglo["exhorto_num"] = "";
                 //Validamos el tipo de notificación
                 $fechaIngreso = new \Carbon\Carbon($audiencia->expediente->solicitud->created_at);
                 if($tipo_notificacion == "citatorio"){
-                    $fechaRecepcion = new \Carbon\Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
+                    $fechaRecepcion = new \Carbon\Carbon($tipo_notificacion_fecha["fecha_recepcion"]);
                     $fechaAudiencia = new \Carbon\Carbon($audiencia->fecha_audiencia);
                     $fechaCita = null;
                     if($audiencia->fecha_cita != null && $audiencia->fecha_cita != ""){
@@ -67,7 +70,7 @@ class SendNotificacion
                     }
                     $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
                 }else{
-                    $fechaRecepcion = new \Carbon\Carbon($audiencia->fecha_audiencia);
+                    $fechaRecepcion = new \Carbon\Carbon($tipo_notificacion_fecha["fecha_recepcion"]);
                     $fechaAudiencia = self::ObtenerFechaAudienciaMulta($audiencia->fecha_audiencia,15);
                     $fechaCita = null;
                     $fechaLimite = new \Carbon\Carbon(self::ObtenerFechaLimiteNotificacionMulta($fechaAudiencia,$audiencia->expediente->solicitud,$audiencia->id));
@@ -97,7 +100,7 @@ class SendNotificacion
                         $nombre = $parte->nombre_comercial;
                         $sexo = "";
                     }
-                    $domicilio = $parte->domicilios->first();
+                    $domicilio = $parte->domicilios()->orderBy("id","desc")->first();
                     $arreglo["Actores"][] = array(
                         "actor_id" => $parte->id,
                         "nombre" => $nombre,
@@ -122,6 +125,7 @@ class SendNotificacion
                 Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
                 //Buscamos a los demandados
                 $demandados = self::getSolicitados($audiencia,$tipo_notificacion,$event->parte_id);
+                $etapa_notificacion_null = EtapaNotificacion::whereEtapa("No comparecio el citado")->first();
                 foreach($demandados as $partes){
                     $parte =$partes->parte;
                     if($parte->tipo_persona_id == 1){
@@ -129,7 +133,7 @@ class SendNotificacion
                     }else{
                         $nombre = $parte->nombre_comercial;
                     }
-                    $domicilio = $parte->domicilios->first();
+                    $domicilio = $parte->domicilios()->orderBy("id","desc")->first();
                     $arreglo["Demandados"][] = array(
                         "demandado_id" => $parte->id,
                         "actuario_id" => 999999,
@@ -152,45 +156,52 @@ class SendNotificacion
                         )
                     );
     //                Buscamos si existe un historico de ese tipo de notificación
-                    $historico = HistoricoNotificacion::where("audiencia_parte_id",$partes->id)->where("tipo_notificacion",$event->tipo_notificacion)->first();
+                    $historico = HistoricoNotificacion::where("audiencia_parte_id",$partes->id)->where("tipo_notificacion",$tipo_notificacion)->first();
                     if($historico == null){
                         $historico = HistoricoNotificacion::create([
                             "audiencia_parte_id" => $partes->id,
-                            "tipo_notificacion" => $event->tipo_notificacion,
+                            "tipo_notificacion" => $tipo_notificacion,
                         ]);
                     }
-                    HistoricoNotificacionRespuesta::create([
+                    if($audiencia->etapa_notificacion_id == null){
+                        $etapa = $etapa_notificacion_null->id;
+                    }else{
+                        $etapa = $audiencia->etapa_notificacion_id;
+                    }
+                    $historico_peticion = HistoricoNotificacionPeticion::create([
                         "historico_notificacion_id" => $historico->id,
-                        "etapa_notificacion_id" => $audiencia->etapa_notificacion_id,
-                        "fecha_peticion" => now()
+                        "etapa_notificacion_id" => $etapa,
+                        "fecha_peticion_notificacion" => now()
                     ]);
+                    $historico->update(["historico_notificacion_peticion_id" => $historico_peticion->id]);
                 }
-                Log::debug('Información de demandados:'.json_encode($arreglo["Demandados"]));
-                Log::debug('Se envia esta peticion:'.json_encode($arreglo));
                 $client = new Client();
-                if(env('NOTIFICACION_DRY_RUN') == "YES"){
-                    $baseURL = env('APP_URL_NOTIFICACIONES');
+                if(env("APP_ENV") != null){
+                    if(env('NOTIFICACION_DRY_RUN')){
+                        $baseURL = env('APP_URL_NOTIFICACIONES');
+                    }else{
+                        $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
+                    }
+                    if($baseURL != null){
+                        $response = $client->request('POST',$baseURL ,[
+                            'headers' => ['foo' => 'bar'],
+                            'verify' => false,
+                            'body' => json_encode($arreglo),
+                        ]);
+                    }
+            //        Cambiamos el estatus de notificación
+                    $solicitud = $audiencia->expediente->solicitud;
+                    $solicitud->update(["fecha_peticion_notificacion" => now()]);
                 }else{
-                    $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
+                    throw new Exception('No se encuentra el ambiente');
                 }
-                if($baseURL != null){
-                    $response = $client->request('POST',$baseURL ,[
-                        'headers' => ['foo' => 'bar'],
-                        'verify' => false,
-                        'body' => json_encode($arreglo),
-                    ]);
-                }
-        //        Cambiamos el estatus de notificación
-                $solicitud = $audiencia->expediente->solicitud;
-                $solicitud->update(["fecha_peticion_notificacion" => now()]);
             }
-            
             DB::commit();
-//        }catch (\Throwable $e) {
-//            DB::rollBack();
-//            Log::error('En scriptt:'.$e->getFile()." En línea: ".$e->getLine().
-//                       " Se emitió el siguiente mensale: ". $e->getMessage().
-//                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+        }catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('En scriptt:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
         }catch (\GuzzleHttp\Exception\ClientException $e) {
             $response = $e->getResponse();
             $respuesta = $response->getBody()->getContents();
@@ -207,11 +218,11 @@ class SendNotificacion
                            " Se emitió el siguiente mensale: ". $respuesta.
                            " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             }
-        }catch (Exception $e){
+        }catch (\GuzzleHttp\Exception\RequestException $e){
             DB::rollBack();
-            Log::error('php En scripts:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensale: ". $respuesta.
-                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            $response = $e->getResponse();
+            //$respuesta = $response->getBody()->getContents();
+            //Log::error("Error en respuesta al enviar datos a signo: Respuesta SIGNO status: ". $response->getStatusCode()." => ".$respuesta);
         }
 
     }
@@ -237,11 +248,16 @@ class SendNotificacion
      */
     public function getSolicitados(Audiencia $audiencia,$tipo_notificacion,$audiencia_parte_id = null) {
         $solicitados = [];
+        $i = 0;
         foreach ($audiencia->audienciaParte as $parte) {
-            if($parte->finalizado == null || $tipo_notificacion == "multa"){
+            if ($parte->parte->tipo_parte_id == 2) {
                 if($audiencia_parte_id == null){
-                    if ($parte->parte->tipo_parte_id == 2) {
+                    if($tipo_notificacion == "multa"){
                         $solicitados[] = $parte;
+                    }else{
+                        if($parte->finalizado != "FINALIZADO EXITOSAMENTE" && $parte->finalizado != "EXITOSO POR INSTRUCTIVO"){
+                            $solicitados[] = $parte;
+                        }
                     }
                 }else{
                     if($parte->id == $audiencia_parte_id){
@@ -271,7 +287,7 @@ class SendNotificacion
         return $d;
     }
     /**
-     * 
+     *
      */
     Public function ObtenerFechaLimiteNotificacionMulta($fecha_audiencia,$solicitud,$audiencia_id){
 //      obtenemos el domicilio del centro
@@ -281,7 +297,7 @@ class SendNotificacion
         $domicilio_citado = null;
         foreach($partes as $parte){
             if($parte->tipo_parte_id == 2){
-                $domicilio_citado = $parte->domicilios()->first();
+                $domicilio_citado = $parte->domicilios->last();
                 break;
             }
         }
@@ -293,15 +309,27 @@ class SendNotificacion
     }
     public function ObtenerTipoNotificacion($audiencia){
         $clasificacion_multa = \App\ClasificacionArchivo::where("nombre","Acta de multa")->first();
-//        dump($audiencia->documentos);
+        $clasificacion_citatorio = \App\ClasificacionArchivo::where("nombre","Citatorio")->first();
+        $docCitatorio = $audiencia->documentos()->where("clasificacion_archivo_id",$clasificacion_citatorio->id)->first();
         if(isset($audiencia->documentos)){
             $doc = $audiencia->documentos()->where("clasificacion_archivo_id",$clasificacion_multa->id)->first();
             if($doc == null){
-                return "citatorio";
+                if($docCitatorio != null){
+                    return array(
+                        "tipo_notificacion" => "citatorio",
+                        "fecha_recepcion" => $docCitatorio->created_at,
+                    );
+                }
             }else{
-                return "multa";
+                return array(
+                    "tipo_notificacion" => "multa",
+                    "fecha_recepcion" => $doc->created_at,
+                );
             }
         }
-        return "citatorio";
+        return array(
+            "tipo_notificacion" => "citatorio",
+            "fecha_recepcion" => $audiencia->expediente->solicitud->fecha_ratificacion,
+        );
     }
 }

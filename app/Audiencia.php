@@ -42,7 +42,7 @@ class Audiencia extends Model implements Auditable
         $data = $this->cambiarEvento($data);
         return $data;
     }
-    
+
     /**
      * Relación con expediente
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -83,7 +83,7 @@ class Audiencia extends Model implements Auditable
     public function comparecientes(){
       return $this->hasMany('App\Compareciente');
     }
-    
+
     /**
      * Relación con salasAudiencias
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -131,5 +131,20 @@ class Audiencia extends Model implements Auditable
     }
     public function etapa_notificacion(){
         return $this->belongsTo(EtapaNotificacion::class)->withDefault(["etapa" => "N/A"]);
+    }
+    public function getEsUltimaAttribute(){
+      $num_total = $this->expediente->audiencia->count();
+      if($num_total == $this->numero_audiencia){
+        return true;
+      }
+      return false;
+  }
+
+    /**
+     * Relación con el catálogo de tipo de terminaciones de audiencias
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function tipoTerminacion(){
+        return $this->belongsTo(TipoTerminacionAudiencia::class, 'tipo_terminacion_audiencia_id');
     }
 }

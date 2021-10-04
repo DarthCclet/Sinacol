@@ -54,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('conciliadores/disponibilidades','ConciliadorController@getDisponibilidades');
     Route::Post('conciliadores/incidencias','ConciliadorController@incidencia');
     Route::Post('conciliadores/roles','ConciliadorController@roles');
+    Route::Get('conciliador/horario_comida/{conciliador_id}','ConciliadorController@GetHorarioComida');
+    Route::Post('conciliador/horario_comida','ConciliadorController@GuardarHorarioComida');
     Route::Post('conciliadores/ConciliadoresDisponibles','ConciliadorController@conciliadoresDisponibles');
     Route::Get('conciliadores/ConciliadorAudiencias','ConciliadorController@conciliadorAudiencias');
     Route::resource('disponibilidad','DisponibilidadController');
@@ -61,7 +63,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('solicitudes','SolicitudController');
     Route::get('solicitudes/consulta/{id}','SolicitudController@consulta')->name('solicitudes.consulta');
     Route::post('solicitudes/folio','SolicitudController@getSolicitudByFolio');
+    Route::get('solicitud/porCaducar','SolicitudController@showPorCaducar');
     Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
+    Route::Get('parte/correo/{parte_id}','ParteController@validarCorreoParte');
     Route::POST('solicitud/ratificarIncompetencia','SolicitudController@ratificarIncompetencia');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
     Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
@@ -113,6 +117,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('audiencia/cambiar_conciliador','AudienciaController@CambiarConciliador');
     Route::resource('parte','ParteController');
     Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
+    Route::Post('partes/representante/audiencia','ParteController@GetRepresentanteAudiencia');
+    Route::Get('representante/{id}','ParteController@GetRepresentanteLegalById');
     Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
     Route::Post('partes/datoLaboral','ParteController@GuardarDatoLaboral');
     Route::Post('partes/representante','ParteController@GuardarRepresentanteLegal');
@@ -121,6 +127,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
     Route::GET('partes/getComboDocumentos/{solicitud_id}','ParteController@getPartesComboDocumentos');
     Route::Get('partes/getParteSolicitud/{parte_id}','ParteController@getParteSolicitud');
+    Route::Get('partes/getCitados/{solicitud_id}','ParteController@getCitadosBySolicitudId');
+    Route::Post('aceptar_buzon','ParteController@aceptar_buzon');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
     Route::resource('estatus-solicitud','EstatusSolicitudController');
@@ -153,22 +161,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('catalogos/nacionalidades','NacionalidadController@index')->name('catalogos.nacionalidad');
     Route::get('catalogos/centros','CentroController@index')->name('catalogos.centro');
 
-
-
     Route::resource('giros','GiroComercialController');
     Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
     Route::Post('giros_comerciales/cambiar_padre','GiroComercialController@CambiarPadre');
     Route::Post('giros_comerciales/cambiar_ambito','GiroComercialController@CambiarAmbito');
     Route::resource('documento','DocumentoController');
     Route::post('guardar_documento','DocumentoController@storeDocument');
-    Route::get('regenerar_documento','DocumentoController@generar_documento');
-    Route::post('store_regenerar_documento','DocumentoController@storeRegenerarDocumento');
+    Route::get('regenerar_documento','DocumentoController@generar_documento')->middleware('can:Regenerar documento');
+    Route::post('store_regenerar_documento','DocumentoController@storeRegenerarDocumento')->middleware('can:Regenerar documento');
 
-    Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes');
-    Route::get('deshacer_solicitudes','SolicitudController@deshacer_solicitudes');
-    Route::post('rollback_proceso','SolicitudController@rollback_proceso');
-    Route::post('guardar_incidencia','SolicitudController@guardar_incidencia');
-    Route::post('borrar_incidencia','SolicitudController@borrar_incidencia');
+    Route::get('eliminar_documentos','DocumentoController@eliminar_documentos')->middleware('can:Eliminar documento');
+    Route::post('delete_documento','DocumentoController@delete_documento')->middleware('can:Eliminar documento');
+
+    Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes')->middleware('can:Archivo incidencias');
+    Route::get('deshacer_solicitudes','SolicitudController@deshacer_solicitudes')->middleware('can:Retroceso');
+    Route::get('eliminar_audiencias','SolicitudController@eliminar_audiencias')->middleware('can:Eliminar audiencia');
+    Route::post('delete_audiencia','SolicitudController@delete_audiencia')->middleware('can:Eliminar audiencia');
+    Route::post('rollback_proceso','SolicitudController@rollback_proceso')->middleware('can:Retroceso');;
+    Route::post('guardar_incidencia','SolicitudController@guardar_incidencia')->middleware('can:Archivo incidencias');;
+    Route::post('borrar_incidencia','SolicitudController@borrar_incidencia')->middleware('can:Archivo incidencias');;
     Route::resource('permisos','PermissionController');
     Route::resource('roles','RoleController');
     Route::get('roles/permisos/{id}','RoleController@GetPermisosRol');
@@ -185,7 +196,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('cambiarCentro/{centro_id}','PermissionController@cambiarCentro');
     Route::get('impersonate/{user_id}','UserController@impersonate')->name('impersonate');
     Route::get('impersonate_leave','UserController@impersonate_leave')->name('impersonate_leave');
-
 
     // Catalogos
     Route::resource('ambitos','AmbitoController');
@@ -210,6 +220,7 @@ Route::middleware(['auth'])->group(function () {
      * Notificaciones
      */
     Route::get('notificaciones','CentroController@notificaciones');
+    Route::get('notificaciones/search', 'CentroController@notificacionesSearch');
     Route::post('notificaciones/enviar','CentroController@EnviarNotificacion');
     Route::get('obtenerHistorial/{audiencia_parte_id}','CentroController@obtenerHistorial');
 
@@ -230,11 +241,22 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::get('audiencia/suspension/{audiencia_id}','AudienciaController@SuspensionVirtual');
 
+    /*
+     * Consulta de reporte en hoja de cálculo
+     */
+    Route::get('reportes','ReportesController@index')->name('reportes.forma');
+    Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');
+    Route::get('reportes/reporte-operativo','ReportesController@reporteOperativo')->name('reportes.reporte-opeativo');
+
+    /*
+     * Validación de fechas asignables desde el calendario
+     */
+    Route::get('validarFechaAsignable/{audiencia_id}/{fecha_solicitada}','SolicitudController@validarFechasAsignables');
+    Route::get('validarCambioNotificacion/{audiencia_id}','AudienciaController@validarCambioNotificacion');
 
 });
 
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
-
 
 /**
  * Ruta para envío de certificados digitales desde el buzón
@@ -247,9 +269,14 @@ Route::get('solicitud_buzon','BuzonController@SolicitudBuzon')->name('solicitud_
 Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
 Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
 Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicitar_acceso2');
+Route::get('buzon','BuzonController@BuzonElectronico')->name('buzon');
+Route::get('bitacora_buzon/{parte_id}','BuzonController@getBitacoraBuzonParte');
+Route::get('acta_bitacora_interno/{parte_id}','BuzonController@generarConstanciaBuzonInterno');
+Route::get('acta_bitacora/{parte_id}','BuzonController@generarConstanciaBuzon');
 Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
 Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
 Route::get('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
+Route::post('buzon/uploadJustificante', 'AudienciaController@uploadJustificante');
 
 Auth::routes(['register' => false]);
 

@@ -32,10 +32,15 @@
     <div id="calendar" class="vertical-box-column calendar"></div>
     <!-- end calendar -->
     </div>
+
+    @include('includes.component.modal-caduco')
 @endsection
 
 @push('scripts')
         <script>
+            if({{ isset($mostrar_caducos) ? $mostrar_caducos : 'false' }}){
+                $("#modal-caduco").modal("show");
+            }
             $(document).ready(function(){
                 $.ajax({
                     url:"getAudienciaConciliador",
