@@ -15,4 +15,11 @@ return [
      |---------------------------------------------------------
     */
     'imagen-background-login' => env('IMAGEN_BACKGROUND_LOGIN','assets/img/logo/fondo-verde.jpg'),
+    /*
+     |---------------------------------------------------------
+     | Logotipo encabezado plantillas
+     |---------------------------------------------------------
+    */
+    'header-plantilla' => env('HEADER_PLANTILLA', '/assets/img/logo/LOGO_cfcrl.png'),
+    'footer-plantilla' => env('FOOTER_PLANTILLA', '/assets/img/logo/footer_logo.png'),
 ];
