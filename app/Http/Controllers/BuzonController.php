@@ -126,6 +126,7 @@ class BuzonController extends Controller
                                 $parte = $solicitud->partes()->where("rfc",$busqueda["busqueda"])->first();
                             }
                             $parte = $solicitud->partes()->where("curp",$busqueda["busqueda"])->first();
+                            BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Constancia de consulta realizada','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$busqueda["busqueda"]]);
                             $solicitud->parte = $parte;
                             $solicitud->acepto_buzon = "no";
                             if($parte->notificacion_buzon){
