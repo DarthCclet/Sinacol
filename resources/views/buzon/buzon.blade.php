@@ -61,7 +61,7 @@
                         @foreach($solicitud->expediente->audiencia as $key => $audiencia)
                         <li><strong>Audiencia:</strong> {{$audiencia->folio}}/{{$audiencia->anio}}
                             <br>
-                            <table class="table table-striped table-bordered table-td-valign-middle">
+                            <table class="table table-striped table-bordered table-responsive" style="width:100%">
                                 <tr>
                                     <td class="text-nowrap">
                                         <strong>Fecha de audiencia:</strong> {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->format('d/m/Y')}}
@@ -139,9 +139,9 @@
                                             @endif
                                         </ul>
                                     </td> --}}
-                                </tr>
-                                <tr>
-                                    <td colspan="3">
+                                {{-- </tr>
+                                <tr> --}}
+                                    <td colspan="2">
                                         <strong>Documentos de la audiencia:</strong>
                                         <ul>
                                             @if($audiencia->documentos != null)
@@ -161,7 +161,9 @@
                         @endif
                     </ul>
                     <div>
+                        @if($solicitud->acepto_buzon)
                             <button class="btn btn-primary" onclick="getBitacoraBuzon({{$solicitud->parte->id}})">Consultar Bitacora</button>
+                        @endif;
                     </div>
                     
                 </div>
