@@ -110,9 +110,9 @@
             box-shadow: {{config('colores.btn-primary-shadow-color')}} !important;
         }
         .btn-primary:hover {
-            color: #fff !important;
-            background-color: #32a932 !important;
-            border-color: #90ca4b !important;
+            color: {{config('colores.btn-primary-hover-color')}} !important;
+            background-color: {{config('colores.btn-primary-hover-background-color')}} !important;
+            border-color: {{config('colores.btn-primary-hover-border-color')}} !important;
         }
     </style>
 @endif
