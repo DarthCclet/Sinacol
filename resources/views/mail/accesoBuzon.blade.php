@@ -36,7 +36,7 @@
             <div class="login-header" align="center" style="padding:10px;">
                 <div class="brand">
                     <span>
-                        <img width="220px" src="{{ env('APP_URL') }}/{{ config('logotipos.logotipo-encabezado') }}">
+                        <img width="220px" src="data:image/x-icon;base64,{{ $logo }}">
                     </span>
                 </div>
             </div>
