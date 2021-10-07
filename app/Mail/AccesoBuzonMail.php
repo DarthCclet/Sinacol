@@ -24,7 +24,7 @@ class AccesoBuzonMail extends Mailable
     {
         $this->parte = $parte;
         $this->liga = $liga;
-        $this->subject = "Acceso al buzón";
+        $this->subject = config('buzon.asunto');
     }
 
     /**
