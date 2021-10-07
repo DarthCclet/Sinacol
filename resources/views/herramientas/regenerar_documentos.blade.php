@@ -592,16 +592,52 @@
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
                 }
             break;
+            case "16":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
+                }
+            break;
+            case "17":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
+                }
+            break;
             case "18":
                 if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == ""  ){
                     response.success = false;
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia y un citado para continuar";
                 }
             break;
-            case "29":
-                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
+            case "19":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" ){
                     response.success = false;
-                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante para continuar";
+                    response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
+                }
+            break;
+            case "20":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
+                }
+            break;
+            case "21":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
+                }
+            break;
+            case "22":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == ""  ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia y un citado para continuar";
+                }
+            break;
+            case "23":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == ""  ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia y un citado para continuar";
                 }
             break;
             case "24":
@@ -610,10 +646,22 @@
                     response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
                 }
             break;
-            case "19":
+            case "25":
                 if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" ){
                     response.success = false;
                     response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
+                }
+            break;
+            case "26":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
+                }
+            break;
+            case "29":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante para continuar";
                 }
             break;
             case "31":

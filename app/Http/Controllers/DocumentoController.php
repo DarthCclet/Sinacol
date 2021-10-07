@@ -495,7 +495,7 @@ class DocumentoController extends Controller
     public function generar_documento(){
 
         try{
-            $plantillas = array_pluck(PlantillaDocumento::orderBy('nombre_plantilla')->get(),'nombre_plantilla','id');
+            $plantillas = array_pluck(PlantillaDocumento::orderBy('nombre_plantilla')->whereNotIn('id',[27,28])->get(),'nombre_plantilla','id');
             //$clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40,45,41,19,43,52,54,49,56,61,62,64,66,65])->orderBy('nombre')->get(),'nombre','id');
             return view('herramientas.regenerar_documentos', compact('plantillas'));
         }catch(Exception $e){
@@ -511,7 +511,7 @@ class DocumentoController extends Controller
         try{
             
             //$arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10,19=>11,41=>8,43=>9,52=>14,54=>15,45=>12,49=>13,61=>24,56=>18,62=>19,64=>29,66=>30,65=>31];
-            $arrayPlantilla = [6=>40,7=>18,17=>1,2=>16,3=>15,4=>14,10=>13,11=>19,8=>41,9=>43,14=>52,15=>54,12=>45,13=>49,24=>61,18=>56,19=>62,29=>64,30=>66,31=>65];
+            $arrayPlantilla = [6=>40,7=>18,17=>1,2=>16,16=>16,3=>15,4=>14,10=>13,11=>19,8=>41,9=>43,14=>52,15=>54,12=>45,13=>49,24=>61,18=>56,19=>62,20=>62,29=>64,30=>66,31=>65,21=>59,22=>60,25=>63,26=>63];
             $arrayPlantillaParte = [65,66,62];
             $idSolicitud = $request->get('solicitud_id',1);
             $idAudiencia = $request->get('audiencia_id');
