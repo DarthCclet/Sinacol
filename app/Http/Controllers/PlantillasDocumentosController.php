@@ -753,6 +753,7 @@ class PlantillasDocumentosController extends Controller
                           }else{//obtener domicilio del patron
                             $tipoParteDom = ($parte['tipo_parte_id'] == 1 )? 2 : 1 ;
                             // dd($resolucionesIndividuales[0]['parte_solicitado_id']);
+                            //si no se convino con todos y hay resoluciones 1-1
                             if($resolucionesIndividuales != null && sizeof($resolucionesIndividuales)>0){
                               $contraparte = Parte::with('domicilios')->find($resolucionesIndividuales[0]['parte_solicitado_id']);
                               if($contraparte->tipo_parte_id == 3){//si es representante buscar parte
