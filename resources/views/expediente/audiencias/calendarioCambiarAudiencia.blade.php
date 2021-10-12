@@ -153,7 +153,7 @@
             function validarFechaAsignacion(start, end, a, b) {
                 $.get("/validarFechaAsignable/" + $("#audiencia_id").val() + "/" + moment(start).format('Y-MM-DD'), function(
                     data) {
-                    if (data <= 45) {
+                    if (data.valido) {
                         var ahora = new Date();
                         end=moment(end).format('Y-MM-DD HH:mm:ss');
                         console.log(end);

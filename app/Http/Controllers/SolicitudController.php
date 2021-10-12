@@ -49,6 +49,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
+use App\Services\DiasVigenciaSolicitudService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use App\Events\RatificacionRealizada;
@@ -78,10 +79,12 @@ class SolicitudController extends Controller {
      * @var Request
      */
     protected $request;
+    protected $dias_solicitud;
 
-    public function __construct(Request $request) {
+    public function __construct(Request $request, DiasVigenciaSolicitudService $dias) {
         // $this->middleware("auth");
         $this->request = $request;
+        $this->dias_solicitud = $dias;
     }
 
     public function index() {
@@ -1672,7 +1675,7 @@ class SolicitudController extends Controller {
                         $multiple = false;
                     }
                     if($datos_audiencia['encontro_audiencia']){
-                        if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                        if(!$this->dias_solicitud->getSolicitudVigente($solicitud->id, $datos_audiencia["fecha_audiencia"])){
                             DB::rollback();
                             return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
                         }
@@ -2366,16 +2369,9 @@ class SolicitudController extends Controller {
     public function validarFechasAsignables(){
         $audiencia = Audiencia::find($this->request->audiencia_id);
         if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){
-            $fecha_solicitada = $this->request->fecha_solicitada;
-            $dt = new Carbon($audiencia->expediente->solicitud->created_at);
-            $dt2 = new Carbon($fecha_solicitada);
-            /*$dias = $dt->diffInDaysFiltered(function(Carbon $date) {
-                return !$date->isWeekend();
-            }, $dt2);*/
-            $dias = $dt->diffInDays($dt2);
-            return $dias;
+            return array("valido" => $this->dias_solicitud->getSolicitudVigente($audiencia->expediente->solicitud_id, $this->request->fecha_solicitada));
         }else{
-            return 1;
+            return array("valido" => true);
         }
     }
 }
