@@ -21,7 +21,7 @@
     <div class="panel panel-default">
         <!-- begin panel-heading -->
         <div class="panel-heading">
-            <h4 class="panel-title">Listado de salas</h4>
+            <h4 class="panel-title">Listado de conciliadores</h4>
             <div class="panel-heading-btn">
                 <a href="{!! route('conciliadores.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
