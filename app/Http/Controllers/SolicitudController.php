@@ -1660,6 +1660,7 @@ class SolicitudController extends Controller {
                 }
             }
             event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
+            $audiencia->tipo_solicitud_id = $solicitud->tipo_solicitud_id;
             return $audiencia;
 
         }catch(Exception $e) {
