@@ -12,10 +12,14 @@ use App\Services\DiasVigenciaSolicitudService;
 /**
  * Clase para la confirmación de audiencia
  * Class AudienciaService
+ * @package Audiencias
  */
 class AudienciaService{
     use FechaNotificacion;
-
+    /**
+     * Función para obtener los folios de audiencia y expediente
+     * @return array
+     */
     public static function obtenerFolios(){
         try{
             $ContadorController = new ContadorController();
@@ -30,6 +34,10 @@ class AudienciaService{
             return array("folios" => false);
         }
     }
+    /**
+     * Función para obtener los datos de asignación de audiencias
+     * @return array
+     */
     public static function obtenerAsignacion(Solicitud $solicitud,$inmediata,$separados,$fecha_cita,$tipo_notificacion_id){
         try{
             if($inmediata == "true"){
