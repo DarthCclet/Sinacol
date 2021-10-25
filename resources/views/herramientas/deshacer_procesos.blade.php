@@ -56,13 +56,13 @@
                             </div>
                             <div id="divAudienciaConsulta">
                             </div>
-                            <h4 style="color: #9d2449;" id="folio_solicitud_asociar"></h4>
+                            <h4 style="color: {{config('colores.btn-primary-color')}};" id="folio_solicitud_asociar"></h4>
                         </div>
                         <div>
                             <h2></h2>
                         </div>
                         <div style="display: none; margin: 2%;" class="col-md-12 row" id="divBtnSol" >
-                            <h1 > Proceso a realizar: <span style="color: #9d2449;" id="labeltipoRollback"></span></h1>
+                            <h1 > Proceso a realizar: <span style="color: {{config('colores.btn-primary-color')}};" id="labeltipoRollback"></span></h1>
                             <div class="col-md-12 row">
                                 <button class="btn btn-primary" style="margin-left: 1%;" id="btnEjecutar" onclick="rollback()">Ejecutar proceso</button>
                             </div>

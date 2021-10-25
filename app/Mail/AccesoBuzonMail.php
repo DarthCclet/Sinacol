@@ -24,7 +24,7 @@ class AccesoBuzonMail extends Mailable
     {
         $this->parte = $parte;
         $this->liga = $liga;
-        $this->subject = "Acceso al buzón";
+        $this->subject = config('buzon.asunto');
     }
 
     /**
@@ -34,6 +34,7 @@ class AccesoBuzonMail extends Mailable
      */
     public function build()
     {
-        return $this->view('mail.accesoBuzon')->with(["parte" => $this->parte,"liga" => $this->liga]);
+        $logo = base64_encode(file_get_contents(config("logotipos.logotipo-encabezado")));
+        return $this->view('mail.accesoBuzon')->with(["parte" => $this->parte,"liga" => $this->liga,'logo' => $logo]);
     }
 }

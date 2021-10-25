@@ -19,11 +19,18 @@
         max-height: 400px;
     }
     .wizard-steps li.active, .wizard-steps li.current, .wizard-steps li.success {
-        background-color: #9D2449;
+        background-color: {{config('colores.btn-primary-color')}};
         color: #fff;
         height: 70px !important;
         top: 0;
     }
+    .wizard-steps li.completed,
+.wizard-steps li.current,
+.wizard-steps-extensive li.active,
+.wizard-steps-extensive li.current {
+    background-color: {{config('colores.btn-primary-color')}};
+    color: #fff
+}
     .loading-results {
         background-image: url('/assets/img/spinner.gif');
         background-repeat: no-repeat;

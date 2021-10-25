@@ -7,10 +7,10 @@
             }
             .btn{
                 color: #fff !important;
-                background-color: #9D2449 !important;
-                border-color: #9D2449 !important;
-                border: 2px solid #9D2449 !important;
-                box-shadow: 0 0 0 0 #9D2449 !important;
+                background-color: {{config('colores.btn-primary-color')}} !important;
+                border-color: {{config('colores.btn-primary-color')}} !important;
+                border: 2px solid {{config('colores.btn-primary-color')}} !important;
+                box-shadow: 0 0 0 0 {{config('colores.btn-primary-color')}} !important;
                 display: inline-block;
                 text-align: center;
                 vertical-align: middle;
@@ -39,7 +39,7 @@
                 font-weight: 400;
                 line-height: 1.5;
                 text-align: center;">
-        <div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: #9d2449; padding: 0px;">
+        <div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: {{config('colores.btn-primary-color')}}; padding: 0px;">
             <!-- begin brand -->
             <div class="login-header" align="center" style="padding:10px;">
                 <div class="brand">
