@@ -2458,7 +2458,7 @@
         }else{
             swal({
                 title: 'Error',
-                text: 'La confirmaci&oacute;n de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
+                text: 'La confirmación de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
                 icon: 'warning'
             });
         }

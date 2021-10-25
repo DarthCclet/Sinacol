@@ -16,7 +16,7 @@ $factory->define(Solicitud::class, function (Faker $faker) {
   // estatus solicitud, objeto solicitud, centro,
   //  ya que se segura que existen registros al generar la migracion
   $estatus_solicitud = EstatusSolicitud::inRandomOrder()->first();
-  $centro = Centro::inRandomOrder()->first();
+  $centro = Centro::inRandomOrder()->whereEtapa(1)->first();
   $giro_comercial = GiroComercial::inRandomOrder()->first();
   // se crea el registro de Solicitud usando los datos obtenidos anteriormente
     return [

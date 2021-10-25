@@ -129,7 +129,6 @@ class ContadorController extends Controller
     }
     
     public function getContador($tipo_contador_id, $centro_id){
-        DB::beginTransaction();
         $anio=date("Y");
         $contador = Contador::where("anio","=",$anio)->where("tipo_contador_id","=",$tipo_contador_id)->where("centro_id","=",$centro_id)->first();
         if($contador != null){
@@ -144,7 +143,6 @@ class ContadorController extends Controller
             $contador->contador = 1;
         }
         unset($contador->centro);
-        DB::commit();
         return $contador;
     }
 }
