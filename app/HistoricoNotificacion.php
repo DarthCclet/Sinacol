@@ -3,9 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class HistoricoNotificacion extends Model
 {
+    use SoftDeletes;
     protected $table = "historico_notificaciones";
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
     public function respuestas(){

@@ -2,40 +2,47 @@
 
 @section('title', 'Audiencias')
 
-@include('includes.component.datatables')
-@include('includes.component.pickers')
-@include('includes.component.dropzone')
-@include('includes.component.calendar')
-@push('styles')
-@endpush
+    @include('includes.component.datatables')
+    @include('includes.component.pickers')
+    @include('includes.component.dropzone')
+    @include('includes.component.calendar')
+    @push('styles')
+    @endpush
     <style>
-        .fc-event{
-            height:60px !important;
+        .fc-event {
+            height: 60px !important;
         }
-        .ui-accordion-content{
-            height:100% !important;
+
+        .ui-accordion-content {
+            height: 100% !important;
         }
-        .card-header{
-            border: 1px solid #9c2449 !important;
-            background: #9c2449 !important;
+
+        .card-header {
+            border: 1px solid {{config('colores.btn-primary-color')}} !important;
+            background: {{config('colores.btn-primary-color')}} !important;
             color: white !important;
             font-size: 65% !important;
             padding: 4px !important;
             width: 100%;
             text-align: left !important;
         }
-        .amount{
+
+        .amount {
             text-align: right;
         }
 
-        .upper{
+        .upper {
             text-transform: uppercase;
         }
+
         .needed:after {
-            color:darkred;
+            color: darkred;
             content: " (*)";
         }
-        #ui-datepicker-div {z-index:9999 !important}
+
+        #ui-datepicker-div {
+            z-index: 9999 !important
+        }
 
     </style>
 @section('content')
@@ -43,7 +50,7 @@
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
         <li class="breadcrumb-item"><a href="javascript:;">Inicio</a></li>
-        <li class="breadcrumb-item active"><a href="{!! route("audiencias.index") !!}">Audiencia</a></li>
+        <li class="breadcrumb-item active"><a href="{!! route('audiencias.index') !!}">Audiencia</a></li>
         <li class="breadcrumb-item active"><a href="javascript:;">Editar Audiencia</a></li>
     </ol>
     <!-- end breadcrumb -->
@@ -82,124 +89,147 @@
     <div class="tab-content" style="background: #f2f3f4 !important;">
         <!-- begin tab-pane -->
         <div class="tab-pane fade active show" id="default-tab-1">
-            @if($audiencia->solictud_cancelcacion && !$audiencia->cancelacion_atendida)
-            <div class="alert alert-warning col-md-12">
-                <h5><i class="fa fa-warning"></i> Solicitud de nueva fecha</h5>
-                <div class="row">
-                    <div class="col-md-12">
+            @if ($audiencia->solictud_cancelcacion && !$audiencia->cancelacion_atendida)
+                <div class="alert alert-warning col-md-12">
+                    <h5><i class="fa fa-warning"></i> Solicitud de nueva fecha</h5>
+                    <div class="row">
+                        <div class="col-md-12">
 
-                    El Solicitante de esta audiencia ha solicitado su reprogramación, revisar el justificante y determinar si debe ser aprobada o negada.<br>
-                    </div>
-                    <div class="col-md-12">
-                    <div class="pull-right">
-                        <button href="/api/documentos/getFile/{{$audiencia->justificante_id}}" class="btn btn-primary" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">
-                            <i class="fa fa-file-pdf"></i>&nbsp;&nbsp;Ver Justificante
-                        </button>
-                        <button class="btn btn-success" id='btnAprobarCancelacion'><i class="fa fa-check"></i>&nbsp;&nbsp;Aprobar</button>
-                        <button class="btn btn-danger" id='btnNegarCancelacion'><i class="fa fa-times"></i>&nbsp;&nbsp;Negar</button>
-                    </div>
+                            El Solicitante de esta audiencia ha solicitado su reprogramación, revisar el justificante y
+                            determinar si debe ser aprobada o negada.<br>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="pull-right">
+                                @if ($audiencia->documentos()->whereClasificacionArchivoId($clasificacion_justificante->id)->orderBy('id', 'desc')->first() != null)
+                                    <a href="/api/documentos/getFile/{{ $audiencia->documentos()->whereClasificacionArchivoId($clasificacion_justificante->id)->orderBy('id', 'desc')->first()->uuid }}"
+                                        class="btn btn-primary" target="_blank">
+                                        <i class="fa fa-file-pdf"></i>&nbsp;&nbsp;Ver Justificante
+                                    </a>
+                                @endif
+                                <button class="btn btn-success" id='btnAprobarCancelacion'><i
+                                        class="fa fa-check"></i>&nbsp;&nbsp;Aprobar</button>
+                                <button class="btn btn-danger" id='btnNegarCancelacion'><i
+                                        class="fa fa-times"></i>&nbsp;&nbsp;Negar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
             @endif
             @include('expediente.audiencias._form')
             <h3 class="h3">Administrar Audiencias <small>Resolución de Audiencias</small></h3>
             <hr class="red">
             <div class="col-md-12">
                 <ul class="timeline">
-                    @foreach($etapa_resolucion as $etapa)
-                        @if($etapa->paso == 1)
-                        <li style="" id="step{{$etapa->paso}}">
-                        @else
-                        <li style="display:none;" id="step{{$etapa->paso}}">
+                    @foreach ($etapa_resolucion as $etapa)
+                        @if ($etapa->paso == 1)
+                            <li style="" id="step{{ $etapa->paso }}">
+                            @else
+                            <li style="display:none;" id="step{{ $etapa->paso }}">
                         @endif
-                            <!-- begin timeline-time -->
-                            <div class="timeline-time">
-                                <span class="time">{{$etapa->paso}}.  {{$etapa->nombre}}</span>
-                            <span class="date showTime{{$etapa->paso}}"></span>
-                            </div>
-                            <!-- end timeline-time -->
-                            <!-- begin timeline-icon -->
-                            <div class="timeline-icon">
-                            <a href="javascript:;" id="icon{{$etapa->paso}}">&nbsp;</a>
-                            </div>
-                            <!-- end timeline-icon -->
-                            <!-- begin timeline-body -->
+                        <!-- begin timeline-time -->
+                        <div class="timeline-time">
+                            <span class="time">{{ $etapa->paso }}. {{ $etapa->nombre }}</span>
+                            <span class="date showTime{{ $etapa->paso }}"></span>
+                        </div>
+                        <!-- end timeline-time -->
+                        <!-- begin timeline-icon -->
+                        <div class="timeline-icon">
+                            <a href="javascript:;" id="icon{{ $etapa->paso }}">&nbsp;</a>
+                        </div>
+                        <!-- end timeline-icon -->
+                        <!-- begin timeline-body -->
                         <div class="timeline-body" style="border: 1px solid black; margin-right: 10% !important">
-                                <div class="timeline-header">
-                                <span class="username"><a href="javascript:;">{{$etapa->nombre}}</a> <small></small></span>
-                                <span class="views showTime{{$etapa->paso}}"></span>
-                                </div>
-                            <div class="timeline-content" id="contentStep{{$etapa->paso}}">
-                                    <p>
-                                        @switch($etapa->paso)
-                                            @case(1)
-                                                <p>Comparecientes</p>
-                                                <div class="col-md-offset-3 col-md-12 ">
-                                                    <table class="table table-striped table-bordered table-td-valign-middle" id="table">
-                                                        <thead>
+                            <div class="timeline-header">
+                                <span class="username"><a href="javascript:;">{{ $etapa->nombre }}</a>
+                                    <small></small></span>
+                                <span class="views showTime{{ $etapa->paso }}"></span>
+                            </div>
+                            <div class="timeline-content" id="contentStep{{ $etapa->paso }}">
+                                <p>
+                                    @switch($etapa->paso)
+                                        @case(1)
+                                            <p>Comparecientes</p>
+                                            <div class="col-md-offset-3 col-md-12 ">
+                                                <table class="table table-striped table-bordered table-td-valign-middle"
+                                                    id="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-nowrap">Tipo parte</th>
+                                                            <th class="text-nowrap">Nombre</th>
+                                                            <th class="text-nowrap">Primer apellido</th>
+                                                            <th class="text-nowrap">Segundo apellido</th>
+                                                            <th class="text-nowrap">Representante legal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($audiencia->comparecientes as $compareciente)
                                                             <tr>
-                                                                <th class="text-nowrap">Tipo parte</th>
-                                                                <th class="text-nowrap">Nombre</th>
-                                                                <th class="text-nowrap">Primer apellido</th>
-                                                                <th class="text-nowrap">Segundo apellido</th>
-                                                                <th class="text-nowrap">Representante legal</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach($audiencia->comparecientes as $compareciente)
-                                                            <tr>
-                                                                <td>{{$compareciente->parte->tipoParte->nombre}}</td>
-                                                                <td>{{$compareciente->parte->nombre}}</td>
-                                                                <td>{{$compareciente->parte->primer_apellido}}</td>
-                                                                <td>{{$compareciente->parte->segundo_apellido}}</td>
-                                                                @if($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null)
-                                                                    @if($compareciente->parte->parteRepresentada->tipo_persona_id == 1)
-                                                                        <td>Si ({{$compareciente->parte->parteRepresentada->nombre}} {{$compareciente->parte->parteRepresentada->primer_apellido}} {{$compareciente->parte->parteRepresentada->segundo_apellido}})</td>
+                                                                <td>{{ $compareciente->parte->tipoParte->nombre }}</td>
+                                                                <td>{{ $compareciente->parte->nombre }}</td>
+                                                                <td>{{ $compareciente->parte->primer_apellido }}</td>
+                                                                <td>{{ $compareciente->parte->segundo_apellido }}</td>
+                                                                @if ($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null)
+                                                                    @if ($compareciente->parte->parteRepresentada->tipo_persona_id == 1)
+                                                                        <td>Si
+                                                                            ({{ $compareciente->parte->parteRepresentada->nombre }}
+                                                                            {{ $compareciente->parte->parteRepresentada->primer_apellido }}
+                                                                            {{ $compareciente->parte->parteRepresentada->segundo_apellido }})
+                                                                        </td>
                                                                     @else
-                                                                        <td>Si ({{$compareciente->parte->parteRepresentada->nombre_comercial}})</td>
+                                                                        <td>Si
+                                                                            ({{ $compareciente->parte->parteRepresentada->nombre_comercial }})
+                                                                        </td>
                                                                     @endif
                                                                 @else
-                                                                <td>No</td>
+                                                                    <td>No</td>
                                                                 @endif
                                                             </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                @break
-                                            @case(2)
-                                                {{-- <label>Recuerde explicar los aspectos importantes de la audiencia de conciliación:</label> --}}
-                                                <ul>
-                                                    <li>No se reconoce carácter de representante legal de la parte trabajadora, aunque podrá comparecer con acompañante.</li>
-                                                    <li>Lo dicho en la audiencia de conciliación es confidencial y no constituye prueba en ningún procedimiento jurisdiccional.</li>
-                                                    <li>Las características de la conciliación, enfatizar sus beneficios.</li>
-                                                    <li>La explicación de lo anterior ya está precargada en el sistema, usted solamente debe confirmar que revisó estos puntos con las partes, no es necesario que escriba un resumen de este preámbulo.</li>
-                                                </ul>
-                                                <br/>
-                                                <br/>
-                                                <input type="hidden" id="evidencia{{$etapa->paso}}" value="true" />
-                                                <div class="col-md-12">
-                                                    <div class="col-md-12" style="margin-bottom: 5%">
-                                                        <div >
-                                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>El acta fue explicada por el conciliador a las partes</span>
-                                                        </div>
-                                                        <div >
-                                                            <input type="hidden" />
-                                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="explico_acta" name='solicita_traductor_solicitante' />
-                                                        </div>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @break
+                                        @case(2)
+                                            {{-- <label>Recuerde explicar los aspectos importantes de la audiencia de conciliación:</label> --}}
+                                            <ul>
+                                                <li>No se reconoce carácter de representante legal de la parte trabajadora,
+                                                    aunque podrá comparecer con acompañante.</li>
+                                                <li>Lo dicho en la audiencia de conciliación es confidencial y no constituye
+                                                    prueba en ningún procedimiento jurisdiccional.</li>
+                                                <li>Las características de la conciliación, enfatizar sus beneficios.</li>
+                                                <li>La explicación de lo anterior ya está precargada en el sistema, usted
+                                                    solamente debe confirmar que revisó estos puntos con las partes, no es
+                                                    necesario que escriba un resumen de este preámbulo.</li>
+                                            </ul>
+                                            <br />
+                                            <br />
+                                            <input type="hidden" id="evidencia{{ $etapa->paso }}" value="true" />
+                                            <div class="col-md-12">
+                                                <div class="col-md-12" style="margin-bottom: 5%">
+                                                    <div>
+                                                        <span class="text-muted m-l-5 m-r-20" for='switch1'>El acta fue
+                                                            explicada por el conciliador a las partes</span>
+                                                    </div>
+                                                    <div>
+                                                        <input type="hidden" />
+                                                        <input type="checkbox" value="1" data-render="switchery"
+                                                            data-theme="default" id="explico_acta"
+                                                            name='solicita_traductor_solicitante' />
                                                     </div>
                                                 </div>
-                                            @break
-                                            @case(3)
-                                                {{-- <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
+                                            </div>
+                                        @break
+                                        @case(3)
+                                            {{-- <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
                                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
                                                 <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p> --}}
-                                                <p>Resumen de las manifestaciones de las partes. </p>
-                                                <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
-                                                </textarea>
-                                            @break
-                                            @case(4)
+                                            <p>Resumen de las manifestaciones de las partes. </p>
+                                            <textarea class="form-control textarea"
+                                                placeholder="Describir resumen de lo sucedido ..." type="text"
+                                                id="evidencia{{ $etapa->paso }}">
+                                                        </textarea>
+                                        @break
+                                        @case(4)
                                             <div class="accordion" id="accordionExample">
                                                 <p>
                                                     Propuestas de convenio:
@@ -209,248 +239,312 @@
                                                     </ol> --}}
                                                     {{-- Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia. --}}
                                                 </p>
-                                                @if($tipo_solicitud == 1)
-                                                    @foreach($audiencia->solicitantesComparecientes as $solicitante)
-                                                    {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
+                                                @if ($tipo_solicitud == 1)
+                                                    @foreach ($audiencia->solicitantesComparecientes as $solicitante)
+                                                        {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
                                                         <div class="card">
-                                                        <div class="card-header" id="headingOne">
-                                                            <h2 class="mb-0">
-                                                            <button id='coll{{$solicitante->parte->id}}' class="btn btn-link card-header collapseSolicitante" idSolicitante="{{$solicitante->parte->id}}" type="button" data-toggle="collapse" data-target="#collapse{{$solicitante->parte->id}}" aria-expanded="true" aria-controls="collapseOne" parteSelect="{{$solicitante->parte->id}}" onclick="getDatosLaboralesParte({{$solicitante->parte->id}})" >
-                                                                @if($solicitante->parte->tipo_persona_id == 1)
-                                                                    {{ $solicitante->parte->nombre }} {{ $solicitante->parte->primer_apellido }} {{ $solicitante->parte->segundo_apellido }}
-                                                                @else
-                                                                    {{ $solicitante->parte->nombre_comercial }}
-                                                                @endif
-                                                            </button>
-                                                            </h2>
-                                                        </div>
+                                                            <div class="card-header" id="headingOne">
+                                                                <h2 class="mb-0">
+                                                                    <button id='coll{{ $solicitante->parte->id }}'
+                                                                        class="btn btn-link card-header collapseSolicitante"
+                                                                        idSolicitante="{{ $solicitante->parte->id }}"
+                                                                        type="button" data-toggle="collapse"
+                                                                        data-target="#collapse{{ $solicitante->parte->id }}"
+                                                                        aria-expanded="true" aria-controls="collapseOne"
+                                                                        parteSelect="{{ $solicitante->parte->id }}"
+                                                                        onclick="getDatosLaboralesParte({{ $solicitante->parte->id }})">
+                                                                        @if ($solicitante->parte->tipo_persona_id == 1)
+                                                                            {{ $solicitante->parte->nombre }}
+                                                                            {{ $solicitante->parte->primer_apellido }}
+                                                                            {{ $solicitante->parte->segundo_apellido }}
+                                                                        @else
+                                                                            {{ $solicitante->parte->nombre_comercial }}
+                                                                        @endif
+                                                                    </button>
+                                                                </h2>
+                                                            </div>
 
-                                                        <div id="collapse{{$solicitante->parte->id}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-                                                            <div class="card-body">
-                                                                <input type="hidden" id="remuneracionDiaria{{$solicitante->parte->id}}" />
-                                                                <input type="hidden" id="salarioMinimo{{$solicitante->parte->id}}"/>
-                                                                <input type="hidden" id="antiguedad{{$solicitante->parte->id}}"/>
-                                                                <input type="hidden" id="idSolicitante"/>
-                                                                <div>
-                                                                    <table class="table table-bordered" >
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Concepto</th>
-                                                                                <th>Dias</th>
-                                                                                <th>Monto</th>
-                                                                                <th>Otro</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        
-                                                                        <tbody id="tbodyConceptoPrincipal{{$solicitante->parte->id}}">
-                                                                            @foreach($conceptos_pago as $concepto_pago)
-                                                                                @foreach($concepto_pago['conceptos'] as $concepto)
-                                                                                    @if($solicitante->parte->id == $concepto_pago['idSolicitante'])
-                                                                                        <tr>
-                                                                                            <td>{{$concepto->nombre}}</td>
-                                                                                            <td>{{$concepto->dias}}</td>
-                                                                                            <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
-                                                                                            <th>{{$concepto->otro}}</th>
-                                                                                        </tr>
-                                                                                    @endif  
-                                                                                @endforeach
-                                                                                @if( sizeof($concepto_pago['conceptos']) > 0 )
-                                                                                    @if( $solicitante->parte->id == $concepto_pago['idSolicitante'])
-                                                                                        <tr>
-                                                                                            <th>TOTAL</th>
-                                                                                            <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
-                                                                                        </tr>
+                                                            <div id="collapse{{ $solicitante->parte->id }}" class="collapse"
+                                                                aria-labelledby="headingOne" data-parent="#accordionExample">
+                                                                <div class="card-body">
+                                                                    <input type="hidden"
+                                                                        id="remuneracionDiaria{{ $solicitante->parte->id }}" />
+                                                                    <input type="hidden"
+                                                                        id="salarioMinimo{{ $solicitante->parte->id }}" />
+                                                                    <input type="hidden"
+                                                                        id="antiguedad{{ $solicitante->parte->id }}" />
+                                                                    <input type="hidden" id="idSolicitante" />
+                                                                    <div>
+                                                                        <table class="table table-bordered">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Concepto</th>
+                                                                                    <th>Dias</th>
+                                                                                    <th>Monto</th>
+                                                                                    <th>Otro</th>
+                                                                                </tr>
+                                                                            </thead>
+
+                                                                            <tbody
+                                                                                id="tbodyConceptoPrincipal{{ $solicitante->parte->id }}">
+                                                                                @foreach ($conceptos_pago as $concepto_pago)
+                                                                                    @foreach ($concepto_pago['conceptos'] as $concepto)
+                                                                                        @if ($solicitante->parte->id == $concepto_pago['idSolicitante'])
+                                                                                            <tr>
+                                                                                                <td>{{ $concepto->nombre }}
+                                                                                                </td>
+                                                                                                <td>{{ $concepto->dias }}</td>
+                                                                                                <td style="text-align: right">
+                                                                                                    ${{ number_format($concepto->monto, 2) }}
+                                                                                                </td>
+                                                                                                <th>{{ $concepto->otro }}</th>
+                                                                                            </tr>
+                                                                                        @endif
+                                                                                    @endforeach
+                                                                                    @if (sizeof($concepto_pago['conceptos']) > 0)
+                                                                                        @if ($solicitante->parte->id == $concepto_pago['idSolicitante'])
+                                                                                            <tr>
+                                                                                                <th>TOTAL</th>
+                                                                                                <th colspan="3"
+                                                                                                    style="text-align: right">
+                                                                                                    ${{ number_format($concepto_pago['totalConceptos'], 2) }}
+                                                                                                </th>
+                                                                                            </tr>
+                                                                                        @endif
                                                                                     @endif
-                                                                                @endif
-                                                                            @endforeach
-                                                                        </tbody>
-                                                                    </table>
+                                                                                @endforeach
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
                                                         </div>
                                                     @endforeach
                                                 @else
-                                                
-                                                    @foreach($audiencia->citadosComparecientes as $citado)
-                                                     
+
+                                                    @foreach ($audiencia->citadosComparecientes as $citado)
+
                                                         <div class="card">
-                                                        <div class="card-header" id="headingOne">
-                                                            <h2 class="mb-0">
-                                                            <button id='coll{{$citado->parte->id}}' class="btn btn-link card-header collapseCitado" idCitado="{{$citado->parte->id}}" type="button" data-toggle="collapse" data-target="#collapse{{$citado->parte->id}}" aria-expanded="true" aria-controls="collapseOne" parteSelect="{{$citado->parte->id}}" onclick="getDatosLaboralesParte({{$citado->parte->id}})" >
-                                                                @if($citado->parte->tipo_persona_id == 1)
-                                                                    {{ $citado->parte->nombre }} {{ $citado->parte->primer_apellido }} {{ $citado->parte->segundo_apellido }}
-                                                                @else
-                                                                    {{ $citado->parte->nombre_comercial }}
-                                                                @endif
-                                                            </button>
-                                                            </h2>
-                                                        </div>
-                                                        <div id="collapse{{$citado->parte->id}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-                                                            <div class="card-body">
-                                                                <input type="hidden" id="remuneracionDiaria{{$citado->parte->id}}" />
-                                                                <input type="hidden" id="salarioMinimo{{$citado->parte->id}}"/>
-                                                                <input type="hidden" id="antiguedad{{$citado->parte->id}}"/>
-                                                                <input type="hidden" id="idCitado"/>
-                                                                <div>
-                                                                    <table class="table table-bordered" >
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Concepto</th>
-                                                                                <th>Dias</th>
-                                                                                <th>Monto</th>
-                                                                                <th>Otro</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        
-                                                                        <tbody id="tbodyConceptoPrincipal{{$citado->parte->id}}">
-                                                                            @foreach($conceptos_pago as $concepto_pago)
-                                                                                @foreach($concepto_pago['conceptos'] as $concepto)
-                                                                                    @if($citado->parte->id == $concepto_pago['idCitado'])
-                                                                                        <tr>
-                                                                                            <td>{{$concepto->nombre}}</td>
-                                                                                            <td>{{$concepto->dias}}</td>
-                                                                                            <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
-                                                                                            <th>{{$concepto->otro}}</th>
-                                                                                        </tr>
-                                                                                    @endif  
-                                                                                @endforeach
-                                                                                @if( sizeof($concepto_pago['conceptos']) > 0 )
-                                                                                    @if( $citado->parte->id == $concepto_pago['idCitado'])
-                                                                                        <tr>
-                                                                                            <th>TOTAL</th>
-                                                                                            <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
-                                                                                        </tr>
+                                                            <div class="card-header" id="headingOne">
+                                                                <h2 class="mb-0">
+                                                                    <button id='coll{{ $citado->parte->id }}'
+                                                                        class="btn btn-link card-header collapseCitado"
+                                                                        idCitado="{{ $citado->parte->id }}" type="button"
+                                                                        data-toggle="collapse"
+                                                                        data-target="#collapse{{ $citado->parte->id }}"
+                                                                        aria-expanded="true" aria-controls="collapseOne"
+                                                                        parteSelect="{{ $citado->parte->id }}"
+                                                                        onclick="getDatosLaboralesParte({{ $citado->parte->id }})">
+                                                                        @if ($citado->parte->tipo_persona_id == 1)
+                                                                            {{ $citado->parte->nombre }}
+                                                                            {{ $citado->parte->primer_apellido }}
+                                                                            {{ $citado->parte->segundo_apellido }}
+                                                                        @else
+                                                                            {{ $citado->parte->nombre_comercial }}
+                                                                        @endif
+                                                                    </button>
+                                                                </h2>
+                                                            </div>
+                                                            <div id="collapse{{ $citado->parte->id }}" class="collapse"
+                                                                aria-labelledby="headingOne" data-parent="#accordionExample">
+                                                                <div class="card-body">
+                                                                    <input type="hidden"
+                                                                        id="remuneracionDiaria{{ $citado->parte->id }}" />
+                                                                    <input type="hidden"
+                                                                        id="salarioMinimo{{ $citado->parte->id }}" />
+                                                                    <input type="hidden"
+                                                                        id="antiguedad{{ $citado->parte->id }}" />
+                                                                    <input type="hidden" id="idCitado" />
+                                                                    <div>
+                                                                        <table class="table table-bordered">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Concepto</th>
+                                                                                    <th>Dias</th>
+                                                                                    <th>Monto</th>
+                                                                                    <th>Otro</th>
+                                                                                </tr>
+                                                                            </thead>
+
+                                                                            <tbody
+                                                                                id="tbodyConceptoPrincipal{{ $citado->parte->id }}">
+                                                                                @foreach ($conceptos_pago as $concepto_pago)
+                                                                                    @foreach ($concepto_pago['conceptos'] as $concepto)
+                                                                                        @if ($citado->parte->id == $concepto_pago['idCitado'])
+                                                                                            <tr>
+                                                                                                <td>{{ $concepto->nombre }}
+                                                                                                </td>
+                                                                                                <td>{{ $concepto->dias }}</td>
+                                                                                                <td style="text-align: right">
+                                                                                                    ${{ number_format($concepto->monto, 2) }}
+                                                                                                </td>
+                                                                                                <th>{{ $concepto->otro }}</th>
+                                                                                            </tr>
+                                                                                        @endif
+                                                                                    @endforeach
+                                                                                    @if (sizeof($concepto_pago['conceptos']) > 0)
+                                                                                        @if ($citado->parte->id == $concepto_pago['idCitado'])
+                                                                                            <tr>
+                                                                                                <th>TOTAL</th>
+                                                                                                <th colspan="3"
+                                                                                                    style="text-align: right">
+                                                                                                    ${{ number_format($concepto_pago['totalConceptos'], 2) }}
+                                                                                                </th>
+                                                                                            </tr>
+                                                                                        @endif
                                                                                     @endif
-                                                                                @endif
-                                                                            @endforeach
-                                                                        </tbody>
-                                                                    </table>
+                                                                                @endforeach
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        </div>
                                                     @endforeach
                                                 @endif
-                                                
-                                                </div>
-                                                <br>
 
-                                                <textarea class="form-control textarea" placeholder="Comentarios ..." type="text" id="evidencia{{$etapa->paso}}" >
-                                                </textarea>
-                                            @break
-                                            @case(5)
-                                                {{-- <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
+                                            </div>
+                                            <br>
+
+                                            <textarea class="form-control textarea" placeholder="Comentarios ..." type="text"
+                                                id="evidencia{{ $etapa->paso }}">
+                                                        </textarea>
+                                        @break
+                                        @case(5)
+                                            {{-- <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
                                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
                                                 <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p> --}}
-                                                <p>Resumen de las manifestaciones de las partes. </p>
-                                                <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
-                                                </textarea>
-                                            @break
-                                            @case(6)
-                                                {{-- <label>Debe indicar cuál de las siguientes resoluciones de audiencia procede:</label>
+                                            <p>Resumen de las manifestaciones de las partes. </p>
+                                            <textarea class="form-control textarea"
+                                                placeholder="Describir resumen de lo sucedido ..." type="text"
+                                                id="evidencia{{ $etapa->paso }}">
+                                                        </textarea>
+                                        @break
+                                        @case(6)
+                                            {{-- <label>Debe indicar cuál de las siguientes resoluciones de audiencia procede:</label>
                                                 <ul>
                                                     <li>Convenio.</li>
                                                     <li>Agendar segunda audiencia.</li>
                                                     <li>Constancia de no conciliación.</li>
                                                     <li>Las terminaciones ya están cargadas en el sistema, solamente es necesario indicar el modo de terminación de la audiencia y el resultado respecto a cada par de solicitante-citado para que el sistema coloque la terminación correcta al final del acta de audiencia.</li>
                                                 </ul> --}}
-                                                <div class="col-md-offset-3 col-md-6 ">
-                                                    <div class="form-group">
-                                                        <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
-                                                        <div class="col-sm-10">
-                                                            {!! Form::select('resolucion_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                                        </div>
+                                            <div class="col-md-offset-3 col-md-6 ">
+                                                <div class="form-group">
+                                                    <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
+                                                    <div class="col-sm-10">
+                                                        {!! Form::select('resolucion_id', isset($resoluciones) ? $resoluciones : [], null, ['id' => 'resolucion_id', 'required', 'placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']) !!}
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12" style="margin-bottom: 5%">
-                                                    <div >
-                                                        <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Existen elementos adicionales para el cumplimiento de prestaciones o prestaciones adicionales.</span>
-                                                    </div>
-                                                    <div >
-                                                    <input type="checkbox" data-render="switchery" data-theme="default" id="switchAdicionales" name='elementosAdicionales' onchange=" if($('#switchAdicionales').is(':checked')){ $('#textAdicional').show();}else{$('#textAdicional').hide();}"/>
-                                                    </div>
+                                            </div>
+                                            <div class="col-md-12" style="margin-bottom: 5%">
+                                                <div>
+                                                    <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Existen
+                                                        elementos adicionales para el cumplimiento de prestaciones o
+                                                        prestaciones adicionales.</span>
                                                 </div>
-                                                <div id="textAdicional" style="display:none">
-                                                    <textarea class="form-control textarea" placeholder="Describir..." type="text" id="evidencia{{$etapa->paso}}">
-                                                    </textarea>
+                                                <div>
+                                                    <input type="checkbox" data-render="switchery" data-theme="default"
+                                                        id="switchAdicionales" name='elementosAdicionales'
+                                                        onchange=" if($('#switchAdicionales').is(':checked')){ $('#textAdicional').show();}else{$('#textAdicional').hide();}" />
                                                 </div>
-                                                <div id="pagosDiferidos">
-                                                    <div class="col-md-12" id="divPagosAcordados" >
-                                                        <input type="hidden" id="totalPagosDiferidos">
-                                                        <br>
-                                                        <div class="col-md-8 offset-md-2">
-                                                            <table class="table table-bordered" >
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Trabajador</th>
-                                                                        <th>Fecha de pago</th>
-                                                                        <th>Monto</th>
-                                                                        <th>Descripción</th>
-                                                                        <th>Estatus</th>
-                                                                        <th>Acciones</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody id="tbodyFechaPagoPrincipal">
-                                                                    @if (count($audiencia->pagosDiferidos)>0)
-                                                                    
-                                                                        @foreach($audiencia->pagosDiferidos as $fechaPago)
-                                                                            <tr>
-                                                                            @if($fechaPago->solicitante)
-                                                                                <td>{{ $fechaPago->solicitante->nombre}} {{$fechaPago->solicitante->primer_apellido}} {{$fechaPago->solicitante->segundo_apellido}}</td>
-                                                                                @else
+                                            </div>
+                                            <div id="textAdicional" style="display:none">
+                                                <textarea class="form-control textarea" placeholder="Describir..." type="text"
+                                                    id="evidencia{{ $etapa->paso }}">
+                                                            </textarea>
+                                            </div>
+                                            <div id="pagosDiferidos">
+                                                <div class="col-md-12" id="divPagosAcordados">
+                                                    <input type="hidden" id="totalPagosDiferidos">
+                                                    <br>
+                                                    <div class="col-md-8 offset-md-2">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Trabajador</th>
+                                                                    <th>Fecha de pago</th>
+                                                                    <th>Monto</th>
+                                                                    <th>Descripción</th>
+                                                                    <th>Estatus</th>
+                                                                    <th>Acciones</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tbodyFechaPagoPrincipal">
+                                                                @if (count($audiencia->pagosDiferidos) > 0)
+
+                                                                    @foreach ($audiencia->pagosDiferidos as $fechaPago)
+                                                                        <tr>
+                                                                            @if ($fechaPago->solicitante)
+                                                                                <td>{{ $fechaPago->solicitante->nombre }}
+                                                                                    {{ $fechaPago->solicitante->primer_apellido }}
+                                                                                    {{ $fechaPago->solicitante->segundo_apellido }}
+                                                                                </td>
+                                                                            @else
                                                                                 <td></td>
                                                                             @endif
-                                                                                <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$fechaPago->fecha_pago)->format('d/m/Y H:i')}}</td>
-                                                                                <td>{{$fechaPago->monto}}</td>
-                                                                                <td>{{$fechaPago->descripcion_pago}}</td>
-                                                                                <td>
+                                                                            <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $fechaPago->fecha_pago)->format('d/m/Y H:i') }}
+                                                                            </td>
+                                                                            <td>{{ $fechaPago->monto }}</td>
+                                                                            <td>{{ $fechaPago->descripcion_pago }}</td>
+                                                                            <td>
 
-                                                                                    @if($fechaPago->pagado === false) 
-                                                                                        <P style="color: darkred">No Pagado</p>
-                                                                                    @elseif($fechaPago->pagado === true) 
-                                                                                        <P style="color:darkolivegreen">Pagado</p>
-                                                                                    @else
-                                                                                        {{-- <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button> --}}
-                                                                                        {{-- <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button> --}}
-                                                                                    @endif
-                                                                                </td>
-                                                                                <td>
-                                                                                    @if($fechaPago->pagado === false) 
-                                                                                        <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
-                                                                                    @elseif($fechaPago->pagado == true) 
-                                                                                        {{-- <button onclick="verInfoPago({{$fechaPago->id}})" class="btn btn-xs btn-info" title="Registrar pago"><i class="fa fa-eye"></i></button> --}}
-                                                                                    @else
-                                                                                        <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
-                                                                                        <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button>
-                                                                                    @endif
-                                                                                </td>
-                                                                            </tr>
-                                                                        @endforeach
-                                                                    @endif
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                        <hr>
+                                                                                @if ($fechaPago->pagado === false)
+                                                                                    <P style="color: darkred">No Pagado</p>
+                                                                                @elseif($fechaPago->pagado === true)
+                                                                                    <P style="color:darkolivegreen">Pagado</p>
+                                                                                @else
+                                                                                    {{-- <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button> --}}
+                                                                                    {{-- <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button> --}}
+                                                                                @endif
+                                                                            </td>
+                                                                            <td>
+                                                                                @if ($fechaPago->pagado === false)
+                                                                                    <button
+                                                                                        onclick="registrarPago({{ $fechaPago->id }})"
+                                                                                        class="btn btn-xs btn-success btnConfirmarPago"
+                                                                                        title="Registrar pago"><i
+                                                                                            class="fa fa-check-square"></i></button>
+                                                                                @elseif($fechaPago->pagado == true)
+                                                                                    {{-- <button onclick="verInfoPago({{$fechaPago->id}})" class="btn btn-xs btn-info" title="Registrar pago"><i class="fa fa-eye"></i></button> --}}
+                                                                                @else
+                                                                                    <button
+                                                                                        onclick="registrarPago({{ $fechaPago->id }})"
+                                                                                        class="btn btn-xs btn-success btnConfirmarPago"
+                                                                                        title="Registrar pago"><i
+                                                                                            class="fa fa-check-square"></i></button>
+                                                                                    <button
+                                                                                        onclick="emitirConstanciaNoPago({{ $fechaPago->id }})"
+                                                                                        class="btn btn-xs btn-warning"
+                                                                                        title="Registrar no comparencencia"><i
+                                                                                            class="fa fa-window-close"></i></button>
+                                                                                @endif
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                @endif
+                                                            </tbody>
+                                                        </table>
                                                     </div>
+                                                    <hr>
                                                 </div>
-                                            @break
-                                            @default
+                                            </div>
+                                        @break
+                                        @default
 
-                                        @endswitch
-                                    </p>
-                                </div>
-                                <div class="timeline-footer">
-                                </div>
+                                    @endswitch
+                                </p>
                             </div>
-                            <!-- end timeline-body -->
+                            <div class="timeline-footer">
+                            </div>
+                        </div>
+                        <!-- end timeline-body -->
                         </li>
                     @endforeach
                 </ul>
             </div>
         </div>
         <div class="tab-pane fade row" id="default-tab-2">
-            @if(isset($documentos))
+            @if (isset($documentos))
                 @include('expediente.expediente.documentos',$documentos)
             @endif
             {{-- <div class="col-md-12">
@@ -465,106 +559,106 @@
             <!-- The template to display files available for upload -->
             <script id="template-upload" type="text/x-tmpl">
                 {% for (var i=0, file; file=o.files[i]; i++) { %}
-                    <tr class="template-upload fade show">
-                        <td>
-                            <span class="preview"></span>
-                        </td>
-                        <td>
-                            <div class="bg-light rounded p-10 mb-2">
-                                <dl class="m-b-0">
-                                    <dt class="text-inverse">File Name:</dt>
-                                    <dd class="name">{%=file.name%}</dd>
-                                    <dt class="text-inverse m-t-10">File Size:</dt>
-                                    <dd class="size">Processing...</dd>
-                                </dl>
-                            </div>
-                            <strong class="error text-danger h-auto d-block text-left"></strong>
-                        </td>
-                        <td>
-                            <select class="form-control tipo_documento" name="tipo_documento_id[]">
-                                @foreach($clasificacion_archivos as $key => $nombre)
-                                    <option value="{{$key}}">{{$nombre}}</option>
-                                @endforeach
-                            </select>
-                        </td>
-                        <td>
-                            <dl>
-                                <dt class="text-inverse m-t-3">Progress:</dt>
-                                <dd class="m-t-5">
-                                    <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 40px;">0%</div></div>
-                                </dd>
-                            </dl>
-                        </td>
-                        <td nowrap>
-                            {% if (!i && !o.options.autoUpload) { %}
-                                <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
-                                    <i class="fa fa-upload fa-fw text-inverse"></i>
-                                    <span>Start</span>
-                                </button>
-                            {% } %}
-                            {% if (!i) { %}
-                                <button class="btn btn-default cancel width-100 p-r-20">
-                                    <i class="fa fa-trash fa-fw text-muted"></i>
-                                    <span>Cancel</span>
-                                </button>
-                            {% } %}
-                        </td>
-                    </tr>
-		{% } %}
-	</script>
+                                <tr class="template-upload fade show">
+                                    <td>
+                                        <span class="preview"></span>
+                                    </td>
+                                    <td>
+                                        <div class="bg-light rounded p-10 mb-2">
+                                            <dl class="m-b-0">
+                                                <dt class="text-inverse">File Name:</dt>
+                                                <dd class="name">{%=file.name%}</dd>
+                                                <dt class="text-inverse m-t-10">File Size:</dt>
+                                                <dd class="size">Processing...</dd>
+                                            </dl>
+                                        </div>
+                                        <strong class="error text-danger h-auto d-block text-left"></strong>
+                                    </td>
+                                    <td>
+                                        <select class="form-control tipo_documento" name="tipo_documento_id[]">
+                                            @foreach ($clasificacion_archivos as $key => $nombre)
+                                                <option value="{{ $key }}">{{ $nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <dl>
+                                            <dt class="text-inverse m-t-3">Progress:</dt>
+                                            <dd class="m-t-5">
+                                                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 40px;">0%</div></div>
+                                            </dd>
+                                        </dl>
+                                    </td>
+                                    <td nowrap>
+                                        {% if (!i && !o.options.autoUpload) { %}
+                                            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
+                                                <i class="fa fa-upload fa-fw text-inverse"></i>
+                                                <span>Start</span>
+                                            </button>
+                                        {% } %}
+                                        {% if (!i) { %}
+                                            <button class="btn btn-default cancel width-100 p-r-20">
+                                                <i class="fa fa-trash fa-fw text-muted"></i>
+                                                <span>Cancel</span>
+                                            </button>
+                                        {% } %}
+                                    </td>
+                                </tr>
+            		{% } %}
+            	</script>
             <!-- The template to display files available for download -->
             <script id="template-download" type="text/x-tmpl">
                 {% for (var i=0, file; file=o.files[i]; i++) { %}
-                    <tr class="template-download fade show">
-                        <td width="1%">
-                            <span class="preview">
-                                {% if (file.thumbnailUrl) { %}
-                                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
-                                {% } else { %}
-                                    <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
-                                        <i class="fa fa-file-image fa-lg text-muted"></i>
-                                    </div>
-                                {% } %}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="bg-light p-10 mb-2">
-                                <dl class="m-b-0">
-                                    <dt class="text-inverse">File Name:</dt>
-                                    <dd class="name">
-                                        {% if (file.url) { %}
-                                            <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                                <tr class="template-download fade show">
+                                    <td width="1%">
+                                        <span class="preview">
+                                            {% if (file.thumbnailUrl) { %}
+                                                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
+                                            {% } else { %}
+                                                <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
+                                                    <i class="fa fa-file-image fa-lg text-muted"></i>
+                                                </div>
+                                            {% } %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="bg-light p-10 mb-2">
+                                            <dl class="m-b-0">
+                                                <dt class="text-inverse">File Name:</dt>
+                                                <dd class="name">
+                                                    {% if (file.url) { %}
+                                                        <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                                                    {% } else { %}
+                                                        <span>{%=file.name%}</span>
+                                                    {% } %}
+                                                </dd>
+                                                <dt class="text-inverse m-t-10">File Size:</dt>
+                                                <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
+                                            </dl>
+                                            {% if (file.error) { %}
+                                                <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
+                                            {% } %}
+                                        </div>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        {% if (file.deleteUrl) { %}
+                                            <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                                                <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
+                                                <span>Delete</span>
+                                            </button>
+                                            <input type="checkbox" name="delete" value="1" class="toggle">
                                         {% } else { %}
-                                            <span>{%=file.name%}</span>
+                                            <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
+                                                <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
+                                                <span>Cancel</span>
+                                            </button>
                                         {% } %}
-                                    </dd>
-                                    <dt class="text-inverse m-t-10">File Size:</dt>
-                                    <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
-                                </dl>
-                                {% if (file.error) { %}
-                                    <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
-                                {% } %}
-                            </div>
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            {% if (file.deleteUrl) { %}
-                                <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
-                                    <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
-                                    <span>Delete</span>
-                                </button>
-                                <input type="checkbox" name="delete" value="1" class="toggle">
-                            {% } else { %}
-                                <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
-                                    <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
-                                    <span>Cancel</span>
-                                </button>
+                                    </td>
+                                </tr>
                             {% } %}
-                        </td>
-                    </tr>
-                {% } %}
-            </script>
+                        </script>
         </div>
         <div class="tab-pane fade" id="default-tab-4">
             <div class="col-md-12">
@@ -579,36 +673,41 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($audiencia->resolucionPartes as $resolucion)
-                        <tr>
-                            @if($resolucion->parteSolicitante->tipo_persona_id == 1)
-                                <td>{{$resolucion->parteSolicitante->nombre}} {{$resolucion->parteSolicitante->primer_apellido}} {{$resolucion->parteSolicitante->segundo_apellido}}</td>
-                            @else
-                                <td>{{$resolucion->parteSolicitante->nombre_comercial}}</td>
-                            @endif
-                            @if($resolucion->parteSolicitada->tipo_persona_id == 1)
-                                <td>{{$resolucion->parteSolicitada->nombre}} {{$resolucion->parteSolicitada->primer_apellido}} {{$resolucion->parteSolicitada->segundo_apellido}}</td>
-                            @else
-                                <td>{{$resolucion->parteSolicitada->nombre_comercial}}</td>
-                            @endif
-                            <td>{{$resolucion->terminacion_bilateral->nombre}}</td>
-                            <td>{{$resolucion->motivoArchivado->descripcion}}</td>
-                            <td></td>
-                        </tr>
+                        @foreach ($audiencia->resolucionPartes as $resolucion)
+                            <tr>
+                                @if ($resolucion->parteSolicitante->tipo_persona_id == 1)
+                                    <td>{{ $resolucion->parteSolicitante->nombre }}
+                                        {{ $resolucion->parteSolicitante->primer_apellido }}
+                                        {{ $resolucion->parteSolicitante->segundo_apellido }}</td>
+                                @else
+                                    <td>{{ $resolucion->parteSolicitante->nombre_comercial }}</td>
+                                @endif
+                                @if ($resolucion->parteSolicitada->tipo_persona_id == 1)
+                                    <td>{{ $resolucion->parteSolicitada->nombre }}
+                                        {{ $resolucion->parteSolicitada->primer_apellido }}
+                                        {{ $resolucion->parteSolicitada->segundo_apellido }}</td>
+                                @else
+                                    <td>{{ $resolucion->parteSolicitada->nombre_comercial }}</td>
+                                @endif
+                                <td>{{ $resolucion->terminacion_bilateral->nombre }}</td>
+                                <td>{{ $resolucion->motivoArchivado->descripcion }}</td>
+                                <td></td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
-                @if($permitir_crear)
-                <div class="text-right">
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnNuevaAudiencia'><i class="fa fa-plus"></i> Nueva Audiencia</button>
-                </div>
+                @if ($permitir_crear)
+                    <div class="text-right">
+                        <button class="btn btn-primary btn-sm m-l-5" id='btnNuevaAudiencia'><i class="fa fa-plus"></i> Nueva
+                            Audiencia</button>
+                    </div>
                 @endif
             </div>
         </div>
         <div class="tab-pane fade" id="default-tab-5">
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table table-bordered" >
+                    <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th>Citado</th>
@@ -616,24 +715,23 @@
                                 <th>Tipo de notificación</th>
                                 <th>Estado</th>
                                 <th>Fecha de Notificación</th>
-                                <th>Conclusión de notificación</th>
                             </tr>
-                    @foreach($audiencia->partes as $parte)
-                        @if($parte->tipo_parte_id == 2)
-                            <tr>
-                                @if($parte->tipo_persona_id == 1)
-                                <td>{{ $parte->nombre }} {{ $parte->primer_apellido }} {{ $parte->segundo_apellido }}</td>
-                                @else
-                                <td>{{ $parte->nombre_comercial }}</td>
+                            @foreach ($audiencia->partes as $parte)
+                                @if ($parte->tipo_parte_id == 2)
+                                    <tr>
+                                        @if ($parte->tipo_persona_id == 1)
+                                            <td>{{ $parte->nombre }} {{ $parte->primer_apellido }}
+                                                {{ $parte->segundo_apellido }}</td>
+                                        @else
+                                            <td>{{ $parte->nombre_comercial }}</td>
+                                        @endif
+                                        <td>{{ $parte->rfc }}</td>
+                                        <td>{{ $parte->tipo_notificacion->nombre }}</td>
+                                        <td>{{ $parte->finalizado }}</td>
+                                        <td>{{ $parte->fecha_notificacion }}</td>
+                                    </tr>
                                 @endif
-                                <td>{{ $parte->rfc }}</td>
-                                <td>{{ $parte->tipo_notificacion->nombre }}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        @endif
-                    @endforeach
+                            @endforeach
                         </thead>
                         <tbody id="tbodyPartesFisicas">
                         </tbody>
@@ -652,33 +750,33 @@
                 </div>
                 <div class="modal-body">
                     <form id="fileupload" action="/api/documentoAudiencia" method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name="audiencia_id[]" id='audiencia_id'/>
+                        <input type="hidden" name="audiencia_id[]" id='audiencia_id' />
                         <div class="row fileupload-buttonbar">
                             <div class="col-xl-12">
-                                    <span class="btn btn-primary fileinput-button m-r-3">
-                                            <i class="fa fa-fw fa-plus"></i>
-                                            <span>Agregar...</span>
-                                            <input type="file" name="files[]" multiple>
-                                    </span>
-                                    <button type="submit" class="btn btn-primary start m-r-3">
-                                            <i class="fa fa-fw fa-upload"></i>
-                                            <span>Cargar</span>
-                                    </button>
-                                    <button type="reset" class="btn btn-default cancel m-r-3" id="btnCancelFiles">
-                                            <i class="fa fa-fw fa-ban"></i>
-                                            <span>Cancelar</span>
-                                    </button>
-                                    <!-- The global file processing state -->
-                                    <span class="fileupload-process"></span>
+                                <span class="btn btn-primary fileinput-button m-r-3">
+                                    <i class="fa fa-fw fa-plus"></i>
+                                    <span>Agregar...</span>
+                                    <input type="file" name="files[]" multiple>
+                                </span>
+                                <button type="submit" class="btn btn-primary start m-r-3">
+                                    <i class="fa fa-fw fa-upload"></i>
+                                    <span>Cargar</span>
+                                </button>
+                                <button type="reset" class="btn btn-default cancel m-r-3" id="btnCancelFiles">
+                                    <i class="fa fa-fw fa-ban"></i>
+                                    <span>Cancelar</span>
+                                </button>
+                                <!-- The global file processing state -->
+                                <span class="fileupload-process"></span>
                             </div>
                             <!-- The global progress state -->
                             <div class="col-xl-5 fileupload-progress fade d-none d-xl-block">
-                                    <!-- The global progress bar -->
-                                    <div class="progress progress-striped active m-b-0">
-                                            <div class="progress-bar progress-bar-success" style="width:0%;"></div>
-                                    </div>
-                                    <!-- The extended global progress state -->
-                                    <div class="progress-extended">&nbsp;</div>
+                                <!-- The global progress bar -->
+                                <div class="progress progress-striped active m-b-0">
+                                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                </div>
+                                <!-- The extended global progress state -->
+                                <div class="progress-extended">&nbsp;</div>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -726,7 +824,8 @@
     </div>
     <!-- Fin Modal de ver archivos PDF-->
     <!-- Inicio Modal de representante legal-->
-    <div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true"
+        style="display:none;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -740,31 +839,36 @@
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="curp" class="control-label needed">CURP</label>
-                                <input type="text" id="curp" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante legal">
+                                <input type="text" id="curp" maxlength="18" onblur="getParteCurp(this.value)"
+                                    class="form-control upper" placeholder="CURP del representante legal">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="nombre" class="control-label needed">Nombre</label>
-                                <input type="text" id="nombre" class="form-control upper" placeholder="Nombre del representante legal">
+                                <input type="text" id="nombre" class="form-control upper"
+                                    placeholder="Nombre del representante legal">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="primer_apellido" class="control-label needed">Primer apellido</label>
-                                <input type="text" id="primer_apellido" class="form-control upper" placeholder="Primer apellido del representante">
+                                <input type="text" id="primer_apellido" class="form-control upper"
+                                    placeholder="Primer apellido del representante">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="segundo_apellido" class="control-label">Segundo apellido</label>
-                                <input type="text" id="segundo_apellido" class="form-control upper" placeholder="Segundo apellido representante">
+                                <input type="text" id="segundo_apellido" class="form-control upper"
+                                    placeholder="Segundo apellido representante">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="fecha_nacimiento" class="control-label needed">Fecha de nacimiento</label>
-                                <input type="text" id="fecha_nacimiento" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
+                                <input type="text" id="fecha_nacimiento" class="form-control dateBirth"
+                                    placeholder="Fecha de nacimiento del representante">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -784,12 +888,14 @@
                                 <p style="margin-top: 1%;" id="labelIdentifRepresentante"></p>
                             </div>
                             <div class="col-md-6">
-                                <label for="clasificacion_archivo_id_representante" class="control-label needed">Tipo de documento</label>
-                                <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
+                                <label for="clasificacion_archivo_id_representante" class="control-label needed">Tipo de
+                                    documento</label>
+                                <select class="form-control catSelect" required id="tipo_documento_id"
+                                    name="tipo_documento_id">
                                     <option value="">Seleccione una opci&oacute;n</option>
-                                    @if(isset($clasificacion_archivos))
-                                        @foreach($clasificacion_archivos as $clasificacion)
-                                            <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @if (isset($clasificacion_archivos))
+                                        @foreach ($clasificacion_archivos as $clasificacion)
+                                            <option value="{{ $clasificacion->id }}">{{ $clasificacion->nombre }}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -797,7 +903,7 @@
                         </div>
                         <div class="col-md-12">
                             <div class="col-md-6">
-                                <label >Cedula Profesional</label>
+                                <label>Cedula Profesional</label>
                                 <span class="btn btn-primary fileinput-button m-r-3">
                                     <i class="fa fa-fw fa-plus"></i>
                                     <span>Seleccionar identificaci&oacute;n</span>
@@ -812,11 +918,12 @@
                     <div class="col-md-12 row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="clasificacion_archivo_id_representante" class="control-label needed">Instrumento</label>
+                                <label for="clasificacion_archivo_id_representante"
+                                    class="control-label needed">Instrumento</label>
                                 <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                     <option value="">-- Selecciona un instrumento</option>
-                                    @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @foreach ($clasificacion_archivos_Representante as $clasificacion)
+                                        <option value="{{ $clasificacion->id }}">{{ $clasificacion->nombre }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -824,11 +931,12 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
-                                <input type="text" id="feha_instrumento" class="form-control dateBirth" placeholder="Fecha en que se extiende el instrumento">
+                                <input type="text" id="feha_instrumento" class="form-control dateBirth"
+                                    placeholder="Fecha en que se extiende el instrumento">
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class=" needed">Documento de Instrumento</label> 
+                            <label class=" needed">Documento de Instrumento</label>
                             <span class="btn btn-primary fileinput-button m-r-3">
                                 <i class="fa fa-fw fa-plus"></i>
                                 <span>Seleccionar instrumento</span>
@@ -838,8 +946,10 @@
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
-                                <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
+                                <label for="detalle_instrumento" class="control-label">Detalle del instrumento
+                                    notarial</label>
+                                <textarea type="text" id="detalle_instrumento" class="form-control"
+                                    placeholder=""></textarea>
                             </div>
                         </div>
                     </div>
@@ -865,7 +975,7 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <table class="table table-bordered" >
+                        <table class="table table-bordered">
                             <thead>
                                 <tr>
                                     <th style="width:80%;">Tipo</th>
@@ -881,7 +991,8 @@
                 <div class="modal-footer">
                     <div class="text-right">
                         <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarRepresentante"><i class="fa fa-save"></i> Guardar</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarRepresentante"><i class="fa fa-save"></i>
+                            Guardar</button>
                     </div>
                 </div>
             </div>
@@ -901,18 +1012,22 @@
                         <input type="hidden" id="resolucion_dato_laboral">
                         <input type="hidden" id="giro_comercial_hidden">
                         <div class="col-md-6">
-                            <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
+                            <input class="form-control numero" maxlength="11" minlength="11" length="11"
+                                data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"
+                                type="text" value="">
                             <p class="help-block ">N&uacute;mero de seguro social</p>
                         </div>
                         <div class="col-md-12 row">
                             <div class="col-md-6">
-                                <input class="form-control upper" required id="puesto" placeholder="Puesto" type="text" value="">
+                                <input class="form-control upper" required id="puesto" placeholder="Puesto" type="text"
+                                    value="">
                                 <p class="help-block needed">Puesto</p>
                             </div>
-                            <div class="col-md-6" >
-                                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                            <div class="col-md-6">
+                                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [], null, ['id' => 'ocupacion_id', 'placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']) !!}
                                 {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block ">&iquest;En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deja vacío.</p>
+                                <p class="help-block ">&iquest;En caso de desempeñar un oficio que cuenta con salario mínimo
+                                    distinto al general, escoja del catálogo. Si no, deja vacío.</p>
                             </div>
                             {{-- <div class="col-md-4">
                                 <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
@@ -921,16 +1036,19 @@
                         </div>
                         <div class="col-md-12 row">
                             <div class="col-md-4">
-                                <input class="form-control numero requiredLaboral" required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
+                                <input class="form-control numero requiredLaboral" required data-parsley-type='number'
+                                    id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text"
+                                    value="">
                                 <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
                             </div>
                             <div class="col-md-4">
-                                {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboral']);  !!}
+                                {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [], null, ['id' => 'periodicidad_id', 'placeholder' => 'Seleccione una opción', 'required', 'class' => 'form-control catSelect requiredLaboral']) !!}
                                 {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control numero requiredLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
+                                <input class="form-control numero requiredLaboral" required data-parsley-type='integer'
+                                    id="horas_semanales" placeholder="Horas semanales" type="text" value="">
                                 <p class="help-block needed">Horas semanales</p>
                             </div>
                         </div>
@@ -941,19 +1059,22 @@
                             </div>
                             <div class="col-md-2">
                                 <input type="hidden" />
-                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
+                                <input type="checkbox" value="1" data-render="switchery" data-theme="default"
+                                    id="labora_actualmente" name='labora_actualmente' />
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control requiredLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                <input class="form-control requiredLaboral" required id="fecha_ingreso"
+                                    placeholder="Fecha de ingreso" type="text" value="">
                                 <p class="help-block needed">Fecha de ingreso</p>
                             </div>
                             <div class="col-md-4" id="divFechaSalida">
-                                <input class="form-control requiredLaboral" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                <input class="form-control requiredLaboral" required id="fecha_salida"
+                                    placeholder="Fecha salida" type="text" value="">
                                 <p class="help-block needed">Fecha salida</p>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                            {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [], null, ['id' => 'jornada_id', 'placeholder' => 'Seleccione una opción', 'required', 'class' => 'form-control catSelect datoLaboral']) !!}
                             {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                             <p class="help-block needed">Jornada</p>
                         </div>
@@ -962,7 +1083,8 @@
                 <div class="modal-footer">
                     <div class="text-right">
                         <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarDatoLaboral"><i class="fa fa-save"></i> Guardar</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarDatoLaboral"><i class="fa fa-save"></i>
+                            Guardar</button>
                     </div>
                 </div>
             </div>
@@ -987,7 +1109,7 @@
                         </p>
                     </div>
                     <div class="col-md-12">
-                        <table class="table table-bordered" >
+                        <table class="table table-bordered">
                             <thead>
                                 <tr>
                                     <th>Tipo Parte</th>
@@ -1007,15 +1129,20 @@
                         <div class="col-md-12 row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="parte_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                                    <label for="parte_solicitante_id"
+                                        class="col-sm-6 control-label labelResolucion">Solicitante</label>
                                     <div class="col-sm-10">
                                         <select id="parte_solicitante_id" class="form-control select-element">
                                             <option value="">-- Selecciona un solicitante</option>
-                                            @foreach($audiencia->solicitantes as $parte)
-                                                @if($parte->parte->tipo_persona_id == 1)
-                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                            @foreach ($audiencia->solicitantes as $parte)
+                                                @if ($parte->parte->tipo_persona_id == 1)
+                                                    <option value="{{ $parte->parte->id }}">
+                                                        {{ $parte->parte->nombre }}
+                                                        {{ $parte->parte->primer_apellido }}
+                                                        {{ $parte->parte->segundo_apellido }}</option>
                                                 @else
-                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                                    <option value="{{ $parte->parte->id }}">
+                                                        {{ $parte->parte->nombre_comercial }}</option>
                                                 @endif
                                             @endforeach
                                         </select>
@@ -1024,15 +1151,20 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Citado</label>
+                                    <label for="parte_solicitado_id"
+                                        class="col-sm-6 control-label labelResolucion">Citado</label>
                                     <div class="col-sm-10">
                                         <select id="parte_solicitado_id" class="form-control select-element">
                                             <option value="">-- Selecciona un citado</option>
-                                            @foreach($audiencia->solicitados as $parte)
-                                                @if($parte->parte->tipo_persona_id == 1)
-                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                            @foreach ($audiencia->solicitados as $parte)
+                                                @if ($parte->parte->tipo_persona_id == 1)
+                                                    <option value="{{ $parte->parte->id }}">
+                                                        {{ $parte->parte->nombre }}
+                                                        {{ $parte->parte->primer_apellido }}
+                                                        {{ $parte->parte->segundo_apellido }}</option>
                                                 @else
-                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                                    <option value="{{ $parte->parte->id }}">
+                                                        {{ $parte->parte->nombre_comercial }}</option>
                                                 @endif
                                             @endforeach
                                         </select>
@@ -1041,7 +1173,8 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="resolucion_individual_id" class="col-sm-6 control-label labelResolucion">Resolución</label>
+                                    <label for="resolucion_individual_id"
+                                        class="col-sm-6 control-label labelResolucion">Resolución</label>
                                     <div class="col-sm-10">
                                         <select id="resolucion_individual_id" class="form-control select-element">
                                             <option value="">-- Selecciona una resolución</option>
@@ -1051,12 +1184,14 @@
                             </div>
                             <div class="col-md-6" id="divMotivoArchivo" style="display: none;">
                                 <div class="form-group">
-                                    <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo de archivo</label>
+                                    <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo
+                                        de archivo</label>
                                     <div class="col-sm-10">
                                         <select id="motivo_archivado_id" class="form-control select-element">
                                             <option value="">-- Selecciona un motivo de archivado</option>
-                                            @foreach($motivos_archivo as $motivo)
-                                                <option value="{{ $motivo->id }}">{{ $motivo->descripcion }}</option>
+                                            @foreach ($motivos_archivo as $motivo)
+                                                <option value="{{ $motivo->id }}">{{ $motivo->descripcion }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -1065,12 +1200,13 @@
                             <div class="col-md-12" id="divConceptosAcordados" style="display: none;">
                                 <label>Conceptos de pago para resolucion</label>
                                 <div class="form-group">
-                                    <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion">Concepto de pago</label>
+                                    <label for="concepto_pago_resoluciones_id"
+                                        class="col-sm-6 control-label labelResolucion">Concepto de pago</label>
                                     <div class="col-sm-10">
 
                                         <select id="concepto_pago_resoluciones_id" class="form-control select-element">
                                             <option value="">-- Selecciona un concepto de pago</option>
-                                            @foreach($concepto_pago_resoluciones as $concepto)
+                                            @foreach ($concepto_pago_resoluciones as $concepto)
                                                 <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
                                             @endforeach
                                         </select>
@@ -1078,31 +1214,38 @@
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-md-6">
-                                        <label for="dias" class="col-sm-6 control-label labelResolucion">D&iacute;as a pagar</label>
+                                        <label for="dias" class="col-sm-6 control-label labelResolucion">D&iacute;as a
+                                            pagar</label>
                                         <div class="col-sm-12">
-                                            <input type="text" id="dias" placeholder="D&iacute;as a pagar" class="form-control" />
+                                            <input type="text" id="dias" placeholder="D&iacute;as a pagar"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
+                                        <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a
+                                            pagar</label>
                                         <div class="col-sm-12">
-                                            <input type="text" id="monto" placeholder="Monto a pagar" class="form-control" />
+                                            <input type="text" id="monto" placeholder="Monto a pagar"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="form-group col-md-12">
-                                        <label for="otro" class="col-sm-6 control-label labelResolucion">Descripci&oacute;n Concepto</label>
+                                        <label for="otro" class="col-sm-6 control-label labelResolucion">Descripci&oacute;n
+                                            Concepto</label>
                                         <div class="col-sm-12">
-                                            <input type="text" id="otro" placeholder="Descripci&oacute;n Concepto" class="form-control" />
+                                            <input type="text" id="otro" placeholder="Descripci&oacute;n Concepto"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                 </div>
                                 <div>
                                     <div class="text-center">
-                                        <button class="btn btn-warning text-white btn-sm" id='btnAgregarConcepto'><i class="fa fa-plus"></i> Agregar Concepto</button>
+                                        <button class="btn btn-warning text-white btn-sm" id='btnAgregarConcepto'><i
+                                                class="fa fa-plus"></i> Agregar Concepto</button>
                                     </div>
                                 </div>
                                 <div class="col-md-8 offset-md-2">
-                                    <table class="table table-bordered" >
+                                    <table class="table table-bordered">
                                         <thead>
                                             <tr>
                                                 <th>Concepto</th>
@@ -1121,11 +1264,12 @@
                         </div>
                         <div class="col-md-12">
                             <div class="text-center">
-                                <button class="btn btn-warning text-white btn-sm" id='btnAgregarResolucion'><i class="fa fa-plus"></i> Agregar</button>
+                                <button class="btn btn-warning text-white btn-sm" id='btnAgregarResolucion'><i
+                                        class="fa fa-plus"></i> Agregar</button>
                             </div>
                         </div>
                         <div class="col-md-12 row" style="padding-top: 1em">
-                            <table class="table table-bordered" >
+                            <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th>Solicitante</th>
@@ -1144,10 +1288,14 @@
                 <div class="modal-footer">
                     <div class="text-right">
                         <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
-                        <button class="btn btn-white btn-sm" id="btnCancelarVarias"><i class="fa fa-times"></i> Cancelar</button>
-                        <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionMuchas"><i class="fa fa-save"></i> Guardar</button>
-                        <button class="btn btn-warning btn-sm m-l-5" id="btnConfigurarResoluciones"><i class="fa fa-cog"></i> Configurar</button>
-                        <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionUna"><i class="fa fa-save"></i> Guardar para todos</button>
+                        <button class="btn btn-white btn-sm" id="btnCancelarVarias"><i class="fa fa-times"></i>
+                            Cancelar</button>
+                        <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionMuchas"><i
+                                class="fa fa-save"></i> Guardar</button>
+                        <button class="btn btn-warning btn-sm m-l-5" id="btnConfigurarResoluciones"><i
+                                class="fa fa-cog"></i> Configurar</button>
+                        <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionUna"><i class="fa fa-save"></i>
+                            Guardar para todos</button>
                     </div>
                 </div>
             </div>
@@ -1155,7 +1303,8 @@
     </div>
     <!-- Fin Modal de comparecientes y resolución individual-->
     <!-- Inicio Modal de ver archivos PDF-->
-    <div class="modal fade bd-example-modal-xl" tabindex="-1" id="modalNuevaAudiencia" aria-hidden="true" style="display:none;">
+    <div class="modal fade bd-example-modal-xl" tabindex="-1" id="modalNuevaAudiencia" aria-hidden="true"
+        style="display:none;">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1166,84 +1315,111 @@
                     <div class="alert alert-warning col-md-12">
                         <h5><i class="fa fa-warning"></i> Atención</h5>
                         <p>
-                            Esta opción permite crear audiencias a partir de otra audiencia derivado de una resolición que así lo requiera<br>
-                            - Seleccione las partes que deberán ser programadas para la nueva audiencia<br>
-                            - Al desactivar el campo calendarizar se generará la audiencia con la calendarizacion actual dado que ya no se requiere agendar una nueva<br>
-                            - En caso de requerir una nueva audiencia seleccione en el calendario las nuevas fechas y la forma en la que se llevará a cabo la audiencia<br>
+                            A continuación, podrás fijar una nueva fecha y hora para la celebración de la audiencia de
+                            conciliación.<br>
+                            Deberás tomar en cuenta que la duración del procedimiento de conciliación no puede exceder de 45
+                            días naturales.<br>
+                            Cuando el sistema registre que hay un nuevo citado, la fecha y hora de la audiencia se
+                            programará automáticamente con la finalidad de darle un plazo razonable a los notificadores para
+                            que puedan entregar el citatorio con un mínimo de 5 días previos a la celebración de la
+                            audiencia de conciliación.
                         </p>
                     </div>
                     <div class="col-md-12">
                         <h5>Generación de audiencia</h5>
                         <hr>
-                        @if(!$obligar)
-                        <div class="col-md-12 row">
-                            <div class="col-md-1">
-                                <h6>Notificar</h6>
-                            </div>
-                            <div class="col-md-2">
-                                <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" id="notificar" name="notificar"/>
-                            </div>
-                        </div>
-                        @endif
-                        <div class="col-md-12" id="divPartesNotificar" style="display:none;">
-                            <div class="col-md-12">
-                                <table class="table table-striped table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <td>Citado</td>
-                                            <td>Mapa</td>
-                                            <td>Tipo de notificación</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if(isset($partes))
-                                        @foreach($partes as $parte)
-                                        <tr>
-                                            @if($parte->tipo_parte_id == 2)
-                                                @if($parte->tipo_persona_id == 1)
-                                                <td>{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</td>
-                                                @else
-                                                <td>{{$parte->nombre_comercial}}</td>
-                                                @endif
-                                                <td>
-                                                    @if($parte->domicilios[0]->latitud != "" && $parte->domicilios[0]->longitud != "")
-                                                    <a href="https://maps.google.com/?q={{$parte->domicilios[0]->latitud}},{{$parte->domicilios[0]->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
-                                                    @else
-                                                    <legend>Sin datos</legend>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <input type="hidden" id="parte_id{{$parte->id}}" class="parte_id" value="{{$parte->id}}">
-                                                    <div class="custom-control custom-radio">
-                                                        @if($parte->asignado)
-                                                        <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" checked="checked">
-                                                        @else
-                                                        <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}">
+                        @if ($obligar)
+                            <div class="col-md-12" id="divPartesNotificar" style="display:none;">
+                                <div class="col-md-12">
+                                    <table class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <td>Citado</td>
+                                                <td>Mapa</td>
+                                                {{-- <td>Cambios</td> --}}
+                                                <td>Tipo de notificación</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (isset($partes))
+                                                @foreach ($partes as $index => $parte)
+                                                    <tr>
+                                                        @if ($parte->tipo_parte_id == 2)
+                                                            @if ($parte->tipo_persona_id == 1)
+                                                                <td>{{ $parte->nombre }} {{ $parte->primer_apellido }}
+                                                                    {{ $parte->segundo_apellido }}</td>
+                                                            @else
+                                                                <td>{{ $parte->nombre_comercial }}</td>
+                                                            @endif
+                                                            <td>
+                                                                @if ($parte->domicilios[0]->latitud != '' && $parte->domicilios[0]->longitud != '')
+                                                                    <a href="https://maps.google.com/?q={{ $parte->domicilios[0]->latitud }},{{ $parte->domicilios[0]->longitud }}"
+                                                                        target="_blank" class="btn btn-xs btn-primary"><i
+                                                                            class="fa fa-map"></i></a>
+                                                                @else
+                                                                    <legend>Sin datos</legend>
+                                                                @endif
+                                                            </td>
+                                                            {{-- <td style="align-content: center;"> --}}
+                                                            {{-- @if (!$parte->asignado) --}}
+                                                            {{-- <button class="btn btn-xs btn-primary" onclick="cargarEditarCitado({{$index}})"><i class="fa fa-user-edit"></i></button> --}}
+                                                            {{-- @else --}}
+                                                            {{-- @if (!$parte->notificacion_buzon) --}}
+                                                            {{-- <button class="btn btn-xs btn-primary" onclick="cargarEditarCitado({{$index}})"><i class="fa fa-user-edit"></i></button> --}}
+                                                            {{-- @endif --}}
+                                                            {{-- @endif --}}
+                                                            {{-- </td> --}}
+                                                            <td>
+                                                                <input type="hidden" id="parte_id{{ $parte->id }}"
+                                                                    class="parte_id" value="{{ $parte->id }}">
+                                                                <div class="custom-control custom-radio">
+                                                                    @if (!$parte->asignado)
+                                                                        <input type="checkbox"
+                                                                            id="radioNotificacionNo{{ $parte->id }}"
+                                                                            value="99"
+                                                                            name="radioNotificacion{{ $parte->id }}"
+                                                                            checked="checked" disabled="disabled">
+                                                                    @else
+                                                                        @if ($parte->notificacion_buzon)
+                                                                            <input type="checkbox"
+                                                                                id="radioNotificacionNo{{ $parte->id }}"
+                                                                                value="99"
+                                                                                name="radioNotificacion{{ $parte->id }}"
+                                                                                disabled="disabled">
+                                                                        @else
+                                                                            <input type="checkbox"
+                                                                                id="radioNotificacionNo{{ $parte->id }}"
+                                                                                value="99"
+                                                                                name="radioNotificacion{{ $parte->id }}"
+                                                                                disabled="disabled" checked="checked">
+                                                                        @endif
+                                                                    @endif
+                                                                    <label
+                                                                        for="radioNotificacionNo{{ $parte->id }}">Notificar</label>
+                                                                </div>
+                                                            </td>
                                                         @endif
-                                                        <label for="radioNotificacionNo{{$parte->id}}">No notificar</label>
-                                                    </div>
-                                                </td>
+                                                    </tr>
+                                                @endforeach
                                             @endif
-                                        </tr>
-                                        @endforeach
-                                        @endif
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-                        @if(!$obligar)
-                        <div class="col-md-12 row">
-                            <div id="divAgendarNuevaAudiencia">
-                                @include('expediente.audiencias.calendarioWizard')
+                        @else
+                            <div class="col-md-12 row">
+                                <div id="divAgendarNuevaAudiencia">
+                                    @include('expediente.audiencias.calendarioWizard')
+                                </div>
                             </div>
-                        </div>
                         @endif
                     </div>
                 </div>
                 <div class="modal-footer">
                     <div class="text-right">
                         <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-ban"></i> Cancelar</a>
-                        <button class="btn btn-warning btn-sm" id="btnCrearNuevaAudiencia" style="display:none;"><i class="fa fa-save"></i> Crear nueva Audiencia</button>
+                        <button class="btn btn-warning btn-sm" id="btnCrearNuevaAudiencia" style="display:none;"><i
+                                class="fa fa-save"></i> Crear nueva Audiencia</button>
                     </div>
                 </div>
             </div>
@@ -1251,7 +1427,8 @@
     </div>
     <!-- Fin Modal de ver archivos PDF-->
     <!-- Inicio Modal de recalendarizar audiencia-->
-    <div class="modal fade bd-example-modal-xl" tabindex="-1" id="modal-reprogramacion" aria-hidden="true" style="display:none;">
+    <div class="modal fade bd-example-modal-xl" tabindex="-1" id="modal-reprogramacion" aria-hidden="true"
+        style="display:none;">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1264,7 +1441,8 @@
                 <div class="modal-footer">
                     <div class="text-right">
                         <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-ban"></i> Cancelar</a>
-                        <button class="btn btn-warning btn-sm" id="btnReprogramarAudiencia"><i class="fa fa-save"></i> Reprogramar</button>
+                        <button class="btn btn-warning btn-sm" id="btnReprogramarAudiencia"><i class="fa fa-save"></i>
+                            Reprogramar</button>
                     </div>
                 </div>
             </div>
@@ -1272,220 +1450,241 @@
     </div>
     <!-- Fin Modal de ver recalendarizar audiencia-->
     <div class="modal" id="modal-asignarAudiencia" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Asignar audiencia</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-muted">
-                    - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Asignar audiencia</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
-                <div id="divAsignarUno">
-                    <div class="col-md-12 row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="sala_cambio_id" class="col-sm-6 control-label">Sala</label>
-                                <div class="col-sm-10">
-                                    <select id="sala_cambio_id" class="form-control">
-                                        <option value="">-- Selecciona una sala</option>
-                                    </select>
+                <div class="modal-body">
+                    <div class="alert alert-muted">
+                        - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
+                    </div>
+                    <div id="divAsignarUno">
+                        <div class="col-md-12 row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="sala_cambio_id" class="col-sm-6 control-label">Sala</label>
+                                    <div class="col-sm-10">
+                                        <select id="sala_cambio_id" class="form-control">
+                                            <option value="">-- Selecciona una sala</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" onclick="guardarAudienciaReagendar()"><i class="fa fa-save"></i> Guardar</button>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" onclick="guardarAudienciaReagendar()"><i
+                                class="fa fa-save"></i> Guardar</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<div class="modal" id="modal-Sala-Cambio" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Asignar audiencia</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-muted">
-                    - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
+    <div class="modal" id="modal-Sala-Cambio" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Asignar audiencia</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
-                <div id="divAsignarUno">
-                    <div class="col-md-12 row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="sala_cambio_fecha_id" class="col-sm-6 control-label">Sala</label>
-                                <div class="col-sm-10">
-                                    <select id="sala_cambio_fecha_id" class="form-control">
-                                        <option value="">-- Selecciona una sala</option>
-                                    </select>
+                <div class="modal-body">
+                    <div class="alert alert-muted">
+                        - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
+                    </div>
+                    <div id="divAsignarUno">
+                        <div class="col-md-12 row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="sala_cambio_fecha_id" class="col-sm-6 control-label">Sala</label>
+                                    <div class="col-sm-10">
+                                        <select id="sala_cambio_fecha_id" class="form-control">
+                                            <option value="">-- Selecciona una sala</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarNuevaFecha"><i class="fa fa-save"></i> Guardar</button>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarNuevaFecha"><i class="fa fa-save"></i>
+                            Guardar</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
     <div class="modal" id="modal-comunicados" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Asignar audiencia</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-muted">
-                    - Las siguientes personas no pudieron ser notificadas del cambio por correo electrónico, deberán ser contactadas a traves de los siguientes medios<br>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Asignar audiencia</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
-                <table class="table table-bordered table-striped table-hover" id="tableNoContactados">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Contacto</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!--Inicio modal para fechas de registro de citados-->
-<div class="modal" id="modal-parte" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                @include('expediente.solicitudes.agregarParte',['tipo_solicitud_id'=>$tipo_solicitud])
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarParte"><i class="fa fa-save"></i> Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!--Fin de modal pagos diferidos-->
-<!-- Inicio Modal de datos laborales-->
-<div class="modal" id="modal-info-pago" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Información del pago</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12 row">
-                    <input type="hidden" id="pago_id">
-                    <div class="form-group">
-                        <label for="fecha_nacimiento" class="control-label needed">Fecha de cumplimiento</label>
-                        <input type="text" id="fecha_cumplimiento" class="form-control fecha" placeholder="Fecha de cumplimiento de pago">
+                <div class="modal-body">
+                    <div class="alert alert-muted">
+                        - Las siguientes personas no pudieron ser notificadas del cambio por correo electrónico, deberán ser
+                        contactadas a traves de los siguientes medios<br>
                     </div>
-                    {{-- <label>Fecha de cumplimiento --}}
-
-                    <textarea class="form-control textarea" placeholder="Describir forma de pago" type="text" id="informacionPago" >
-                    </textarea>
+                    <table class="table table-bordered table-striped table-hover" id="tableNoContactados">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Contacto</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="registrarPagoInfo" onclick="guardarPagoInfo();" ><i class="fa fa-save"></i> Guardar</button>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!--Fin de modal pagos diferidos-->
+    <!--Inicio modal para fechas de registro de citados-->
+    <div class="modal" id="modal-parte" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    @include('expediente.solicitudes.agregarParte',['tipo_solicitud_id'=>$tipo_solicitud])
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarParte"><i class="fa fa-save"></i>
+                            Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('includes.component.parte-domicilio')
+    <!--Fin de modal pagos diferidos-->
+    <!-- Inicio Modal de datos laborales-->
+    <div class="modal" id="modal-info-pago" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Información del pago</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12 row">
+                        <input type="hidden" id="pago_id">
+                        <div class="form-group">
+                            <label for="fecha_nacimiento" class="control-label needed">Fecha de cumplimiento</label>
+                            <input type="text" id="fecha_cumplimiento" class="form-control fecha"
+                                placeholder="Fecha de cumplimiento de pago">
+                        </div>
+                        {{-- <label>Fecha de cumplimiento --}}
+
+                        <textarea class="form-control textarea" placeholder="Describir forma de pago" type="text"
+                            id="informacionPago">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="registrarPagoInfo" onclick="guardarPagoInfo();"><i
+                                class="fa fa-save"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Fin de modal pagos diferidos-->
     <input type="hidden" id="parte_id">
     <input type="hidden" id="parte_representada_id">
-    <input type="hidden" id="solicitud_id" value="{{$solicitud_id}}"/>
-    <input type="hidden" id="virtual"/>
+    <input type="hidden" id="solicitud_id" value="{{ $solicitud_id }}" />
+    <input type="hidden" id="virtual" />
 @endsection
 @push('scripts')
     <script>
-        if('{{$virtual}}'){
+        if ('{{ $virtual }}') {
             $("#virtual").val("true");
-        }else{
+        } else {
             $("#virtual").val("false");
         }
-        if('{{$obligar}}'){
+        if ('{{ $obligar }}') {
             $("#divPartesNotificar").show();
             $("#btnCrearNuevaAudiencia").show();
         }
-        console.log('{{$obligar}}');
+        console.log('{{ $obligar }}');
         comparece = false;
         asignado = false;
-        var listaContactos=[];
-        var listaConcepto=[];
-        var finalizada=false;
-        var listaResolucionesIndividuales=[];
+        var listaContactos = [];
+        var listaConcepto = [];
+        var finalizada = false;
+        var listaResolucionesIndividuales = [];
         var origen = 'audiencias';
         var origen_vista = 'audiencias';
         var url = document.location.toString();
         if (url.match('#')) {
             $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
-        } 
+        }
 
         // Change hash for page-reload
-        $('.nav-tabs a').on('shown.bs.tab', function (e) {
+        $('.nav-tabs a').on('shown.bs.tab', function(e) {
             window.location.hash = e.target.hash;
         })
         $(document).ready(function() {
             $("#audiencia_id").val('{{ $audiencia->id }}');
             finalizada = '{{ $audiencia->finalizada }}';
-            $("#duracionAudiencia").datetimepicker({format:"HH:mm"});
-            $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
-            $('#convenio').wysihtml5({locale: 'es-ES'});
-            $('#desahogo').wysihtml5({locale: 'es-ES'});
+            $("#duracionAudiencia").datetimepicker({
+                format: "HH:mm"
+            });
+            $(".fecha").datetimepicker({
+                format: "DD/MM/YYYY"
+            });
+            $('#convenio').wysihtml5({
+                locale: 'es-ES'
+            });
+            $('#desahogo').wysihtml5({
+                locale: 'es-ES'
+            });
             $(".tipo_documento,.select-element").select2();
             cargarDocumentos();
             cargarGeneros();
             cargarTipoContactos();
             getEtapasAudiencia();
             $.ajax({
-                url:"/resolucion-audiencia",
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    try{
+                url: "/resolucion-audiencia",
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    try {
 
-                        if(data.data.data != null && data.data.data != ""){
-                            $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
+                        if (data.data.data != null && data.data.data != "") {
+                            $("#resolucion_id,#resolucion_individual_id").html(
+                                "<option value=''>-- Selecciona una resolucion</option>");
                             //                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
-                            $.each(data.data.data,function(index,element){
-                                $("#resolucion_id,#resolucion_individual_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                            $.each(data.data.data, function(index, element) {
+                                $("#resolucion_id,#resolucion_individual_id").append(
+                                    "<option value='" + element.id + "'>" + element.nombre +
+                                    "</option>");
                             });
-                        }else{
-                            $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
+                        } else {
+                            $("#resolucion_id,#resolucion_individual_id").html(
+                                "<option value=''>-- Selecciona una resolucion</option>");
                         }
                         $("#resolucion_id").val('{{ $audiencia->resolucion_id }}');
                         $("#resolucion_id,#resolucion_individual_id").trigger("change");
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
@@ -1494,9 +1693,11 @@
 
             FormMultipleUpload.init();
             Gallery.init();
-            $('.textarea').wysihtml5({locale: 'es-ES'});
+            $('.textarea').wysihtml5({
+                locale: 'es-ES'
+            });
         });
-        $("#btnAgregarArchivo").on("click",function(){
+        $("#btnAgregarArchivo").on("click", function() {
             $("#btnCancelFiles").click();
             $("#modal-archivos").modal("show");
         });
@@ -1507,9 +1708,9 @@
                 disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
                 maxFileSize: 5000000,
                 acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
-                stop: function(e,data){
-                  cargarDocumentos();
-                  $("#modal-archivos").modal("hide");
+                stop: function(e, data) {
+                    cargarDocumentos();
+                    $("#modal-archivos").modal("hide");
                 }
                 // Uncomment the following to send cross-domain cookies:
                 //xhrFields: {withCCOLOR_REDentials: true},
@@ -1520,8 +1721,8 @@
                 'option',
                 'COLOR_REDirect',
                 window.location.href.replace(
-                        /\/[^\/]*$/,
-                        '/cors/result.html?%s'
+                    /\/[^\/]*$/,
+                    '/cors/result.html?%s'
                 )
             );
 
@@ -1538,54 +1739,58 @@
             $('#fileupload').bind('fileuploadfail', function(e, data) {
                 var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
                 if (rowLeft === 0) {
-                        $('#fileupload [data-id="empty"]').show();
+                    $('#fileupload [data-id="empty"]').show();
                 } else {
-                        $('#fileupload [data-id="empty"]').hide();
+                    $('#fileupload [data-id="empty"]').hide();
                 }
             });
 
             // Upload server status check for browsers with CORS support:
             if ($.support.cors) {
-                    $.ajax({
-                            type: 'HEAD'
-                    }).fail(function () {
-                            $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
-                    });
+                $.ajax({
+                    type: 'HEAD'
+                }).fail(function() {
+                    $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' +
+                        new Date()).appendTo('#fileupload');
+                });
             }
 
             // Load & display existing files:
             $('#fileupload').addClass('fileupload-processing');
             $.ajax({
-                    // Uncomment the following to send cross-domain cookies:
-                    //xhrFields: {withCCOLOR_REDentials: true},
-                    url: $('#fileupload').fileupload('option', 'url'),
-                    dataType: 'json',
-                    context: $('#fileupload')[0]
-            }).always(function () {
-                    $(this).removeClass('fileupload-processing');
-            }).done(function (result) {
-                    $(this).fileupload('option', 'done')
-                    .call(this, $.Event('done'), {result: result});
+                // Uncomment the following to send cross-domain cookies:
+                //xhrFields: {withCCOLOR_REDentials: true},
+                url: $('#fileupload').fileupload('option', 'url'),
+                dataType: 'json',
+                context: $('#fileupload')[0]
+            }).always(function() {
+                $(this).removeClass('fileupload-processing');
+            }).done(function(result) {
+                $(this).fileupload('option', 'done')
+                    .call(this, $.Event('done'), {
+                        result: result
+                    });
             });
         };
-        var FormMultipleUpload = function () {
-                "use strict";
-                return {
-                        //main function
-                        init: function () {
-                                handleJqueryFileUpload();
-                        }
-                };
+        var FormMultipleUpload = function() {
+            "use strict";
+            return {
+                //main function
+                init: function() {
+                    handleJqueryFileUpload();
+                }
+            };
         }();
-        var Gallery = function () {
-                "use strict";
-                return {
-                        //main function
-                        init: function () {
-                                handleIsotopesGallery();
-                        }
-                };
+        var Gallery = function() {
+            "use strict";
+            return {
+                //main function
+                init: function() {
+                    handleIsotopesGallery();
+                }
+            };
         }();
+
         function calculateDivider() {
             var dividerValue = 4;
             if ($(this).width() <= 576) {
@@ -1601,59 +1806,69 @@
             var container = $('#gallery');
 
             $(window).on('resize', function() {
-                    var dividerValue = calculateDivider();
-                    var containerWidth = $(container).width();
-                    var columnWidth = containerWidth / dividerValue;
-                    $(container).isotope({
-                            masonry: {
-                                    columnWidth: columnWidth
-                            }
-                    });
+                var dividerValue = calculateDivider();
+                var containerWidth = $(container).width();
+                var columnWidth = containerWidth / dividerValue;
+                $(container).isotope({
+                    masonry: {
+                        columnWidth: columnWidth
+                    }
+                });
             });
         };
-        function cargarDocumentos(){
+
+        function cargarDocumentos() {
             $.ajax({
-                url:"/audiencia/documentos/"+$("#audiencia_id").val(),
-                type:"GET",
-                dataType:"json",
-                async:true,
-                success:function(data){
-                    try{
-                        if(data != null && data != ""){
+                url: "/audiencia/documentos/" + $("#audiencia_id").val(),
+                type: "GET",
+                dataType: "json",
+                async: true,
+                success: function(data) {
+                    try {
+                        if (data != null && data != "") {
                             var table = "";
                             var div = "";
-                            $.each(data, function(index,element){
+                            $.each(data, function(index, element) {
                                 div += '<div class="image gallery-group-1">';
                                 div += '    <div class="image-inner" style="position: relative;">';
-                                if(element.tipo == 'pdf' || element.tipo == 'PDF'){
-                                    div += '            <a href="/api/documentos/getFile/'+element.uuid+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                if (element.tipo == 'pdf' || element.tipo == 'PDF') {
+                                    div += '            <a href="/api/documentos/getFile/' + element
+                                        .uuid +
+                                        '" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
                                     div += '                <div class="img" align="center">';
-                                    div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+                                    div +=
+                                        '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
                                     div += '                </div>';
                                     div += '            </a>';
-                                }else{
-                                    div += '            <a href="/api/documentos/getFile/'+element.uuid+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
-                                    div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.uuid+'\')"></div>';
+                                } else {
+                                    div += '            <a href="/api/documentos/getFile/' + element
+                                        .uuid +
+                                        '" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                    div +=
+                                        '                <div class="img" style="background-image: url(\'/api/documentos/getFile/' +
+                                        element.uuid + '\')"></div>';
                                     div += '            </a>';
                                 }
                                 div += '            <p class="image-caption">';
-                                div += '                '+element.longitud+' kb';
+                                div += '                ' + element.longitud + ' kb';
                                 div += '            </p>';
                                 div += '    </div>';
                                 div += '    <div class="image-info">';
-                                div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+                                div += '            <h5 class="title">' + element.nombre_original +
+                                    '</h5>';
                                 div += '            <div class="desc">';
-                                div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
-                                div +=                  element.descripcion+'<br>';
+                                div += '                <strong>Documento: </strong>' + element
+                                    .clasificacionArchivo.nombre;
+                                div += element.descripcion + '<br>';
                                 div += '            </div>';
                                 div += '    </div>';
                                 div += '</div>';
                             });
                             $("#gallery").html(div);
-                        }else{
+                        } else {
 
                         }
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
@@ -1666,20 +1881,22 @@
                 onShown: function() {
                     console.log('Checking our the events huh?');
                 },
-                onNavigate: function(direction, itemIndex){
-                    console.log('Navigating '+direction+'. Current item: '+itemIndex);
+                onNavigate: function(direction, itemIndex) {
+                    console.log('Navigating ' + direction + '. Current item: ' + itemIndex);
                 }
             });
         });
-        $(document).on('click', '[data-toggle="iframe"]',function(event){
+        $(document).on('click', '[data-toggle="iframe"]', function(event) {
             event.preventDefault();
             var pdf_link = $(this).attr('href');
             var iframe = "";
-            iframe +='    <div id="Iframe-Cicis-Menu-To-Go" class="set-margin-cicis-menu-to-go set-padding-cicis-menu-to-go set-border-cicis-menu-to-go set-box-shadow-cicis-menu-to-go center-block-horiz">';
-            iframe +='        <div class="responsive-wrapper responsive-wrapper-padding-bottom-90pct" style="-webkit-overflow-scrolling: touch; overflow: auto;">';
-            iframe +='            <iframe src="'+pdf_link+'"></iframe>';
-            iframe +='        </div>';
-            iframe +='    </div>';
+            iframe +=
+                '    <div id="Iframe-Cicis-Menu-To-Go" class="set-margin-cicis-menu-to-go set-padding-cicis-menu-to-go set-border-cicis-menu-to-go set-box-shadow-cicis-menu-to-go center-block-horiz">';
+            iframe +=
+                '        <div class="responsive-wrapper responsive-wrapper-padding-bottom-90pct" style="-webkit-overflow-scrolling: touch; overflow: auto;">';
+            iframe += '            <iframe src="' + pdf_link + '"></iframe>';
+            iframe += '        </div>';
+            iframe += '    </div>';
 
             $("#bodyArchivo").html(iframe);
             $("#modal-visor").modal("show");
@@ -1688,93 +1905,103 @@
         });
 
         // Funciones de Representantes legales
-        function cargarGeneros(){
+        function cargarGeneros() {
             $.ajax({
-                url:"/generos",
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    try{
+                url: "/generos",
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    try {
 
-                        if(data.data != null && data.data != ""){
+                        if (data.data != null && data.data != "") {
                             $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
-                            $.each(data.data,function(index,element){
-                                $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                            $.each(data.data, function(index, element) {
+                                $("#genero_id").append("<option value='" + element.id + "'>" + element
+                                    .nombre + "</option>");
                             });
-                        }else{
+                        } else {
                             $("#genero_id").html("<option value=''>-- Selecciona una opción</option>");
                         }
                         $("#genero_id").trigger("change");
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        function cargarTipoContactos(){
+
+        function cargarTipoContactos() {
             $.ajax({
-                url:"/tipos_contactos",
-                type:"GET",
-                global:false,
-                dataType:"json",
-                success:function(data){
-                    if(data.data.total > 0){
-                        $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
-                        $.each(data.data.data,function(index,element){
-                            $("#tipo_contacto_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                url: "/tipos_contactos",
+                type: "GET",
+                global: false,
+                dataType: "json",
+                success: function(data) {
+                    if (data.data.total > 0) {
+                        $("#tipo_contacto_id").html(
+                            "<option value=''>-- Selecciona un tipo de contacto</option>");
+                        $.each(data.data.data, function(index, element) {
+                            $("#tipo_contacto_id").append("<option value='" + element.id + "'>" +
+                                element.nombre + "</option>");
                         });
-                    }else{
-                        $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                    } else {
+                        $("#tipo_contacto_id").html(
+                            "<option value=''>-- Selecciona un tipo de contacto</option>");
                     }
                     $("#tipo_contacto_id").trigger("change");
                 }
             });
 
         }
-        function AgregarRepresentante(parte_id){
-            $.ajax({
-                url:"/partes/representante/"+parte_id,
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    try{
 
-                        if(data != null && data != ""){
+        function AgregarRepresentante(parte_id) {
+            $.ajax({
+                url: "/partes/representante/" + parte_id,
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    try {
+
+                        if (data != null && data != "") {
                             data = data[0];
                             $("#id_representante").val(data.id);
                             $("#curp").val(data.curp);
                             $("#nombre").val(data.nombre);
                             $("#primer_apellido").val(data.primer_apellido);
-                            $("#segundo_apellido").val((data.segundo_apellido|| ""));
-                            $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
+                            $("#segundo_apellido").val((data.segundo_apellido || ""));
+                            $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento, 4));
                             $("#genero_id").val(data.genero_id).trigger("change");
                             $("#clasificacion_archivo_id").val(data.clasificacion_archivo_id).change();
-                            $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                            $("#feha_instrumento").val(dateFormat(data.feha_instrumento, 4));
                             $("#detalle_instrumento").val(data.detalle_instrumento);
                             $("#parte_id").val(data.id);
                             listaContactos = data.contactos;
-                            if(data.documentos && data.documentos.length > 0){
-                                $.each(data.documentos,function(index,doc){
-                                    if(doc.tipo_archivo == 1){
-                                        if(doc.clasificacion_archivo_id == 3){
+                            if (data.documentos && data.documentos.length > 0) {
+                                $.each(data.documentos, function(index, doc) {
+                                    if (doc.tipo_archivo == 1) {
+                                        if (doc.clasificacion_archivo_id == 3) {
                                             $("#labelCedula").html("Cedula Profesional Capturada");
-                                        }else{
-                                            $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                            $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                        } else {
+                                            $("#labelIdentifRepresentante").html(
+                                                "<b>Identificado con:</b> " + doc.descripcion);
+                                            $("#tipo_documento_id").val(doc.clasificacion_archivo_id)
+                                                .trigger('change');
                                         }
-                                    }else{
-                                        $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                        $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
+                                    } else {
+                                        $("#labelInstrumentoRepresentante").html(
+                                            "<b>Identificado con:</b> " + doc.descripcion);
+                                        $("#clasificacion_archivo_id_representante").val(doc
+                                            .clasificacion_archivo_id).trigger('change');
                                     }
                                 });
-                                
-                            }else{
+
+                            } else {
                                 $("#tipo_documento_id").val("").trigger("change");
                                 $("#labelIdentifRepresentante").html("");
                                 $("#clasificacion_archivo_id_representante").val("").trigger('change');
                                 $("#labelInstrumentoRepresentante").html("");
                             }
-                        }else{
+                        } else {
                             $("#id_representante").val("");
                             $("#curp").val("");
                             $("#nombre").val("");
@@ -1791,220 +2018,241 @@
                         $("#parte_representada_id").val(parte_id);
                         cargarContactos();
                         $("#modal-representante").modal("show");
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
 
-    function getParteCurp(curp){
-        if(validaCURP(curp) && $("#id_representante").val() == ""){
-            $.ajax({
-                url:"/partes/getParteCurp",
-                type:"POST",
-                dataType:"json",
-                data:{
-                    curp:curp,
-                    _token:"{{ csrf_token() }}"
-                },
-                async:true,
-                success:function(data){
-                    try{
-
-                        if(data != null && data != ""){
-                            $("#nombre").val(data.nombre);
-                            $("#primer_apellido").val(data.primer_apellido);
-                            $("#segundo_apellido").val(data.segundo_apellido);
-                            $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
-                            $("#genero_id").val(data.genero_id).trigger("change");
-                        }
-                    }catch(error){
-                        console.log(error);
-                    }
-                }
-            });
-        }
-    }
-        function cargarContactos(){
-            var table = "";
-            $.each(listaContactos, function(index,element){
-                table +='<tr>';
-                table +='   <td>'+element.tipo_contacto.nombre+'</td>';
-                table +='   <td>'+element.contacto+'</td>';
-                table +='   <td style="text-align: center;">';
-                table +='       <a class="btn btn-xs btn-warning" onclick="eliminarContacto('+index+')">'
-                table +='           <i class="fa fa-trash" style="color:white;"></i>';
-                table +='       </a>';
-                table +='   </td>';
-                table +='<tr>';
-            });
-            $("#tbodyContacto").html(table);
-        }
-        $("#btnAgregarContacto").on("click",function(){
-        if($("#contacto").val() != "" && $("#tipo_contacto_id").val() != ""){
-            var contactoVal = $("#contacto").val();
-            if($("#tipo_contacto_id").val() == 3){
-                if(!validateEmail(contactoVal)){
-                    swal({
-                        title: 'Error',
-                        text: 'El correo no tiene la estructura correcta',
-                        icon: 'error',
-
-                    });
-                    return false;
-                }
-
-            }else{
-                if(!/^[0-9]{10}$/.test(contactoVal)){
-                    swal({
-                        title: 'Error',
-                        text: 'El contacto debe tener 10 digitos de tipo numero',
-                        icon: 'error',
-
-                    });
-                    return false;
-                }
-            }
-            if($("#parte_id").val() != ""){
+        function getParteCurp(curp) {
+            if (validaCURP(curp) && $("#id_representante").val() == "") {
                 $.ajax({
-                    url:"/partes/representante/contacto",
-                    type:"POST",
-                    dataType:"json",
-                    data:{
-                        tipo_contacto_id:$("#tipo_contacto_id").val(),
-                        contacto:$("#contacto").val(),
-                        parte_id:$("#parte_id").val(),
-                        _token:"{{ csrf_token() }}"
+                    url: "/partes/getParteCurp",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        curp: curp,
+                        _token: "{{ csrf_token() }}"
                     },
-                    success:function(data){
-                        try{
+                    async: true,
+                    success: function(data) {
+                        try {
 
-                            if(data != null && data != ""){
-                                listaContactos = data;
-                                cargarContactos();
-                            }else{
-                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            if (data != null && data != "") {
+                                $("#nombre").val(data.nombre);
+                                $("#primer_apellido").val(data.primer_apellido);
+                                $("#segundo_apellido").val(data.segundo_apellido);
+                                $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento, 4));
+                                $("#genero_id").val(data.genero_id).trigger("change");
                             }
-                        }catch(error){
+                        } catch (error) {
                             console.log(error);
                         }
                     }
                 });
-            }else{
-                listaContactos.push({
-                    tipo_contacto_id:$("#tipo_contacto_id").val(),
-                    contacto:$("#contacto").val(),
-                    id:null,
-                    tipo_contacto:{
-                        nombre:$("#tipo_contacto_id option:selected").text()
+            }
+        }
+
+        function cargarContactos() {
+            var table = "";
+            $.each(listaContactos, function(index, element) {
+                table += '<tr>';
+                table += '   <td>' + element.tipo_contacto.nombre + '</td>';
+                table += '   <td>' + element.contacto + '</td>';
+                table += '   <td style="text-align: center;">';
+                table += '       <a class="btn btn-xs btn-warning" onclick="eliminarContacto(' + index + ')">'
+                table += '           <i class="fa fa-trash" style="color:white;"></i>';
+                table += '       </a>';
+                table += '   </td>';
+                table += '<tr>';
+            });
+            $("#tbodyContacto").html(table);
+        }
+        $("#btnAgregarContacto").on("click", function() {
+            if ($("#contacto").val() != "" && $("#tipo_contacto_id").val() != "") {
+                var contactoVal = $("#contacto").val();
+                if ($("#tipo_contacto_id").val() == 3) {
+                    if (!validateEmail(contactoVal)) {
+                        swal({
+                            title: 'Error',
+                            text: 'El correo no tiene la estructura correcta',
+                            icon: 'error',
+
+                        });
+                        return false;
                     }
+
+                } else {
+                    if (!/^[0-9]{10}$/.test(contactoVal)) {
+                        swal({
+                            title: 'Error',
+                            text: 'El contacto debe tener 10 digitos de tipo numero',
+                            icon: 'error',
+
+                        });
+                        return false;
+                    }
+                }
+                if ($("#parte_id").val() != "") {
+                    $.ajax({
+                        url: "/partes/representante/contacto",
+                        type: "POST",
+                        dataType: "json",
+                        data: {
+                            tipo_contacto_id: $("#tipo_contacto_id").val(),
+                            contacto: $("#contacto").val(),
+                            parte_id: $("#parte_id").val(),
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(data) {
+                            try {
+
+                                if (data != null && data != "") {
+                                    listaContactos = data;
+                                    cargarContactos();
+                                } else {
+                                    swal({
+                                        title: 'Error',
+                                        text: 'Algo salió mal',
+                                        icon: 'warning'
+                                    });
+                                }
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        }
+                    });
+                } else {
+                    listaContactos.push({
+                        tipo_contacto_id: $("#tipo_contacto_id").val(),
+                        contacto: $("#contacto").val(),
+                        id: null,
+                        tipo_contacto: {
+                            nombre: $("#tipo_contacto_id option:selected").text()
+                        }
+                    });
+                }
+                cargarContactos();
+                $("#contacto").val("");
+                $("#tipo_contacto_id").val("").trigger("change");
+            } else {
+                swal({
+                    title: 'Error',
+                    text: 'Los campos Tipo de contacto y Contacto son obligatorios',
+                    icon: 'error',
+
                 });
             }
-            cargarContactos();
-            $("#contacto").val("");
-            $("#tipo_contacto_id").val("").trigger("change");
-        }else{
-            swal({
-                title: 'Error',
-                text: 'Los campos Tipo de contacto y Contacto son obligatorios',
-                icon: 'error',
-
-            });
-        }
-    });
-        $("#btnAgregarConcepto").on("click",function(){
-            if(($("#otro").val() != "" || ($("#dias").val() != "" && $("#monto").val() != "")) && $("#concepto_pago_resoluciones_id").val() != "" ){
+        });
+        $("#btnAgregarConcepto").on("click", function() {
+            if (($("#otro").val() != "" || ($("#dias").val() != "" && $("#monto").val() != "")) && $(
+                    "#concepto_pago_resoluciones_id").val() != "") {
 
                 listaConcepto.push({
-                    concepto_pago_resoluciones_id:$("#concepto_pago_resoluciones_id").val(),
-                    dias:$("#dias").val(),
-                    monto:$("#monto").val(),
-                    otro:$("#otro").val(),
+                    concepto_pago_resoluciones_id: $("#concepto_pago_resoluciones_id").val(),
+                    dias: $("#dias").val(),
+                    monto: $("#monto").val(),
+                    otro: $("#otro").val(),
                 });
                 limpiarConcepto();
                 cargarTablaConcepto();
-            }else{
-                if($("#concepto_pago_resoluciones_id").val() == ""){
-                    swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
-                }else{
-                    swal({title: 'Error',text: 'Debe ingresar dias y monto ó descripción del concepto',icon: 'warning'});
+            } else {
+                if ($("#concepto_pago_resoluciones_id").val() == "") {
+                    swal({
+                        title: 'Error',
+                        text: 'Debe seleccionar el concepto de pago',
+                        icon: 'warning'
+                    });
+                } else {
+                    swal({
+                        title: 'Error',
+                        text: 'Debe ingresar dias y monto ó descripción del concepto',
+                        icon: 'warning'
+                    });
 
                 }
             }
 
         });
-        function cargarTablaConcepto(){
+
+        function cargarTablaConcepto() {
             var table = '';
-            $.each(listaConcepto,function(index,concepto){
-                table +='<tr>';
-                    $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
-                    table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
-                    $("#concepto_pago_resoluciones_id").val("");
-                    table +='<td>'+concepto.dias+'</td>';
-                    table +='<td>'+concepto.monto+'</td>';
-                    table +='<td>'+concepto.otro+'</td>';
-                    table +='<td>';
-                        table +='<button onclick="eliminarConcepto('+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
-                            table +='<i class="fa fa-trash"></i>';
-                        table +='</button>';
-                    table +='</td>';
-                table +='</tr>';
+            $.each(listaConcepto, function(index, concepto) {
+                table += '<tr>';
+                $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
+                table += '<td>' + $("#concepto_pago_resoluciones_id option:selected").text() + '</td>';
+                $("#concepto_pago_resoluciones_id").val("");
+                table += '<td>' + concepto.dias + '</td>';
+                table += '<td>' + concepto.monto + '</td>';
+                table += '<td>' + concepto.otro + '</td>';
+                table += '<td>';
+                table += '<button onclick="eliminarConcepto(' + index +
+                    ')" class="btn btn-xs btn-warning" title="Eliminar">';
+                table += '<i class="fa fa-trash"></i>';
+                table += '</button>';
+                table += '</td>';
+                table += '</tr>';
             });
             $("#tbodyConcepto").html(table);
         }
 
-        function eliminarConcepto(indice){
-            listaConcepto.splice(indice,1);
+        function eliminarConcepto(indice) {
+            listaConcepto.splice(indice, 1);
             cargarTablaConcepto();
         }
-        function limpiarConcepto(){
+
+        function limpiarConcepto() {
             $("#concepto_pago_resoluciones_id").val("");
             $("#concepto_pago_resoluciones_id").trigger("change");
             $("#dias").val("");
             $("#monto").val("");
         }
 
-        function eliminarContacto(indice){
-            if(listaContactos[indice].id != null){
+        function eliminarContacto(indice) {
+            if (listaContactos[indice].id != null) {
                 $.ajax({
-                    url:"/partes/representante/contacto/eliminar",
-                    type:"POST",
-                    dataType:"json",
-                    data:{
-                        contacto_id:listaContactos[indice].id,
-                        parte_id:$("#parte_id").val(),
-                        _token:"{{ csrf_token() }}"
+                    url: "/partes/representante/contacto/eliminar",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        contacto_id: listaContactos[indice].id,
+                        parte_id: $("#parte_id").val(),
+                        _token: "{{ csrf_token() }}"
                     },
-                    success:function(data){
-                        try{
-                            if(response.success){
+                    success: function(data) {
+                        try {
+                            if (response.success) {
                                 listaContactos = response.data;
                                 cargarContactos();
-                            }else{
-                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            } else {
+                                swal({
+                                    title: 'Error',
+                                    text: 'Algo salió mal',
+                                    icon: 'warning'
+                                });
                             }
-                        }catch(error){
+                        } catch (error) {
                             console.log(error);
                         }
                     }
                 });
-            }else{
-                listaContactos.splice(indice,1);
+            } else {
+                listaContactos.splice(indice, 1);
                 cargarContactos();
             }
         }
-        $("#btnGuardarRepresentante").on("click",function(){
-            if(!validarRepresentante()){
-                
+        $("#btnGuardarRepresentante").on("click", function() {
+            if (!validarRepresentante()) {
+
                 var formData = new FormData(); // Currently empty
-                if($("#fileIdentificacion").val() != ""){
+                if ($("#fileIdentificacion").val() != "") {
                     formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
                 }
-                if($("#fileCedula").val() != ""){
+                if ($("#fileCedula").val() != "") {
                     formData.append('fileCedula', $("#fileCedula")[0].files[0]);
                 }
-                if($("#fileInstrumento").val() != ""){
+                if ($("#fileInstrumento").val() != "") {
                     formData.append('fileInstrumento', $("#fileInstrumento")[0].files[0]);
                 }
                 formData.append('nombre', $("#nombre").val());
@@ -2015,11 +2263,11 @@
                 formData.append('genero_id', $("#genero_id").val());
                 formData.append('clasificacion_archivo_id', $("#clasificacion_archivo_id_representante").val());
                 formData.append('feha_instrumento', dateFormat($("#feha_instrumento").val()));
-                formData.append('detalle_instrumento',$("#detalle_instrumento").val());
+                formData.append('detalle_instrumento', $("#detalle_instrumento").val());
                 formData.append('parte_id', $("#parte_id").val());
                 formData.append('parte_representada_id', $("#parte_representada_id").val());
                 formData.append('audiencia_id', $("#audiencia_id").val());
-                formData.append('solicitud_id', '{{$solicitud_id}}');
+                formData.append('solicitud_id', '{{ $solicitud_id }}');
                 formData.append('tipo_documento_id', $("#tipo_documento_id").val());
                 formData.append('listaContactos', JSON.stringify(listaContactos));
                 formData.append('_token', "{{ csrf_token() }}");
@@ -2041,187 +2289,212 @@
                 // }
                 $.ajax({
                     xhr: function() {
-                    var xhr = new window.XMLHttpRequest();
-                    var progreso = 0;
-                     // Download progress
-                     xhr.addEventListener("progress", function(evt){
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            // Do something with download progress
-                            console.log(percentComplete);
-                            $('#progress-bar').show();
-                            var percent = parseInt(percentComplete * 100)
-                            $("#progressbar-ajax-value").text(percent+"%");;
-                            $('#progressbar-ajax').css({
-                                width: percent + '%'
-                            });
-                            if (percentComplete === 1) {
-                                $('#progress-bar').hide();
+                        var xhr = new window.XMLHttpRequest();
+                        var progreso = 0;
+                        // Download progress
+                        xhr.addEventListener("progress", function(evt) {
+                            if (evt.lengthComputable) {
+                                var percentComplete = evt.loaded / evt.total;
+                                // Do something with download progress
+                                console.log(percentComplete);
+                                $('#progress-bar').show();
+                                var percent = parseInt(percentComplete * 100)
+                                $("#progressbar-ajax-value").text(percent + "%");;
                                 $('#progressbar-ajax').css({
-                                    width: '0%'
+                                    width: percent + '%'
                                 });
+                                if (percentComplete === 1) {
+                                    $('#progress-bar').hide();
+                                    $('#progressbar-ajax').css({
+                                        width: '0%'
+                                    });
+                                }
                             }
-                        }
-                    }, false);
-                    // Upload progress
-                    xhr.upload.addEventListener("progress", function(evt){
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with upload progress
-                            console.log(percentComplete);
-                            $('#progress-bar').show();
-                            var percent = parseInt(percentComplete * 100)
-                            $("#progressbar-ajax-value").text(percent+"%");;
-                            $('#progressbar-ajax').css({
-                                width: percent + '%'
-                            });
-                            if (percentComplete === 1) {
-                                $('#progress-bar').hide();
+                        }, false);
+                        // Upload progress
+                        xhr.upload.addEventListener("progress", function(evt) {
+                            if (evt.lengthComputable) {
+                                var percentComplete = evt.loaded / evt.total;
+                                //Do something with upload progress
+                                console.log(percentComplete);
+                                $('#progress-bar').show();
+                                var percent = parseInt(percentComplete * 100)
+                                $("#progressbar-ajax-value").text(percent + "%");;
                                 $('#progressbar-ajax').css({
-                                    width: '0%'
+                                    width: percent + '%'
                                 });
+                                if (percentComplete === 1) {
+                                    $('#progress-bar').hide();
+                                    $('#progressbar-ajax').css({
+                                        width: '0%'
+                                    });
+                                }
                             }
-                        }
-                    }, false);
-                    return xhr;
-                },
-                    url:"/partes/representante",
-                    type:"POST",
-                    dataType:"json",
+                        }, false);
+                        return xhr;
+                    },
+                    url: "/partes/representante",
+                    type: "POST",
+                    dataType: "json",
                     processData: false,
                     contentType: false,
-                    data:formData,
-                    success:function(data){
-                        try{
+                    data: formData,
+                    success: function(data) {
+                        try {
 
-                            if(data != null && data != ""){
-                                swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
+                            if (data != null && data != "") {
+                                swal({
+                                    title: 'ÉXITO',
+                                    text: 'Se agregó el representante',
+                                    icon: 'success'
+                                });
                                 actualizarPartes();
                                 $("#modal-representante").modal("hide");
-                            }else{
-                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            } else {
+                                swal({
+                                    title: 'Error',
+                                    text: 'Algo salió mal',
+                                    icon: 'warning'
+                                });
                             }
-                        }catch(error){
-                            console.log(error);
-                        }
-                    },error:function(data){
-                        // console.log(data);
-                        try{
-                            swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
-                        }catch(error){
+                        } catch (error) {
                             console.log(error);
                         }
                     },
-                    error: function(){
-                        swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',icon: 'warning'});
+                    error: function(data) {
+                        // console.log(data);
+                        try {
+                            swal({
+                                title: 'Error',
+                                text: 'Error al guardar representante',
+                                icon: 'warning'
+                            });
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    },
+                    error: function() {
+                        swal({
+                            title: 'Error',
+                            text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',
+                            icon: 'warning'
+                        });
                     }
                 });
-            }else{
-                swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
+            } else {
+                swal({
+                    title: 'Error',
+                    text: 'Llena todos los campos',
+                    icon: 'warning'
+                });
             }
         });
-        function validarRepresentante(){
-            var error=false;
-            $(".control-label").css("color","");
-            if($("#curp").val() == ""){
-                $("#curp").prev().css("color","red");
+
+        function validarRepresentante() {
+            var error = false;
+            $(".control-label").css("color", "");
+            if ($("#curp").val() == "") {
+                $("#curp").prev().css("color", "red");
                 error = true;
             }
-            if($("#nombre").val() == ""){
-                $("#nombre").prev().css("color","red");
+            if ($("#nombre").val() == "") {
+                $("#nombre").prev().css("color", "red");
                 error = true;
             }
-            if($("#primer_apellido").val() == ""){
-                $("#primer_apellido").prev().css("color","red");
+            if ($("#primer_apellido").val() == "") {
+                $("#primer_apellido").prev().css("color", "red");
                 error = true;
             }
-            if($("#fecha_nacimiento").val() == ""){
-                $("#fecha_nacimiento").prev().css("color","red");
+            if ($("#fecha_nacimiento").val() == "") {
+                $("#fecha_nacimiento").prev().css("color", "red");
                 error = true;
             }
-            if($("#genero_id").val() == ""){
-                $("#genero_id").prev().css("color","red");
+            if ($("#genero_id").val() == "") {
+                $("#genero_id").prev().css("color", "red");
                 error = true;
             }
-            if($("#clasificacion_archivo_id").val() == ""){
-                $("#clasificacion_archivo_id").prev().css("color","red");
+            if ($("#clasificacion_archivo_id").val() == "") {
+                $("#clasificacion_archivo_id").prev().css("color", "red");
                 error = true;
             }
-            if($("#fileIdentificacion").val() != ""){
-                if($("#tipo_documento_id").val() == "" ){
-                    $("#tipo_documento_id").prev().css("color","red");
+            if ($("#fileIdentificacion").val() != "") {
+                if ($("#tipo_documento_id").val() == "") {
+                    $("#tipo_documento_id").prev().css("color", "red");
                     error = true;
                 }
             }
-            if($("#fileInstrumento").val() != ""){
-                if($("#clasificacion_archivo_id_representante").val() == "" ){
-                    $("#clasificacion_archivo_id_representante").prev().css("color","red");
+            if ($("#fileInstrumento").val() != "") {
+                if ($("#clasificacion_archivo_id_representante").val() == "") {
+                    $("#clasificacion_archivo_id_representante").prev().css("color", "red");
                     error = true;
                 }
             }
-            if($("#feha_instrumento").val() == ""){
-                $("#feha_instrumento").prev().css("color","red");
+            if ($("#feha_instrumento").val() == "") {
+                $("#feha_instrumento").prev().css("color", "red");
                 error = true;
             }
 
-            if(listaContactos.length == 0){
-                $("#contacto").prev().css("color","red");
-                $("#tipo_contacto_id").prev().css("color","red");
+            if (listaContactos.length == 0) {
+                $("#contacto").prev().css("color", "red");
+                $("#tipo_contacto_id").prev().css("color", "red");
                 error = true;
                 error = true;
             }
             return error;
         }
-        function getPersonasComparecer(){
+
+        function getPersonasComparecer() {
             $.ajax({
-                url:"/audiencia/fisicas/{{ $audiencia->id }}",
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    try{
+                url: "/audiencia/fisicas/{{ $audiencia->id }}",
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    try {
                         var table = "";
-                        $.each(data, function(index,element){
-                            table +='<tr>';
-                            table +='   <td>'+element.tipo_parte.nombre+'</td>';
-                            table +='   <td>'+element.nombre+'</td>';
-                            table +='   <td>'+element.primer_apellido+'</td>';
-                            table +='   <td>'+(element.segundo_apellido|| "")+'</td>';
-                            table +='   <td>';
-                            table +='       <div class="col-md-2">';
-                            table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
-                            table +='       </div>';
-                            table +='   </td>';
-                            table +='</tr>';
+                        $.each(data, function(index, element) {
+                            table += '<tr>';
+                            table += '   <td>' + element.tipo_parte.nombre + '</td>';
+                            table += '   <td>' + element.nombre + '</td>';
+                            table += '   <td>' + element.primer_apellido + '</td>';
+                            table += '   <td>' + (element.segundo_apellido || "") + '</td>';
+                            table += '   <td>';
+                            table += '       <div class="col-md-2">';
+                            table += '           <input type="checkbox" value="1" data-parte_id="' +
+                                element.id + '" class="checkCompareciente" name="switch1"/>';
+                            table += '       </div>';
+                            table += '   </td>';
+                            table += '</tr>';
                         });
-                            $("#tbodyPartesFisicas").html(table);
-                            $("#resolucionVarias").hide();
-                            $("#btnCancelarVarias").hide();
-                            $("#btnGuardarResolucionMuchas").hide();
-                            $("#btnConfigurarResoluciones").show();
-                            $("#btnGuardarResolucionUna").show();
-                            $("#modal-comparecientes").modal("show");
-                    }catch(error){
+                        $("#tbodyPartesFisicas").html(table);
+                        $("#resolucionVarias").hide();
+                        $("#btnCancelarVarias").hide();
+                        $("#btnGuardarResolucionMuchas").hide();
+                        $("#btnConfigurarResoluciones").show();
+                        $("#btnGuardarResolucionUna").show();
+                        $("#modal-comparecientes").modal("show");
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        $("#btnCancelarVarias").on("click",function(){
+        $("#btnCancelarVarias").on("click", function() {
             $("#resolucionVarias").hide();
             $("#btnCancelarVarias").hide();
             $("#btnGuardarResolucionMuchas").hide();
             $("#btnConfigurarResoluciones").show();
             $("#btnGuardarResolucionUna").show();
         });
-        function CargarFinalizacion(){
-            if(finalizada){
+
+        function CargarFinalizacion() {
+            if (finalizada) {
                 $("#btnGuardarResolucion").hide();
                 $("#btnGuardarRepresentante").hide();
                 $("#btnGuardarDatoLaboral").hide();
                 $("#btnAgregarContacto").hide();
                 $(".tab-Comparecientes").show();
                 $(".tab-Resoluciones").show();
-            }else{
+            } else {
                 $("#btnGuardarResolucion").show();
                 $("#btnGuardarRepresentante").show();
                 $("#btnGuardarDatoLaboral").show();
@@ -2230,53 +2503,62 @@
                 $(".tab-Resoluciones").hide();
             }
         }
-        function validarResolucionIndividual(){
+
+        function validarResolucionIndividual() {
             var error = true;
-            $(".labelResolucion").css("color","");
-            if($("#parte_solicitante_id").val() == ""){
+            $(".labelResolucion").css("color", "");
+            if ($("#parte_solicitante_id").val() == "") {
                 error = false;
-                $("#parte_solicitante_id").parent().prev().css("color","red");
+                $("#parte_solicitante_id").parent().prev().css("color", "red");
             }
-            if($("#parte_solicitado_id").val() == ""){
+            if ($("#parte_solicitado_id").val() == "") {
                 error = false;
-                $("#parte_solicitado_id").parent().prev().css("color","red");
+                $("#parte_solicitado_id").parent().prev().css("color", "red");
             }
-            if($("#resolucion_individual_id").val() == ""){
+            if ($("#resolucion_individual_id").val() == "") {
                 error = false;
-                $("#resolucion_individual_id").parent().prev().css("color","red");
+                $("#resolucion_individual_id").parent().prev().css("color", "red");
             }
-            $.each(listaResolucionesIndividuales,function(i,e){
-                if(e.parte_solicitante_id == $("#parte_solicitante_id").val() && e.parte_solicitado_id == $("#parte_solicitado_id").val()){
+            $.each(listaResolucionesIndividuales, function(i, e) {
+                if (e.parte_solicitante_id == $("#parte_solicitante_id").val() && e.parte_solicitado_id == $(
+                        "#parte_solicitado_id").val()) {
                     error = false;
-                    swal({title: 'Error',text: 'Ya has agregado esta relacion',icon: 'error'});
+                    swal({
+                        title: 'Error',
+                        text: 'Ya has agregado esta relacion',
+                        icon: 'error'
+                    });
                     return false;
                 }
             });
             return error;
         }
-        function cargarTablaResolucionesIndividuales(){
+
+        function cargarTablaResolucionesIndividuales() {
             var table = '';
-            $.each(listaResolucionesIndividuales,function(i,e){
-                table +='<tr>';
-                    table +='<td>'+e.parte_solicitante_nombre+'</td>';
-                    table +='<td>'+e.parte_solicitado_nombre+'</td>';
-                    table +='<td>'+e.resolucion_individual_nombre+'</td>';
-                    table +='<td>'+e.motivo_archivado_nombre+'</td>';
-                    table +='<td>';
-                        table +='<button onclick="eliminarRelacion('+i+')" class="btn btn-xs btn-warning" title="Eliminar">';
-                            table +='<i class="fa fa-trash"></i>';
-                        table +='</button>';
-                    table +='</td>';
-                table +='</tr>';
+            $.each(listaResolucionesIndividuales, function(i, e) {
+                table += '<tr>';
+                table += '<td>' + e.parte_solicitante_nombre + '</td>';
+                table += '<td>' + e.parte_solicitado_nombre + '</td>';
+                table += '<td>' + e.resolucion_individual_nombre + '</td>';
+                table += '<td>' + e.motivo_archivado_nombre + '</td>';
+                table += '<td>';
+                table += '<button onclick="eliminarRelacion(' + i +
+                    ')" class="btn btn-xs btn-warning" title="Eliminar">';
+                table += '<i class="fa fa-trash"></i>';
+                table += '</button>';
+                table += '</td>';
+                table += '</tr>';
             });
             $("#tbodyResolucionesIndividuales").html(table);
         }
-        function eliminarRelacion(indice){
-            listaResolucionesIndividuales.splice(indice,1);
+
+        function eliminarRelacion(indice) {
+            listaResolucionesIndividuales.splice(indice, 1);
             cargarTablaResolucionesIndividuales();
         }
 
-        $("#btnNuevaAudiencia").on("click",function(){
+        $("#btnNuevaAudiencia").on("click", function() {
             swal({
                 title: 'Registro de citados',
                 text: '¿Deseas agregar nuevos citados?',
@@ -2304,32 +2586,34 @@
                         closeModal: true
                     }
                 }
-            }).then(function(tipo){
-                if(tipo == 1 || tipo == 2){
-                    if(tipo == 1){
+            }).then(function(tipo) {
+                if (tipo == 1 || tipo == 2) {
+                    if (tipo == 1) {
                         $("#modal-parte").modal("show");
-                    }else{
+                    } else {
+                        swal("¡Alerta!",
+                            "Si alguno de los citados a la siguiente audiencia debe ser notificado por notificador del centro, recuerde que debe considerar que la fecha seleccionada debe ser mayor a 15 días, para dar tiempo a realizar el proceso de notificación. Esta fecha sería a partir del {{ $fecha_notificador }}",
+                            "info");
                         $("#modalNuevaAudiencia").modal("show");
                     }
                 }
             });
-            
         });
-        $("#notificar").on("change",function(){
-            if($(this).is(":checked")){
+        $("#notificar").on("change", function() {
+            if ($(this).is(":checked")) {
                 $("#divPartesNotificar").show();
                 $("#btnCrearNuevaAudiencia").show();
                 $("#divAgendarNuevaAudiencia").hide();
-            }else{
+            } else {
                 $("#divPartesNotificar").hide();
                 $("#btnCrearNuevaAudiencia").hide();
                 $("#divAgendarNuevaAudiencia").show();
             }
         });
-        $("#btnCrearNuevaAudiencia").on("click",function(){
+        $("#btnCrearNuevaAudiencia").on("click", function() {
             var validacion = validarCrearNuevaAudiencia();
             console.log(validacion);
-            if(validacion.pasa){
+            if (validacion.pasa) {
                 swal({
                     title: 'Advertencia',
                     text: 'Al oprimir aceptar se creara una nueva audiencia por celebrar, ¿Esta seguro de continuar?',
@@ -2350,34 +2634,35 @@
                             closeModal: true
                         }
                     }
-                }).then(function(isConfirm){
-                    if(isConfirm){
+                }).then(function(isConfirm) {
+                    if (isConfirm) {
                         $.ajax({
-                            url:"/audiencias/nuevaAudienciaNotificacion",
-                            type:"POST",
-                            global:true,
-                            dataType:"json",
-                            data:{
-                                audiencia_id:'{{ $audiencia->id }}',
-                                listaRelaciones:validacion.listaRelaciones,
+                            url: "/audiencias/nuevaAudienciaNotificacion",
+                            type: "POST",
+                            global: true,
+                            dataType: "json",
+                            data: {
+                                audiencia_id: '{{ $audiencia->id }}',
+                                listaRelaciones: validacion.listaRelaciones,
                                 tipo_notificacion: $('input[name=radioNotificacion]:checked').val(),
-                                _token:"{{ csrf_token() }}"
+                                _token: "{{ csrf_token() }}"
                             },
-                            success:function(data){
-                                try{
-                                    if(data != null && data != ""){
+                            success: function(data) {
+                                try {
+                                    if (data != null && data != "") {
                                         confirmVista(data.id);
-                                    }else{
+                                    } else {
                                         swal({
                                             title: 'Algo salió mal',
                                             text: 'No se guardo el registro',
                                             icon: 'warning'
                                         });
                                     }
-                                }catch(error){
+                                } catch (error) {
                                     console.log(error);
                                 }
-                            }, error: function (data) {
+                            },
+                            error: function(data) {
                                 swal({
                                     title: 'Error',
                                     text: data.responseJSON.message,
@@ -2387,7 +2672,7 @@
                         });
                     }
                 });
-            }else{
+            } else {
                 swal({
                     title: 'Error',
                     text: 'Selecciona todos los tipo de notificacion',
@@ -2395,20 +2680,22 @@
                 });
             }
         });
-        function validarCrearNuevaAudiencia(){
-            var pasa =true;
+
+        function validarCrearNuevaAudiencia() {
+            var pasa = true;
             var listaRelaciones = [];
-            $(".parte_id").each(function(index){
-                if($("#radioNotificacionNo"+$(this).val()).is(":checked")){
+            $(".parte_id").each(function(index) {
+                if ($("#radioNotificacionNo" + $(this).val()).is(":checked")) {
                     listaRelaciones.push($(this).val());
                 }
             });
             return {
-                pasa:pasa,
-                listaRelaciones:listaRelaciones
+                pasa: pasa,
+                listaRelaciones: listaRelaciones
             };
         }
-        function confirmVista(idAudiencia){
+
+        function confirmVista(idAudiencia) {
             swal({
                 title: 'ÉXITO',
                 text: 'Se ha creado la nueva audiencia, ¿Qué deseas hacer?',
@@ -2429,49 +2716,55 @@
                         closeModal: true
                     }
                 }
-            }).then(function(isConfirm){
-                if(isConfirm){
-                    window.location.href = "../../audiencias/"+idAudiencia+"/edit";
-                }else{
+            }).then(function(isConfirm) {
+                if (isConfirm) {
+                    window.location.href = "../../audiencias/" + idAudiencia + "/edit";
+                } else {
                     location.reload();
                 }
             });
         }
 
         //cargar giros comerciales
-        function highlightText(string){
-            return string.replace($("#term").val().trim(),'<span class="highlighted">'+$("#term").val().trim()+"</span>");
+        function highlightText(string) {
+            return string.replace($("#term").val().trim(), '<span class="highlighted">' + $("#term").val().trim() +
+                "</span>");
         }
 
         $("#giro_comercial_solicitante").select2({
             ajax: {
                 url: '/giros_comerciales/filtrarGirosComerciales',
-                type:"POST",
-                dataType:"json",
+                type: "POST",
+                dataType: "json",
                 delay: 400,
-                async:false,
-                data:function (params) {
+                async: false,
+                data: function(params) {
                     $("#term").val(params.term);
                     var data = {
                         nombre: params.term,
-                        _token:"{{ csrf_token() }}"
+                        _token: "{{ csrf_token() }}"
                     }
                     return data;
                 },
-                processResults:function(json){
-                    $.each(json.data, function (key, node) {
+                processResults: function(json) {
+                    $.each(json.data, function(key, node) {
                         var html = '';
                         html += '<table>';
                         var ancestors = node.ancestors.reverse();
-                        html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
-                        $.each(ancestors, function (index, ancestor) {
-                            if(ancestor.id != 1){
+                        html += '<tr><th colspan="2"><h5>* ' + highlightText(node.nombre) +
+                            '</h5><th></tr>';
+                        $.each(ancestors, function(index, ancestor) {
+                            if (ancestor.id != 1) {
                                 var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(index);
-                                html += '<tr><td ><b>'+ancestor.codigo+'</b></td>'+' <td style="border-left:1px solid;">'+tab+highlightText(ancestor.nombre)+'</td></tr>';
+                                html += '<tr><td ><b>' + ancestor.codigo + '</b></td>' +
+                                    ' <td style="border-left:1px solid;">' + tab +
+                                    highlightText(ancestor.nombre) + '</td></tr>';
                             }
                         });
                         var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(node.ancestors.length);
-                        html += '<tr><td><b>'+node.codigo+'</b></td>'+'<td style="border-left:1px solid;"> '+ tab+highlightText(node.nombre)+'</td></tr>';
+                        html += '<tr><td><b>' + node.codigo + '</b></td>' +
+                            '<td style="border-left:1px solid;"> ' + tab + highlightText(node.nombre) +
+                            '</td></tr>';
                         html += '</table>';
                         json.data[key].html = html;
                     });
@@ -2486,28 +2779,29 @@
             },
             templateResult: function(data) {
                 return data.html;
-            },templateSelection: function(data) {
-                if(data.id != ""){
-                    return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
+            },
+            templateSelection: function(data) {
+                if (data.id != "") {
+                    return "<b>" + data.codigo + "</b>&nbsp;&nbsp;" + data.nombre;
                 }
                 return data.text;
             },
-            placeholder:'Seleccione una opción',
-            minimumInputLength:4,
+            placeholder: 'Seleccione una opción',
+            minimumInputLength: 4,
             allowClear: true,
             language: "es"
         });
-        $("#giro_comercial_solicitante").change(function(){
+        $("#giro_comercial_solicitante").change(function() {
             $("#giro_comercial_hidden").val($(this).val());
         });
         //
         // Funciones de datos laborales
 
-        function validarDatosLaborales(){
-            var error=false;
-            $(".datoLaboral").each(function(){
-                if($(this).val() == ""){
-                    $(this).prev().css("color","red");
+        function validarDatosLaborales() {
+            var error = false;
+            $(".datoLaboral").each(function() {
+                if ($(this).val() == "") {
+                    $(this).prev().css("color", "red");
                     error = true;
                 }
             });
@@ -2515,81 +2809,95 @@
             return error;
         }
 
-        $("#btnGuardarDatoLaboral").on("click",function(){
-            if(!validarDatosLaborales()){
+        $("#btnGuardarDatoLaboral").on("click", function() {
+            if (!validarDatosLaborales()) {
                 $.ajax({
-                    url:"/partes/datoLaboral",
-                    type:"POST",
-                    dataType:"json",
-                    data:{
-                        id : $("#dato_laboral_id").val(),
-                        puesto : $("#puesto").val(),
-                        ocupacion_id : $("#ocupacion_id").val(),
-                        nss : $("#nss").val(),
-                        remuneracion : $("#remuneracion").val(),
-                        periodicidad_id : $("#periodicidad_id").val(),
-                        labora_actualmente : $("#labora_actualmente").is(":checked"),
-                        fecha_ingreso : dateFormat($("#fecha_ingreso").val()),
-                        fecha_salida : dateFormat($("#fecha_salida").val()),
-                        jornada_id : $("#jornada_id").val(),
-                        horas_semanales : $("#horas_semanales").val(),
-                        parte_id:$("#parte_id").val(),
-                        resolucion:$("#resolucion_dato_laboral").val(),
-                        comida_dentro:0,
-                        _token:"{{ csrf_token() }}"
+                    url: "/partes/datoLaboral",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        id: $("#dato_laboral_id").val(),
+                        puesto: $("#puesto").val(),
+                        ocupacion_id: $("#ocupacion_id").val(),
+                        nss: $("#nss").val(),
+                        remuneracion: $("#remuneracion").val(),
+                        periodicidad_id: $("#periodicidad_id").val(),
+                        labora_actualmente: $("#labora_actualmente").is(":checked"),
+                        fecha_ingreso: dateFormat($("#fecha_ingreso").val()),
+                        fecha_salida: dateFormat($("#fecha_salida").val()),
+                        jornada_id: $("#jornada_id").val(),
+                        horas_semanales: $("#horas_semanales").val(),
+                        parte_id: $("#parte_id").val(),
+                        resolucion: $("#resolucion_dato_laboral").val(),
+                        comida_dentro: 0,
+                        _token: "{{ csrf_token() }}"
                     },
-                    success:function(data){
-                        try{
-                            if(data != null && data != ""){
-                                swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
+                    success: function(data) {
+                        try {
+                            if (data != null && data != "") {
+                                swal({
+                                    title: 'ÉXITO',
+                                    text: 'Se modificaron los datos laborales correctamente',
+                                    icon: 'success'
+                                });
                                 $("#modal-dato-laboral").modal("hide");
-                            }else{
-                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            } else {
+                                swal({
+                                    title: 'Error',
+                                    text: 'Algo salió mal',
+                                    icon: 'warning'
+                                });
                             }
-                        }catch(error){
+                        } catch (error) {
                             console.log(error);
                         }
-                    },error:function(data){
+                    },
+                    error: function(data) {
                         var mensajes = "";
-                        $.each(data.responseJSON.errors, function (key, value) {
+                        $.each(data.responseJSON.errors, function(key, value) {
                             var origen = key.split(".");
 
-                            mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
+                            mensajes += "- " + value[0] + " del " + origen[0].slice(0, -1) +
+                                " " + (parseInt(origen[1]) + 1) + " \n";
                         });
                         swal({
                             title: 'Error',
-                            text: 'Es necesario validar los siguientes campos \n'+mensajes,
+                            text: 'Es necesario validar los siguientes campos \n' + mensajes,
                             icon: 'error'
                         });
                     }
                 });
-            }else{
-                swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
+            } else {
+                swal({
+                    title: 'Error',
+                    text: 'Llena todos los campos',
+                    icon: 'warning'
+                });
             }
         });
 
         /*
         Funcion para esconder o mostrar fecha de salida en funsion a campo labora actualmente
         */
-        $("#labora_actualmente").change(function(){
-            if($("#labora_actualmente").is(":checked")){
+        $("#labora_actualmente").change(function() {
+            if ($("#labora_actualmente").is(":checked")) {
                 $("#divFechaSalida").hide();
                 $("#fecha_salida").removeAttr("required");
-            }else{
-                $("#fecha_salida").attr("required","");
+            } else {
+                $("#fecha_salida").attr("required", "");
                 $("#divFechaSalida").show();
             }
         });
 
-        function DatosLaborales(parte_id){
+        function DatosLaborales(parte_id) {
             $("#parte_id").val(parte_id);
             $.ajax({
-                url:"/partes/datoLaboral/"+parte_id,
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    try{
-                        if(data != null && data != ""){
+                url: "/partes/datoLaboral/" + parte_id,
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    try {
+                        if (data != null && data != "") {
                             $("#dato_laboral_id").val(data.id);
                             // getGiroEditar("solicitante");
                             $("#ocupacion_id").val(data.ocupacion_id);
@@ -2597,27 +2905,27 @@
                             $("#no_issste").val(data.no_issste);
                             $("#remuneracion").val(data.remuneracion);
                             $("#periodicidad_id").val(data.periodicidad_id);
-                            if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
+                            if (data.labora_actualmente != $("#labora_actualmente").is(":checked")) {
                                 $("#labora_actualmente").click();
                                 $("#labora_actualmente").trigger("change");
                             }
                             $("#puesto").val(data.labora_actualmente);
-                            $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
-                            $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
+                            $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso, 4));
+                            $("#fecha_salida").val(dateFormat(data.fecha_salida, 4));
                             $("#jornada_id").val(data.jornada_id);
                             $("#horas_semanales").val(data.horas_semanales);
                             $("#resolucion_dato_laboral").val(data.resolucion);
                             $(".catSelect").trigger('change')
                         }
                         $("#modal-dato-laboral").modal("show");
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        $("#btnNegarCancelacion").on("click",function(){
-           swal({
+        $("#btnNegarCancelacion").on("click", function() {
+            swal({
                 title: 'Advertencia',
                 text: 'Al oprimir aceptar se negará la reprogramación de la audiencia, ¿Esta seguro de continuar?',
                 icon: 'warning',
@@ -2637,30 +2945,30 @@
                         closeModal: true
                     }
                 }
-            }).then(function(isConfirm){
-                if(isConfirm){
+            }).then(function(isConfirm) {
+                if (isConfirm) {
                     $.ajax({
-                        url:"/audiencia/negarCancelacion/{{ $audiencia->id }}",
-                        type:"GET",
-                        dataType:"json",
-                        success:function(data){
-                            try{
+                        url: "/audiencia/negarCancelacion/{{ $audiencia->id }}",
+                        type: "GET",
+                        dataType: "json",
+                        success: function(data) {
+                            try {
 
-                                if(data != null && data != ""){
+                                if (data != null && data != "") {
                                     swal({
                                         title: 'Correcto',
                                         text: 'Se negó la reprogramación',
                                         icon: 'success'
                                     });
                                     location.reload();
-                                }else{
+                                } else {
                                     swal({
                                         title: 'Algo salió mal',
                                         text: 'No se guardo el registro',
                                         icon: 'warning'
                                     });
                                 }
-                            }catch(error){
+                            } catch (error) {
                                 console.log(error);
                             }
                         }
@@ -2668,107 +2976,121 @@
                 }
             });
         });
-        $("#btnAprobarCancelacion").on("click",function(){
-           $("#modal-reprogramacion").modal("show");
+        $("#btnAprobarCancelacion").on("click", function() {
+            $("#modal-reprogramacion").modal("show");
         });
 
-        function getEtapasAudiencia(){
+        function getEtapasAudiencia() {
             $.ajax({
-                url:'/api/etapa_resolucion_audiencia/audiencia/'+$("#audiencia_id").val(),
-                type:"GET",
-                dataType:"json",
-                async:false,
-                data:{
-                },
-                success:function(data){
-                    try{
+                url: '/api/etapa_resolucion_audiencia/audiencia/' + $("#audiencia_id").val(),
+                type: "GET",
+                dataType: "json",
+                async: false,
+                data: {},
+                success: function(data) {
+                    try {
                         setPasosAudiencia(data)
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        function setPasosAudiencia(etapas){
-            $.each(etapas, function (key, value) {
+
+        function setPasosAudiencia(etapas) {
+            $.each(etapas, function(key, value) {
                 var pasoActual = value.etapa_resolucion_id;
-                $(".showTime"+pasoActual).text(value.updated_at);
-                $("#step"+pasoActual).show();
-                if(pasoActual != 1){
-                    if(value.evidencia == "true"){
-                        if(pasoActual == 2){
-                            if(!$("#explico_acta").is(":checked")){
+                $(".showTime" + pasoActual).text(value.updated_at);
+                $("#step" + pasoActual).show();
+                if (pasoActual != 1) {
+                    if (value.evidencia == "true") {
+                        if (pasoActual == 2) {
+                            if (!$("#explico_acta").is(":checked")) {
                                 $("#explico_acta").click();
                             }
                         }
-                    }else{
-                        if(pasoActual == 6){
-                            if(value.elementos_adicionales == true){
-                                if(!$("#switchAdicionales").is(":checked")){
+                    } else {
+                        if (pasoActual == 6) {
+                            if (value.elementos_adicionales == true) {
+                                if (!$("#switchAdicionales").is(":checked")) {
                                     $("#switchAdicionales").click();
                                 }
                             }
                         }
-                        $("#evidencia"+pasoActual).val(value.evidencia)
+                        $("#evidencia" + pasoActual).val(value.evidencia)
                     }
                 }
-                $("#icon"+pasoActual).css("background","lightgreen");
+                $("#icon" + pasoActual).css("background", "lightgreen");
             });
         }
-        function getDatosLaboralesParte(idParte){
+
+        function getDatosLaboralesParte(idParte) {
             $.ajax({
-                url:"/api/conceptos-resolucion/getLaboralesConceptos",
-                type:"POST",
-                dataType:"json",
-                data:{
+                url: "/api/conceptos-resolucion/getLaboralesConceptos",
+                type: "POST",
+                dataType: "json",
+                data: {
                     // audiencia_id:'{{ $audiencia->id }}',idParte
-                    solicitante_id:idParte
+                    solicitante_id: idParte
                     // solicitante_id:$("#parte_solicitante_id").val()
                 },
-                success:function(datos){
-                    try{
+                success: function(datos) {
+                    try {
                         let dato = datos.data;
-                        $('#remuneracionDiaria'+idParte).val(dato.remuneracionDiaria);
-                        $('#salarioMinimo'+idParte).val(dato.salarioMinimo);
-                        $('#antiguedad'+idParte).val(dato.antiguedad);
+                        $('#remuneracionDiaria' + idParte).val(dato.remuneracionDiaria);
+                        $('#salarioMinimo' + idParte).val(dato.salarioMinimo);
+                        $('#antiguedad' + idParte).val(dato.antiguedad);
                         $('#idSolicitante').val(dato.idParte);
                         let table = "";
-                        table+=" <tr>";
-                        table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
-                        table+=" </tr>";
-                        table+=" <tr>";
-                        table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.aguinaldo).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                        table+=" </tr>";
-                        table+=" <tr>";
-                        table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.vacaciones).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                        table+=" </tr>";
-                        table+=" <tr>";
-                        table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_vacacional).toLocaleString("en-US") +"</td>";
-                        table+=" </tr>";
-                        table+=" <tr>";
-                        table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_antiguedad).toLocaleString("en-US") +"</td>";
-                        table+=" </tr>";
-                        table+=" <tr>";
-                        table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
-                        table+=" </tr>";
-                        $('#tbodyPropuestas'+dato.idParte).html(table);
-                    }catch(error){
+                        table += " <tr>";
+                        table += ' <th>Indemnización constitucional</th><td class="amount"> $' + (dato.completa
+                            .indemnizacion).toLocaleString("en-US") + '</td><td class="amount" > $' + (dato
+                            .al50.indemnizacion).toLocaleString("en-US") + '</td>';
+                        table += " </tr>";
+                        table += " <tr>";
+                        table += ' <th>Aguinaldo</th><td class="amount"> $' + (dato.completa.aguinaldo)
+                            .toLocaleString("en-US") + '</td><td class="amount"> $' + (dato.al50.aguinaldo)
+                            .toLocaleString("en-US").toLocaleString("en-US") + "</td>";
+                        table += " </tr>";
+                        table += " <tr>";
+                        table += ' <th>Vacaciones</th><td class="amount"> $' + (dato.completa.vacaciones)
+                            .toLocaleString("en-US") + '</td><td class="amount"> $' + (dato.al50.vacaciones)
+                            .toLocaleString("en-US").toLocaleString("en-US") + "</td>";
+                        table += " </tr>";
+                        table += " <tr>";
+                        table += ' <th>Prima vacacional</th><td class="amount"> $' + (dato.completa
+                            .prima_vacacional).toLocaleString("en-US") + '</td><td class="amount"> $' + (
+                            dato.al50.prima_vacacional).toLocaleString("en-US") + "</td>";
+                        table += " </tr>";
+                        table += " <tr>";
+                        table += ' <th>Prima antigüedad</th><td class="amount"> $' + (dato.completa
+                            .prima_antiguedad).toLocaleString("en-US") + '</td><td class="amount"> $' + (
+                            dato.al50.prima_antiguedad).toLocaleString("en-US") + "</td>";
+                        table += " </tr>";
+                        table += " <tr>";
+                        table += ' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $' + (dato
+                            .completa.total).toLocaleString("en-US") + '</td><td class="amount"> $' + (dato
+                            .al50.total).toLocaleString("en-US") + "</td>";
+                        table += " </tr>";
+                        $('#tbodyPropuestas' + dato.idParte).html(table);
+                    } catch (error) {
                         console.error(error);
                     }
                 }
             });
         }
 
-        $("#fileInstrumento").change(function(e){
-            $("#labelInstrumentoRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+        $("#fileInstrumento").change(function(e) {
+            $("#labelInstrumentoRepresentante").html("<b>Archivo: </b>" + e.target.files[0].name + "");
         });
-        $("#fileCedula").change(function(e){
-            $("#labelCedula").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+        $("#fileCedula").change(function(e) {
+            $("#labelCedula").html("<b>Archivo: </b>" + e.target.files[0].name + "");
         });
-        $("#fileIdentificacion").change(function(e){
-            $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+        $("#fileIdentificacion").change(function(e) {
+            $("#labelIdentifRepresentante").html("<b>Archivo: </b>" + e.target.files[0].name + "");
         });
-        function emitirConstanciaNoPago(idPagoDiferido){
+
+        function emitirConstanciaNoPago(idPagoDiferido) {
             swal({
                 title: 'Advertencia',
                 text: 'Al oprimir aceptar se emitirá una constancia de no comparecencia en fecha de pago, ¿Está seguro de continuar?',
@@ -2789,31 +3111,31 @@
                         closeModal: true
                     }
                 }
-            }).then(function(isConfirm){
-                if(isConfirm){
+            }).then(function(isConfirm) {
+                if (isConfirm) {
                     $.ajax({
-                        url:"/audiencia/generarConstanciaNoPago",
-                        type:"POST",
-                        dataType:"json",
-                        data:{
-                            audiencia_id:'{{ $audiencia->id }}',
-                            idPagoDiferido:idPagoDiferido,
-                            solicitud_id:'{{$solicitud_id}}',
-                            _token:"{{ csrf_token() }}"
+                        url: "/audiencia/generarConstanciaNoPago",
+                        type: "POST",
+                        dataType: "json",
+                        data: {
+                            audiencia_id: '{{ $audiencia->id }}',
+                            idPagoDiferido: idPagoDiferido,
+                            solicitud_id: '{{ $solicitud_id }}',
+                            _token: "{{ csrf_token() }}"
                         },
-                        success:function(data){
-                            try{
+                        success: function(data) {
+                            try {
 
-                                if(data != null && data != ""){
+                                if (data != null && data != "") {
                                     location.reload();
-                                }else{
+                                } else {
                                     swal({
                                         title: 'Algo salió mal',
                                         text: 'No se guardo el registro',
                                         icon: 'warning'
                                     });
                                 }
-                            }catch(error){
+                            } catch (error) {
                                 console.log(error);
                             }
                         }
@@ -2822,7 +3144,7 @@
             });
         }
 
-        function registrarPago(idPagoDiferido){
+        function registrarPago(idPagoDiferido) {
             swal({
                 title: 'Advertencia',
                 text: 'Al oprimir aceptar se registrará el pago correspondiente , ¿Está seguro de continuar?',
@@ -2843,54 +3165,57 @@
                         closeModal: true
                     }
                 }
-            }).then(function(isConfirm){
-                if(isConfirm){
+            }).then(function(isConfirm) {
+                if (isConfirm) {
                     $("#modal-info-pago").modal("show");
                     $('#pago_id').val(idPagoDiferido);
                 }
             });
         }
-        function verInfoPago(){
+
+        function verInfoPago() {
 
         }
 
-        function guardarPagoInfo(){
+        function guardarPagoInfo() {
             $.ajax({
-                url:"/audiencia/registrarPagoDiferido",
-                type:"POST",
-                dataType:"json",
-                data:{
-                    
-                    audiencia_id:'{{ $audiencia->id }}',
-                    solicitud_id:'{{$solicitud_id}}',
-                    idPagoDiferido:$('#pago_id').val(),
+                url: "/audiencia/registrarPagoDiferido",
+                type: "POST",
+                dataType: "json",
+                data: {
+
+                    audiencia_id: '{{ $audiencia->id }}',
+                    solicitud_id: '{{ $solicitud_id }}',
+                    idPagoDiferido: $('#pago_id').val(),
                     informacionPago: $('#informacionPago').val(),
                     fecha_cumplimiento: $('#fecha_cumplimiento').val(),
-                    _token:"{{ csrf_token() }}"
+                    _token: "{{ csrf_token() }}"
                 },
-                success:function(data){
-                    try{
+                success: function(data) {
+                    try {
 
-                        if(data != null && data != ""){
-                            swal({title: 'ÉXITO',
-                            text: 'Se guardó el pago correctamente',
-                            icon: 'success'});
+                        if (data != null && data != "") {
+                            swal({
+                                title: 'ÉXITO',
+                                text: 'Se guardó el pago correctamente',
+                                icon: 'success'
+                            });
                             location.reload();
-                        }else{
+                        } else {
                             swal({
                                 title: 'Algo salió mal',
                                 text: 'No se guardo el registro',
                                 icon: 'warning'
                             });
                         }
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
 
-        $('.upper').on('keyup', function () {
+        $('.upper').on('keyup', function() {
             var valor = $(this).val();
             $(this).val(valor.toUpperCase());
         });
@@ -2899,7 +3224,7 @@
             changeMonth: true,
             changeYear: true,
             yearRange: "c-80:",
-            format:'dd/mm/yyyy',
+            format: 'dd/mm/yyyy',
         });
     </script>
 @endpush

@@ -42,7 +42,7 @@
         max-height: 400px;
     }
     .wizard-steps li.active, .wizard-steps li.current, .wizard-steps li.success {
-        background-color: #9D2449;
+        background-color: {{config('colores.btn-primary-color')}};
         color: #fff;
         height: 70px !important;
         top: 0;
@@ -335,7 +335,7 @@
         </div>
     </div>
 </div>
-
+@include('buzon.modal_bitacora',["interno"=>true])
 
 <!--Fin de modal de representante legal-->
 <input type="hidden" id="expediente_id" value='{{$expediente_id  ?? ""}}'>
@@ -605,7 +605,9 @@
                                     html+='</div>';
                                 }
                                 html+='<div>';
+                                if(value.domicilios[0]){
                                     html+="<b>Dirección:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+" No. Ext."+(value.domicilios[0].num_ext || '-') +" No. Int. "+(value.domicilios[0].num_int || '-')+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase() + " CP. "+(value.domicilios[0].cp || '-');
+                                }
                                 html+='</div>';
                                 html+='<div>';
                                     html+='<label><b>Contactos:</b></label>';
@@ -630,6 +632,11 @@
                                     html+='</div>';
                                 }
                             html+='</div>';
+                            if(value.notificacion_buzon == true){
+                                html+='<div>';
+                                    html+='<button class="btn btn-primary" onclick="getBitacoraBuzon('+value.id+')">Consultar Bitacora</button>';
+                                html+='</div>';
+                            }
                         html+='</div>';
                     html+='</div>';
                 html+='</div>';
@@ -695,6 +702,11 @@
                                 html+='</div>';
                                 }
                             html+='</div>';
+                            if(value.notificacion_buzon == true){
+                                html+='<div>';
+                                    html+='<button class="btn btn-primary" onclick="getBitacoraBuzon('+value.id+')">Consultar Bitacora</button>';
+                                html+='</div>';
+                            }
                         html+='</div>';
                     html+='</div>';
                 html+='</div>';

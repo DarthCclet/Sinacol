@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Domicilio;
 trait FechaNotificacion{
-    public function obtenerFechaLimiteNotificacion(Domicilio $centro = null,Domicilio $domicilioCitado = null,$fecha_audiencia = null){
+    public static function obtenerFechaLimiteNotificacion(Domicilio $centro = null,Domicilio $domicilioCitado = null,$fecha_audiencia = null){
         if($centro != null){
     //        Obtenemos la latitud del centro
             $lat_centro = $centro->latitud;

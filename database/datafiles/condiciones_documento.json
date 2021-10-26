@@ -23,7 +23,9 @@
                   {"catalogo":"Genero",
                     "val":["Masculino", "Femenino"]},
                   {"catalogo":"Tipo_Persona",
-                      "val":["Fisica", "Moral"]}
+                      "val":["Fisica", "Moral"]},
+                  {"catalogo":"Notificacion",
+                    "val":["Buzon_Comparecencia", "NO_Buzon_Comparecencia"]}
                     ]
           },
           {

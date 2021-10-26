@@ -21,7 +21,7 @@
     <div class="panel panel-default">
         <!-- begin panel-heading -->
         <div class="panel-heading">
-            <h4 class="panel-title">Listado de salas</h4>
+            <h4 class="panel-title">Listado de conciliadores</h4>
             <div class="panel-heading-btn">
                 <a href="{!! route('conciliadores.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
@@ -197,6 +197,7 @@
                 <div class="modal-footer">
                     <div class="text-right">
                         <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
                     </div>
                 </div>
             </div>

@@ -34,7 +34,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use NumberFormatter;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -44,11 +43,50 @@ trait GenerateDocument
      * Generar documento a partir de un modelo y de una plantilla
      * @return mixed
      */
-    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null,$idDocumento = null)
+    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null,$idDocumento = null,$idParteAsociada = null)
     {
     $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
-            if($idAudiencia != ""){
+          if($idParteAsociada != ""){
+            $padre = Parte::find($idParteAsociada);
+            $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
+            $algo = Storage::makeDirectory($directorio, 0775, true);
+
+            $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
+            //Creamos el registro
+            $uuid = Str::uuid();
+            if($idDocumento != null){
+              $archivo = Documento::find($idDocumento);
+              if(Storage::exists($archivo->ruta)){
+                Storage::delete($archivo->ruta.".old");
+                Storage::move($archivo->ruta, $archivo->ruta.".old");
+              }
+            }else{
+              $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id]);
+            }
+            //generamos html del archivo
+            $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
+            $firmantes = substr_count($html, 'class="qr"');
+            $plantilla = PlantillaDocumento::find($plantilla->id);
+            $nombreArchivo = $plantilla->nombre_plantilla;
+            $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
+            $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
+            $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
+            //Hacemos el render del pdf y lo guardamos en $fullPath
+            $this->renderPDF($html, $plantilla->id, $fullPath);
+
+            $archivo->update([
+                "nombre" => str_replace($directorio . "/", '', $path),
+                "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
+                "descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,
+                "ruta" => $path,
+                "tipo_almacen" => "local",
+                "uri" => $path,
+                "longitud" => round(Storage::size($path) / 1024, 2),
+                "firmado" => "false",
+                "total_firmantes" => $firmantes,
+            ]);
+          }else if($idAudiencia != ""){
 
                 $padre = Audiencia::find($idAudiencia);
                 $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
@@ -89,9 +127,6 @@ trait GenerateDocument
                     "firmado" => "false",
                     "total_firmantes" => $firmantes,
                 ]);
-                if($tipoArchivo->id == 18){
-                    event(new RatificacionRealizada($padre->id,"multa"));
-                }
             }else{
                 $padre = Solicitud::find($idSolicitud);
                 if($padre->expediente != null){
@@ -390,13 +425,14 @@ trait GenerateDocument
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" && $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios'=>function($q){$q->orderByDesc('id');},'lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'])->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
+                      // $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consulta');}])->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                     }else if($idSolicitante != "" && $idSolicitado == ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios'=>function($q){$q->orderByDesc('id');},'lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'])->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
                     }else if($idSolicitante == "" && $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios'=>function($q){$q->orderByDesc('id');},'lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'])->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios'=>function($q){$q->orderByDesc('id');},'lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'])->where('solicitud_id',intval($idBase))->get();
                     }
                     if($idDocumento){
                       foreach($partes as $parteaFirma){
@@ -447,7 +483,7 @@ trait GenerateDocument
                       //$parte['datos_laborales'] = $datoLaboral;
                       $parteId = $parte['id'];
                       $curp = $parte['curp'];
-                      
+
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                       $parte['datos_laborales'] = $datoLaboral;
                       if($parte['tipo_persona_id'] == 1){ //fisica
@@ -466,6 +502,9 @@ trait GenerateDocument
                         }
                       }
                       if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
+                        if((substr_count($plantilla->plantilla_body,'SOLICITANTE_QR_FIRMA') > 0 && $parte['tipo_parte_id'] == 1) || (substr_count($plantilla->plantilla_body,'SOLICITADO_QR_FIRMA') > 0 && $parte['tipo_parte_id'] == 2)){
+                          $firmaDocumento->update(['firma_electronicamente'=>true]);
+                        }
                         if($firmaDocumento && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
                           $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
                         } elseif ($firmaDocumento && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
@@ -482,7 +521,11 @@ trait GenerateDocument
                           if($idPlantilla == 2 && $parte['tipo_parte_id']!=1){
                             $parte_solicitada = $parteId;
                             if($parte['tipo_parte_id'] == 3){
-                              $parte_solicitada = $parte['parte_representada_id'];
+								$parte_solicitada = $parte['parte_representada_id'];
+								$firmaDocumentoRepresentada = FirmaDocumento::where('firmable_id',$parte_solicitada)->where('firmable_type','App\Parte')->where('plantilla_id',$idPlantilla)->where('solicitud_id',$idBase)->where('documento_id',$idDocumento)->first();
+								if((substr_count($plantilla->plantilla_body,'SOLICITUD_FIRMAS_PARTES_QR') > 0)){
+									$firmaDocumentoRepresentada->update(['firma_electronicamente'=>true]);
+								}
                             }
                             $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parte_solicitada)->first();
                             if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id !=3){
@@ -490,6 +533,9 @@ trait GenerateDocument
                             }
                           }
                           if($siFirma){
+                            if((substr_count($plantilla->plantilla_body,'SOLICITUD_FIRMAS_PARTES_QR') > 0)){
+                              $firmaDocumento->update(['firma_electronicamente'=>true]);
+                            }
                             $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
                             $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
                             $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
@@ -537,9 +583,9 @@ trait GenerateDocument
                               $primeraResolucion = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
                             }
                             if($primeraResolucion != null){
-                              $contraparte = Parte::with('domicilios')->find($primeraResolucion->parte_solicitada_id);
+                              $contraparte = Parte::with(['domicilios'=>function($q){$q->orderBy('id');}])->find($primeraResolucion->parte_solicitada_id);
                               if($contraparte->tipo_parte_id == 3){//si es representante buscar parte
-                                $contraparte = Parte::with('domicilios')->find($contraparte->parte_representada_id);
+                                $contraparte = Parte::with(['domicilios'=>function($q){$q->orderBy('id');}])->find($contraparte->parte_representada_id);
                               }
                               // $contraparte = Parte::with('domicilios')->where('solicitud_id',$idBase)->where('tipo_parte_id',$tipoParteDom)->first();
                               $doms_parte = $contraparte->domicilios;
@@ -579,6 +625,8 @@ trait GenerateDocument
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
                         }
+                        $parte['identificacion_documento']= ( isset($parte['identificacion_documento'])) ?$parte['identificacion_documento'] : "";
+                        $parte['identificacion_expedida_por']= ( isset($parte['identificacion_expedida_por'])) ?$parte['identificacion_expedida_por'] : "";
                         $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
                         // array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
                         // array_push($parte1, $parte);
@@ -623,18 +671,32 @@ trait GenerateDocument
                             // $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('tipo_notificacion_id','<>',null)->get();
                             $parte['tipo_notificacion'] = $audienciaParte[0]->tipo_notificacion_id;
                             $parte['fecha_notificacion'] = $audienciaParte[0]->fecha_notificacion;
+                            $parte['fecha_confirmacion_audiencia'] = $audienciaParte[0]->created_at;
                             //$parte['fecha_notificacion'] = ($audienciaParte[0]->fecha_notificacion!= null) ? $audienciaParte[0]->fecha_notificacion : "--";
                           }else{
                             $parte['tipo_notificacion'] = null;
                             $parte['fecha_notificacion'] = "";
+                            $parte['fecha_confirmacion_audiencia'] = "";
                           }
                         }
+                        $tablaConsultaBuzon = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        if( sizeof($parte['bitacoras_buzon']) > 0 ){
+                          $tablaConsultaBuzon .= '<table class="tbl">';
+                          $tablaConsultaBuzon .= '<tbody>';
+                          foreach ($parte['bitacoras_buzon'] as $k => $bitacora) {
+                            $tablaConsultaBuzon .= '<tr><td> '. Carbon::createFromFormat('Y-m-d H:i:s',$bitacora['created_at'])->format('d/m/Y h:i').' </td><td>'.$bitacora['descripcion'].'</tr>';
+                          }
+                          $tablaConsultaBuzon .= '</tbody>';
+                          $tablaConsultaBuzon .= '</table>';
+                        }else{
+                          $tablaConsultaBuzon .= 'No hay registros en la bitácora';
+                        }
+                        $parte['bitacora_consulta_buzon']=$tablaConsultaBuzon;
+
                         if($parte['tipo_parte_id'] == 1 ){//Solicitante
                           array_push($parte1, $parte);
                           array_push($nombresSolicitantes, $parte['nombre_completo'] );
                           array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
-                          array_push($solicitantesNSS, $nss);
-                          array_push($solicitantesCURP, $curp);
                           $countSolicitante += 1;
                         }
 
@@ -645,12 +707,51 @@ trait GenerateDocument
                           array_push($parte2, $parte);
                         }
                     }
+
+                    $partesGral = Parte::where('solicitud_id',intval($idBase))->get();
+                    $countSolicitado = 0;
+                    $countSolicitante = 0;
+                    $nombresSolicitantes = [];
+                    $nombresSolicitados = [];
+                    $nombresSolicitantesConfirmaron = [];
+                    //$nombresSolicitadosConfi = [];
+                    //$solicitantesNSS = [];
+                    //$solicitantesCURP = [];
+                    //dd($partesGral);
+                    foreach($partesGral as $parteGral){
+                      if($parteGral->tipo_persona_id == 1){ //fisica
+                        $nombre_completo = $parteGral->nombre.' '.$parteGral->primer_apellido.' '.$parteGral->segundo_apellido;
+                        $curp = $parteGral->curp;
+                        if(count($parteGral->dato_laboral)>0){
+                          foreach($parteGral->dato_laboral as $dato_laboral){
+                            $nss = $dato_laboral->nss;
+                          }
+                        }
+                      }else{//moral
+                        $nombre_completo = $parteGral->nombre_comercial;
+                      }
+                      if($parteGral->tipo_parte_id == 1){//Solicitante
+                        array_push($nombresSolicitantes, $nombre_completo );
+                        $countSolicitante += 1;
+                        if($parteGral->ratifico){
+                          array_push($solicitantesNSS, $nss);
+                          array_push($solicitantesCURP, $curp);
+                          array_push($nombresSolicitantesConfirmaron, $nombre_completo );
+                        }
+                      }else if($parteGral->tipo_parte_id == 2){//Citado
+                        array_push($nombresSolicitados, $nombre_completo );
+                        $countSolicitado += 1;
+                      }else{//representante
+
+                      }
+                    }
                     $data = Arr::add( $data, 'solicitante', $parte1 );
                     $data = Arr::add( $data, 'solicitado', $parte2 );
                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    $data = Arr::add( $data, 'nombres_solicitantes_confirmados', implode(", ",$nombresSolicitantesConfirmaron));
                     $data = Arr::add( $data, 'nss_solicitantes', implode(", ",$solicitantesNSS));
                     $data = Arr::add( $data, 'curp_solicitantes', implode(", ",$solicitantesCURP));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
@@ -724,6 +825,9 @@ trait GenerateDocument
                       $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
                       if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
                         $firmaDocumento = FirmaDocumento::where('firmable_id',$conciliadorId)->where('firmable_type','App\Conciliador')->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                          if(substr_count($plantilla->plantilla_body,'CONCILIADOR_QR_FIRMA') > 0){
+                            $firmaDocumento->update(['firma_electronicamente'=>true]);
+                          }
                           if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
                             $conciliador['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
                           } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
@@ -839,7 +943,9 @@ trait GenerateDocument
                       }else{
                         $firmaDocumento = FirmaDocumento::where('firmable_id',$personaId)->where('firmable_type','App\Persona')->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
                       }
-                      //dd($firmaDocumento);
+                      if(substr_count($plantilla->plantilla_body,'CENTRO_ADMINISTRADOR_QR_FIRMA') > 0 ){
+                        $firmaDocumento->update(['firma_electronicamente'=>true]);
+                      }
                       if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
                           $centro['administrador_qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
                         } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
@@ -1192,7 +1298,7 @@ trait GenerateDocument
                       $clausula2citadosConvenio = "";
                       $clausula2solicitantesConvenio = "";
 
-                      foreach ($partes_convenio as $key => $parteConvenio) { 
+                      foreach ($partes_convenio as $key => $parteConvenio) {
                         $nombreCitadoComparecientes = "";
                         $nombreSolicitanteComparecientes = "";
                         $nombreCitadoConvenio = "";
@@ -1534,15 +1640,16 @@ trait GenerateDocument
      * @param $path string Ruta del archivo a guardar. Si no existe entonces regresa el PDF inline para mostrar en browser
      * @ToDo  Agregar opciones desde variable de ambiente como tamaño de página, margen, etc.
      * @return mixed
+     * @throws \Symfony\Component\Debug\Exception\FatalThrowableError
      */
     public function renderPDF($html, $plantilla_id, $path=null){
         $pdf = App::make('snappy.pdf.wrapper');
         $pdf->loadHTML($html);
         $pdf->setOption('page-size', 'Letter')
             ->setOption('margin-top', '25mm')
-            ->setOption('margin-bottom', '11mm')
-            ->setOption('header-html', env('APP_URL').'/header/'.$plantilla_id)
-            ->setOption('footer-html', env('APP_URL').'/footer/'.$plantilla_id)
+            ->setOption('margin-bottom', '20mm')
+            ->setOption('header-html', $this->getHeader($plantilla_id))
+            ->setOption('footer-html', $this->getFooter($plantilla_id))
         ;
         if($path){
             return $pdf->generateFromHtml($html, $path);

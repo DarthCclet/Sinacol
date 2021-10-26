@@ -153,7 +153,7 @@
                                     @endif
                                 @endforeach
                                 </td>
-                                <td><button class="btn btn-sm btn-primary" title="Asignar" onclick="obtenerAudiencia({{$audiencia->id}},'NoCalendarizada')"><i class="fa fa-calendar"></i></button></td>
+                                <td><button class="btn btn-sm btn-primary" title="Asignar" onclick="obtenerAudiencia({{$audiencia->id}},'audiencia','NoCalendarizada')"><i class="fa fa-calendar"></i></button></td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -461,6 +461,15 @@
                 });
             }
             $("#btnFinalizarRatificacion").on("click",function(){
+                $.get("validarCambioNotificacion/"+$("#audiencia_id").val(),function(data){
+                    if(!data.cambiar){
+                        swal({
+                            title: 'Advertencia',
+                            text: 'Esta audiencia ya fue notificada, no se enviará petición de notificación si aplica un cambio.',
+                            icon: 'warning'
+                        });
+                    }
+                });
                 $("#calendarioReagendar").show();
             });
             $("#btnNoAudiencia").on("click",function(){

@@ -53,6 +53,11 @@ class ReportesService
     const SOLICITUD_DUPLICADA = 2;
 
     /**
+     * ID de solicitud no ratificada en el catalogo de tipo_incidencias_solicitudes
+     */
+    const SOLICITUD_NO_RATIFICADA = 3;
+
+    /**
      * ID de otros en catálogo de tipo_incidencias_solicitudes
      */
     const OTRA_INCIDENCIA = 5;
@@ -153,6 +158,8 @@ class ReportesService
             ->searchWith(Solicitud::class)
             ->filter(false);
 
+        //$q->whereRaw("'SOLICITUDES PRESENTADAS'='SOLICITUDES PRESENTADAS'");
+
         # Las solicitudes presentadas se evaluan por fecha de recepcion
         if($request->get('fecha_inicial')){
             $q->whereRaw('fecha_recepcion::date >= ?', $request->get('fecha_inicial'));
@@ -169,9 +176,10 @@ class ReportesService
         if ($request->get('tipo_reporte') == 'agregado') {
             # Seleccionamos la abreviatura del nombre y su cuenta
             $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
-            if(empty($request->get('conciliadores'))) {
-                $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
-                $q->whereNull('expedientes.deleted_at');
+            if(!empty($request->get('conciliadores'))) {
+                //$q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+                // Se hace notar que al reportar solicitudes presentadas es deseable incluir las de expediente y audiencia eliminadas
+                //$q->whereNull('expedientes.deleted_at');
             }
         }else{
             $q->with(['objeto_solicitudes','giroComercial.industria', 'tipoSolicitud']);
@@ -189,8 +197,10 @@ class ReportesService
             $q->leftJoin('personas', 'personas.id', '=', 'conciliadores.persona_id');
 
             $q->whereNull('solicitudes.deleted_at');
-            $q->whereNull('expedientes.deleted_at');
-            $q->whereNull('audiencias.deleted_at');
+
+            // Se hace notar que al reportar solicitudes presentadas es deseable incluir las de expediente y audiencia eliminadas
+             //$q->whereNull('expedientes.deleted_at');
+             //$q->whereNull('audiencias.deleted_at');
         }
 
         if ($request->get('tipo_reporte') == 'desagregado') {
@@ -217,7 +227,7 @@ class ReportesService
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'partes');
 
         //Dejamos fuera los no consultables
-        $this->noReportables($q);
+        $this->noReportables($q, 'solicitudes_presentadas');
 
         return $q->get();
     }
@@ -470,6 +480,8 @@ class ReportesService
         $q = (new SolicitudFilter(Solicitud::query(), $request))
             ->searchWith(Solicitud::class)
             ->filter(false);
+
+        //$q->whereRaw("'INCOMET-$etapa'='INCOMET-$etapa'");
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
         if ($request->get('fecha_inicial')) {
@@ -1046,6 +1058,7 @@ class ReportesService
             //Eliminamos las incidencias duplicadas y errores de captura
             $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::ERROR_DE_CAPTURA);
             $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::SOLICITUD_DUPLICADA);
+            $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::SOLICITUD_NO_RATIFICADA);
             $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::OTRA_INCIDENCIA);
             return $q;
         }

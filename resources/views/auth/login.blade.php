@@ -7,7 +7,7 @@
     <div class="login login-with-news-feed">
         <!-- begin news-feed -->
         <div class="news-feed">
-            <div class="news-image" style="background-color: #235B4E; background-image: url({{asset('assets/img/logo/fondo-verde.jpg')}})"></div>
+            <div class="news-image" style="background-color: #235B4E; background-image: url({{config('logotipos.imagen-background-login')}})"></div>
             <div class="news-caption">
             </div>
         </div>
