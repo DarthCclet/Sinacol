@@ -57,6 +57,9 @@
                     <div class="form-group m-b-20">
                         <input type="password" class="form-control form-control-lg" placeholder="Contraseña" id="password_buzon" name="password_buzon"/>
                     </div>
+                    <div class="form-group m-b-20">
+                        <input type="text" class="form-control form-control-lg" placeholder="Ingrese su folio de expediente" name="folio" id="folio_modal"/>
+                    </div>
                     <div class="login-buttons">
                         <button class="btn btn-primary btn-block btn-lg" id="btnIngresar">Ingresar</button>
                     </div>
@@ -106,6 +109,7 @@
                                     icon: 'success'
                                 });
                             }else{
+                                $("#folio_modal").val($("#folio").val());
                                 $("#modal-acceso").modal("show");
                             }
                         }catch(error){
