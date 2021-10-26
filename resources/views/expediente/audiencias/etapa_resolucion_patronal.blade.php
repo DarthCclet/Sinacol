@@ -512,7 +512,7 @@
                             <div class="col-sm-10 select-reinstalacion" style="display:none">
                                 <select id="concepto_pago_reinstalacion_id" class="form-control conceptosPago">
                                     <option value="">-- Seleccione un concepto de pago</option>
-                                    @foreach($concepto_pago_reinstalacion as $concepto)
+                                    @foreach($concepto_pago_resoluciones as $concepto)
                                         @if($concepto->id == 13 )
                                             <option style="display:none" value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
                                         @else

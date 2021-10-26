@@ -577,13 +577,14 @@ trait GenerateDocument
                             $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado.', '.$domicilioLaboral->cp);
                           }else{
                             $domicilioLaboral = "";
-                            $tipoParteDom = ($parte['tipo_parte_id'] == 1 )? 2 : 1 ;
                             $primeraResolucion =null;
                             if($audienciaId){
                               $primeraResolucion = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
                             }
                             if($primeraResolucion != null){
-                              $contraparte = Parte::with(['domicilios'=>function($q){$q->orderBy('id');}])->find($primeraResolucion->parte_solicitada_id);
+                              //Si trabajador es solicitante buscar dom de citado o viceversa
+                              $tipoParteDom = ($parte['tipo_parte_id'] == 1 )? $primeraResolucion->parte_solicitada_id : $primeraResolucion->parte_solicitante_id ;
+                              $contraparte = Parte::with(['domicilios'=>function($q){$q->orderBy('id');}])->find($tipoParteDom);
                               if($contraparte->tipo_parte_id == 3){//si es representante buscar parte
                                 $contraparte = Parte::with(['domicilios'=>function($q){$q->orderBy('id');}])->find($contraparte->parte_representada_id);
                               }
