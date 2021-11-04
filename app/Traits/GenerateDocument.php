@@ -863,10 +863,11 @@ trait GenerateDocument
                     $num_int =  ($dom_centro['num_int'] !== null)? " Int. " . $dom_centro['num_int'] :"";
                     $num = $num_ext . $num_int;
                     $colonia =  ($dom_centro['asentamiento'] !== null)? $dom_centro['tipo_asentamiento']." ". $dom_centro['asentamiento']." "  :"";
-                    $municipio =  ($dom_centro['municipio'] !== null)? $colonia . $dom_centro['municipio'] :"";
+                    $municipio =  ($dom_centro['municipio'] !== null)? $dom_centro['municipio'] :"";
+                    $cp =  ($dom_centro['cp'] !== null)? 'C.P. '.$dom_centro['cp'] :"";
+                    $referencias =  ($dom_centro['referencias'] !== null)? $dom_centro['referencias'] :"";
                     $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
-                    $centro['domicilio_completo'] = mb_strtoupper($vialidad. $num.', '.$colonia.', '.$municipio.', '.$estado);
-                    $contacto_centro = new JsonResponse($contacto_centro);
+                    $centro['domicilio_completo'] = mb_strtoupper($vialidad. $num.', '.$colonia.', '.$municipio.', '.$estado.', '.$cp.', '.$referencias);                    $contacto_centro = new JsonResponse($contacto_centro);
                     $contacto_centro = json_decode($contacto_centro->content(),true);
                     foreach ($contacto_centro as $contacto ) {
                       if($contacto['tipo_contacto_id'] == 1 || $contacto['tipo_contacto_id'] == 2 ){
