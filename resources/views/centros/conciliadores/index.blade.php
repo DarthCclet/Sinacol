@@ -292,8 +292,8 @@
 @endsection
 
 @push('scripts')
-    var xPermisoCA = {{$permisoCA}};
     <script type="text/javascript">
+    var xPermisoCA = {{$permisoCA}};
         $(document).ready(function() {
             $(".horas").datetimepicker({
                 format: "HH:mm"
