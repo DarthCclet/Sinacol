@@ -68,11 +68,11 @@ class AudienciaService{
                 $fecha_notificacion = now();
             }else{
                 if ((int) $tipo_notificacion_id == 1) {
-                    $diasHabilesMin = 7;
-                    $diasHabilesMax = 10;
+                    $diasHabilesMin = env('MINIMO_HABIL_EMPLEADO',7);
+                    $diasHabilesMax = env('MAXIMO_HABIL_EMPLEADO',10);
                 } else {
-                    $diasHabilesMin = 15;
-                    $diasHabilesMax = 18;
+                    $diasHabilesMin = env('MINIMO_HABIL_NOTIFICADOR',15);
+                    $diasHabilesMax = env('MAXIMO_HABIL_NOTIFICADOR',18);
                 }
                 //                obtenemos el domicilio del centro
                 $domicilio_centro = auth()->user()->centro->domicilio;
