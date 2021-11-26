@@ -2327,8 +2327,9 @@
                 }else{
                     html += "<td></td>";
                 }
-
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+                @if(config('edicionpartes.post-ratificacion') == 'SI')
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+                @endif
                 if($("#ratificada").val() != "true"){
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a>";
                 }
@@ -2371,8 +2372,9 @@
                 }else{
                     html += "<td></td>";
                 }
-
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+                @if(config('edicionpartes.post-ratificacion') == 'SI')
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+                @endif
                 if($("#ratificada").val() != "true"){
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash'></i></a></td>";
                 }
