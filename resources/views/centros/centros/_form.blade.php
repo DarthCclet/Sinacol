@@ -39,5 +39,5 @@
             <p class="help-block">Tipo de atenci&oacute;n del centro</p>
         </div>
     </div>
-    @include('includes.component.map',['identificador' => '', 'instancia' => '1','domicilio'=>isset($centro->domicilio) ? $centro->domicilio : null,'needsMaps'=>"false"])
+    @include('includes.component.map',['identificador' => '', 'instancia' => '2','domicilio'=>isset($centro->domicilio) ? $centro->domicilio : null,'needsMaps'=>"true"])
 </div>
