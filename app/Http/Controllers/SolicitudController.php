@@ -1489,7 +1489,7 @@ class SolicitudController extends Controller {
                 "url_virtual" => null, 
                 "ratificada" => true, 
                 "fecha_ratificacion" => now(), 
-                "inmediata" => (bool) $request->inmediata, 
+                "inmediata" => filter_var($request->inmediata, FILTER_VALIDATE_BOOLEAN), 
                 "user_id" => auth()->user()->id]
             );
 
