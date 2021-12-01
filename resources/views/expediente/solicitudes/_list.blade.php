@@ -1488,21 +1488,29 @@
                     },
                     success: function (data) {
                         try {
-
+                            console.log(data);
                             if (data != null && data != "") {
-                                $("#modal-aviso-resolucion-inmediata").modal("hide");
-                                $("#modalRatificacion").modal("hide");
-                                swal({
-                                    title: 'Correcto',
-                                    text: 'Solicitud confirmada correctamente',
-                                    icon: 'success'
-                                });
-                                if (data.tipo_solicitud_id == 1) {
-                                    window.location.href = "/guiaAudiencia/" + data.id;
-                                } else if (data.tipo_solicitud_id == 2) {
-                                    window.location.href = "/guiaPatronal/" + data.id;
-                                } else {
-                                    window.location.href = "/resolucionColectiva/" + data.id;
+                                if(data.error === undefined){
+                                    $("#modal-aviso-resolucion-inmediata").modal("hide");
+                                    $("#modalRatificacion").modal("hide");
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Solicitud confirmada correctamente',
+                                        icon: 'success'
+                                    });
+                                    if (data.tipo_solicitud_id == 1) {
+                                        window.location.href = "/guiaAudiencia/" + data.id;
+                                    } else if (data.tipo_solicitud_id == 2) {
+                                        window.location.href = "/guiaPatronal/" + data.id;
+                                    } else {
+                                        window.location.href = "/resolucionColectiva/" + data.id;
+                                    }
+                                }else{
+                                    swal({
+                                        title: 'Error',
+                                        text: data.mensaje,
+                                        icon: 'error'
+                                    });
                                 }
                             } else {
                                 swal({
