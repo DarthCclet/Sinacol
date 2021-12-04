@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Centro;
 use App\Resolucion;
 use App\Traits\EstilosSpreadsheets;
 use Carbon\Carbon;
@@ -13,44 +14,25 @@ class ExcelReportesService
 {
     use EstilosSpreadsheets;
 
-
     /**
-     * Centros no implementados en etapa 1 de la reforma
+     * Centros implementados en etapa x
      * @var array
      */
-    protected $noImp = [
-        'AGU',
-        'BCN',
-        'BCS',
-        'COA',
-        'COL',
-        'CHH',
-        'CDMX',
-        'GUA',
-        'GRO',
-        'JAL',
-        'MIC',
-        'MOR',
-        'NAY',
-        'NLE',
-        'OAX',
-        'PUE',
-        'QUE',
-        'ROO',
-        'SIN',
-        'SON',
-        'TAM',
-        'TLA',
-        'VER',
-        'YUC',
-        'OCCFCRL',
-    ];
+    protected $imp = [];
 
     /**
-     * Centros implementados en etapa 1
+     * Centros NO implementados en etapa x
      * @var array
      */
-    protected $imp = ['CAM', 'CAMOAE', 'CHP', 'DUR', 'HID', 'MEX', 'SLP', 'TAB', 'ZAC'];
+    protected $noImp = [];
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        $this->imp = Centro::whereNotNull('desde')->orderBy('abreviatura')->get()->pluck('abreviatura')->toArray();
+        $this->noImp = Centro::whereNull('desde')->orderBy('abreviatura')->get()->pluck('abreviatura')->toArray();
+    }
 
     /**
      * Construye la hoja de solicitudes presentadas

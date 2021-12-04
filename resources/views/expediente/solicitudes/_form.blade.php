@@ -750,7 +750,7 @@
                                     </div>
                                      <div class="col-md-12 pasoCitado"id="continuarCitado3" style="display: none;">
                                         <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
-                                    </div> 
+                                    </div>
                                 </div>
                                     <!-- end seccion de domicilios citado -->
                                     <!-- Seccion de Datos laborales -->
@@ -816,7 +816,7 @@
                                     <div>
                                         <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
                                     </div>
-                                </div> 
+                                </div>
                                 <!-- end Seccion de Datos laborales -->
                                 <hr style="margin-top:5%;">
                                 <div id="divBotonesSolicitado" style="display: none;">
@@ -845,7 +845,7 @@
                                 <h3 for='virtual'>Llevar procedimiento v&iacute;a remota</h3>
                                 <div id="solo_virtual" style="display: none">
                                     <p style="font-size: large;">
-                                        Actualmente se encuentran suspendidos los plazos y t&eacute;rminos para la conciliaci&oacute;n presencial en su entidad federativa. Por lo tanto, si usted elige llevar el procedimiento de conciliaci&oacute;n de forma presencial podr&aacute; guardar su solicitud y recibir&aacute; el correspondiente acuse, pero no podr&aacute; continua con el procedimiento de conciliaci&oacute;n hasta que la conciliaci&oacute;n presencial sea autorizada en la Oficina Estatal competente en su entidad. 
+                                        Actualmente se encuentran suspendidos los plazos y t&eacute;rminos para la conciliaci&oacute;n presencial en su entidad federativa. Por lo tanto, si usted elige llevar el procedimiento de conciliaci&oacute;n de forma presencial podr&aacute; guardar su solicitud y recibir&aacute; el correspondiente acuse, pero no podr&aacute; continua con el procedimiento de conciliaci&oacute;n hasta que la conciliaci&oacute;n presencial sea autorizada en la Oficina Estatal competente en su entidad.
                                     </p>
                                     <p style="font-size: large;">
                                         En caso de seleccionar la conciliaci&oacute;n v&iacute;a remota se seguir&aacute; el procedimiento conforme a los t&eacute;rminos establecidos en la Ley.
@@ -853,7 +853,7 @@
                                 </div>
                                 <div id="atiende_mixta" style="display: none">
                                     <p style="font-size: large;">
-                                        En su entidad federativa existe la posibilidad de llevar el procedimiento de conciliación de manera presencial o v&iacute;a remota. Si escoge la modalidad presencial, tendr&aacute; que acudir a la Oficina Estatal competente para la confirmaci&oacute;n de su solicitud y para cada audiencia o tr&aacute;mite de su procedimiento. 
+                                        En su entidad federativa existe la posibilidad de llevar el procedimiento de conciliación de manera presencial o v&iacute;a remota. Si escoge la modalidad presencial, tendr&aacute; que acudir a la Oficina Estatal competente para la confirmaci&oacute;n de su solicitud y para cada audiencia o tr&aacute;mite de su procedimiento.
                                     </p>
                                     <p style="font-size: large;">
                                         Si escoge la modalidad v&iacute;a remota, podr&aacute; adjuntar su identificación oficial a la solicitud, llevar a cabo la confirmación de la solicitud v&iacute;a remota y realizar todas las audiencias y tr&aacute;mites de su procedimiento v&iacute;a remota.
@@ -917,7 +917,7 @@
                                 <h5 id="giro_solicitanteSol"></h4>
                             </div>
                             <div class="col-md-12">
-    
+
                                 <div><h4>Objeto de la solicitud</h4></div>
                                 <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                     <table class="table table-bordered" >
@@ -933,7 +933,7 @@
                                 </div>
                                 <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
                                 <div class="col-md-12 row"> <div>
-                                    <h4>Solicitantes</h4></div> 
+                                    <h4>Solicitantes</h4></div>
                                     @if(isset($solicitud) && $solicitud->estatus_solicitud_id == 1 && $tipo_solicitud_id != 2)
                                         <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div>
                                     @else
@@ -956,7 +956,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-md-12 row"> <div><h4>Citados</h4></div> 
+                                <div class="col-md-12 row"> <div><h4>Citados</h4></div>
                                 @if(isset($solicitud) && $solicitud->estatus_solicitud_id == 1)
                                     <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div>
                                 @else
@@ -978,7 +978,7 @@
                                     </table>
                                 </div>
                             </div>
-    
+
                             <br>
                             <br>
                             <div class="col-md-12 form-group">
@@ -986,7 +986,7 @@
                                 <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200 palabras)</p>
                                 <input type="hidden" id="countObservaciones" />
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -1632,7 +1632,7 @@
                             if(isConfirm){
                                 if(!edit){
                                     getAtiendeVirtual();
-                                } 
+                                }
                                 if(!editCitado){
                                     editCitado = true;
                                     $('#wizard').smartWizard('goToStep', 3);
@@ -2039,7 +2039,7 @@
         $("#fecha_salidaCitado").val("");
         $("#jornada_idCitado").val("");
         $("#horas_semanalesCitado").val("");
-        
+
         $("#genero_id_solicitante").val("");
         $("#nacionalidad_id_solicitante").val("");
         $("#entidad_nacimiento_id_solicitante").val("");
@@ -2327,9 +2327,12 @@
                 }else{
                     html += "<td></td>";
                 }
-
+                @if(config('edicionpartes.post-ratificacion') == 'SI' && isset($solicitud->ratificada) && $solicitud->ratificada)
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+                @endif
                 if($("#ratificada").val() != "true"){
                     html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a>";
                 }
                 if($('#radioVirtual1').is(":checked") && $("#solicitud_id").val() == ""){
@@ -2371,7 +2374,9 @@
                 }else{
                     html += "<td></td>";
                 }
-
+                @if(config('edicionpartes.post-ratificacion') == 'SI'  && isset($solicitud->ratificada) && $solicitud->ratificada)
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+                @endif
                 if($("#ratificada").val() != "true"){
                     html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash'></i></a></td>";
@@ -2629,7 +2634,7 @@
             // if(key == ""){
             //     arrayDomiciliosSolicitado.push(domicilioObj2.getDomicilio());
             // }else{
-                
+
             // }
             var domicilio =domicilioObj2.getDomicilio()
             if(domicilio != undefined){
@@ -2993,7 +2998,7 @@
         language: 'es',
         autoclose: true,
     });
-    
+
     var a = $('#fecha_ingreso').datepicker("getDate");
     $('#fecha_salida').datepicker({
         format: "dd/mm/yyyy",

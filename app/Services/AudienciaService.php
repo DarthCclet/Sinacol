@@ -68,11 +68,11 @@ class AudienciaService{
                 $fecha_notificacion = now();
             }else{
                 if ((int) $tipo_notificacion_id == 1) {
-                    $diasHabilesMin = 7;
-                    $diasHabilesMax = 10;
+                    $diasHabilesMin = env('MINIMO_HABIL_SOLICITANTE',7);
+                    $diasHabilesMax = env('MAXIMO_HABIL_SOLICITANTE',10);
                 } else {
-                    $diasHabilesMin = 15;
-                    $diasHabilesMax = 18;
+                    $diasHabilesMin = env('MINIMO_HABIL_NOTIFICADOR',15);
+                    $diasHabilesMax = env('MAXIMO_HABIL_NOTIFICADOR',18);
                 }
                 //                obtenemos el domicilio del centro
                 $domicilio_centro = auth()->user()->centro->domicilio;
@@ -101,7 +101,7 @@ class AudienciaService{
                 if ($tipo_notificacion_id == 2) {
                     $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro, $domicilio_citado, $datos_audiencia["fecha_audiencia"]);
                 }
-                
+
                 $encontro_audiencia = $datos_audiencia["encontro_audiencia"];
                 $fecha_audiencia = $datos_audiencia["fecha_audiencia"];
                 $hora_inicio = $datos_audiencia["hora_inicio"];
@@ -127,8 +127,8 @@ class AudienciaService{
                 "fecha_audiencia" => $fecha_audiencia,
                 "hora_inicio" => $hora_inicio,
                 "hora_fin" => $hora_fin,
-                "sala_id" => $sala_id, 
-                "sala2_id" => $sala2_id, 
+                "sala_id" => $sala_id,
+                "sala2_id" => $sala2_id,
                 "conciliador_id" => $conciliador_id,
                 "conciliador2_id" => $conciliador2_id,
                 "fecha_cita" => $fecha_cita,

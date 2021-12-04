@@ -4,7 +4,7 @@
 
 @include('includes.component.datatables')
 @section('content')
-	<div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: {{config('colores.btn-primary-color')}} !important; top: 20%;bottom: 20%;">
+	<div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: {{(config('colores.default')=='SI')?'#9d2449':config('colores.encabezado-color-fondo')}} !important; top: 20%;bottom: 20%;">
             <!-- begin brand -->
             <div class="login-header" align="center">
                 <div class="brand">

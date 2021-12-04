@@ -1489,7 +1489,7 @@ class SolicitudController extends Controller {
                 "url_virtual" => null, 
                 "ratificada" => true, 
                 "fecha_ratificacion" => now(), 
-                "inmediata" => (bool) $request->inmediata, 
+                "inmediata" => filter_var($request->inmediata, FILTER_VALIDATE_BOOLEAN), 
                 "user_id" => auth()->user()->id]
             );
 
@@ -1502,7 +1502,7 @@ class SolicitudController extends Controller {
                             $parte = $parteRep;
                         }
                     }
-                    $parte->update(["ratifico" => true,"notificacion_buzon" => (bool)$request->acepta_buzon]);
+                    $parte->update(["ratifico" => true,"notificacion_buzon" => filter_var($request->acepta_buzon, FILTER_VALIDATE_BOOLEAN)]);
                 }
             }
 
@@ -1569,7 +1569,7 @@ class SolicitudController extends Controller {
                             $parte = $parteRep;
                         }
                     }
-                    if((bool)$request->acepta_buzon){
+                    if(filter_var($request->acepta_buzon, FILTER_VALIDATE_BOOLEAN)){
                         $parte->update(["notificacion_buzon" => true,"fecha_aceptacion_buzon" => now()]);
                         $identificador = $parte->rfc;
                         if($parte->tipo_persona_id == $tipo->id){
