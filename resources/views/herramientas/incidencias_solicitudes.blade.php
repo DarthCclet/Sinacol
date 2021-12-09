@@ -121,7 +121,7 @@
                             </div>
                             <div id="divCitadosMod">
                             </div>
-                            <h4 style="color: #9d2449;" id="folio_solicitud_asociar"></h4>
+                            <h4 style="color: {{config('colores.btn-primary-color')}};" id="folio_solicitud_asociar"></h4>
                         </div>
                         <div style="display: none; margin: 2%;" class="col-md-12 row" id="divBtnSol" >
                             <div class="col-md-12 row">
@@ -146,7 +146,7 @@
             <div class="modal-body" >
                 <div class="col-md-12 row">
                     <div class="col-md-9">
-                        <h4 style="color: #9d2449;" id="folio_solicitud_incidencia"></h4>
+                        <h4 style="color: {{config('colores.btn-primary-color')}};" id="folio_solicitud_incidencia"></h4>
                     </div>
                     <div class="col-md-3">
                         <button class="btn btn-primary btn-sm" id="quitar_relacion" style="margin-left: 1%; display:none;" onclick="limpiarSolicitudAsociada()">No relacionar</button>

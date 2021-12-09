@@ -22,9 +22,6 @@
             <td class="all">
                 {!! Form::open(['action' => ['ConciliadorController@destroy', $conciliador->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('conciliadores.edit',[$conciliador])}}" class="btn btn-xs btn-primary">
-                        <i class="fa fa-pencil-alt"></i>
-                    </a>
                     <a class="btn btn-xs btn-primary disponibilidad" onclick="getRolesConciliador({{$conciliador->id}})">
                         <i class="fa fa-user-cog"></i>
                     </a>

@@ -46,6 +46,7 @@ class BuzonController extends Controller
                 }else{
                     $correo = $parte->correo_buzon;
                     $busqueda["correo"] = $correo;
+                    $busqueda["folio"] = $this->request->folio;
 
                     $token = app('hash')->make(str_random(8));
                     if (!Cache::has($token)) {
@@ -68,39 +69,42 @@ class BuzonController extends Controller
     	
     }
     public function AccesoBuzon(){
-        $partesBusqueda = Parte::where("correo_buzon", $this->request->correo_buzon)->where("password_buzon",$this->request->password_buzon)->get();
-        if($partesBusqueda != null){
-            $identificador = "";
-            if($partesBusqueda[0]->tipo_persona_id == 1){
-                $identificador = $partesBusqueda[0]->curp;
-                $partes = Parte::where("curp",$partesBusqueda[0]->curp)->get();
-            }else{
-                $identificador = $partesBusqueda[0]->rfc;
-                $partes = Parte::where("rfc",$partesBusqueda[0]->rfc)->get();
-            }
-            $solicitudes = [];
-            foreach($partes as $parte){         
-                // BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento (Nombre documento)','tipo_movimiento'=>'Documento']);
-                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Constancia de consulta realizada','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$identificador]);
-                $solicitud = $parte->solicitud;
-                if($solicitud->expediente != null){
-                    $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
-                    $solicitud->parte = $parte;
-                    $solicitud->acepto_buzon = "no";
-                    if($parte->notificacion_buzon){
-                        $solicitud->acepto_buzon = "si";
-                    }
-                    foreach($solicitud->expediente->audiencia as $audiencia){
-                        $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
-                        $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
-                    }
-                    $solicitudes[]=$solicitud;
+        $expediente = Expediente::whereFolio($this->request->folio)->first();
+        if($expediente != null){
+            $partesBusqueda = $expediente->solicitud->partes()->where("correo_buzon", $this->request->correo_buzon)->where("password_buzon",$this->request->password_buzon)->first();
+            if($partesBusqueda != null){
+                $identificador = "";
+                if($partesBusqueda->tipo_persona_id == 1){
+                    $identificador = $partesBusqueda->curp;
+                    $partes = $expediente->solicitud->partes()->where("curp",$partesBusqueda->curp)->get();
+                }else{
+                    $identificador = $partesBusqueda->rfc;
+                    $partes = $expediente->solicitud->partes()->where("rfc",$partesBusqueda->rfc)->get();
                 }
+                $solicitudes = [];
+                foreach($partes as $parte){         
+                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Constancia de consulta realizada','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$identificador]);
+                    $solicitud = $parte->solicitud;
+                    if($solicitud->expediente != null){
+                        $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
+                        $solicitud->parte = $parte;
+                        $solicitud->acepto_buzon = "no";
+                        if($parte->notificacion_buzon){
+                            $solicitud->acepto_buzon = "si";
+                        }
+                        foreach($solicitud->expediente->audiencia as $audiencia){
+                            $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
+                            $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
+                        }
+                        $solicitudes[]=$solicitud;
+                    }
+                }
+                return view("buzon.buzon", compact('solicitudes'));
+            }else{
+                return view("buzon.solicitud")->with("Error","No se encontraron partes con los accesos proporcionados.");
             }
-
-            return view("buzon.buzon", compact('solicitudes'));
         }else{
-            return redirect()->back();
+            return view("buzon.solicitud")->with("Error","No se encontró el expediente.");
         }
     }
     Public function validar_token(){
@@ -110,31 +114,35 @@ class BuzonController extends Controller
             if(Cache::has($token)){
                 $busqueda = Cache::get($token);
                 if($correo == $busqueda["correo"]){
-                    if($busqueda["tipo_persona_id"] == 1){
-                        $partes = Parte::where("curp",$busqueda["busqueda"])->get();
-                    }else{
-                        $partes = Parte::where("rfc",$busqueda["busqueda"])->get();
-                    }
-                    $solicitudes = [];
-                    foreach($partes as $parte){
-                        BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Constancia de consulta realizada','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$busqueda["busqueda"]]);
-                        $solicitud = $parte->solicitud;
-                        if($solicitud->expediente != null){
+                    if(isset($busqueda["folio"]) && $busqueda["folio"] != "" && $busqueda["folio"] != null){
+                        $expediente = Expediente::whereFolio($busqueda["folio"])->first();
+                        if($expediente != null){
+                            $solicitud = [];
+                            $solicitud = $expediente->solicitud;
                             $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
+                            if($busqueda["tipo_persona_id"] == 1){
+                                $parte = $solicitud->partes()->where("curp",$busqueda["busqueda"])->first();
+                            }else{
+                                $parte = $solicitud->partes()->where("rfc",$busqueda["busqueda"])->first();
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Constancia de consulta realizada','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$busqueda["busqueda"]]);
                             $solicitud->parte = $parte;
                             $solicitud->acepto_buzon = "no";
                             if($parte->notificacion_buzon){
                                 $solicitud->acepto_buzon = "si";
                             }
                             foreach($solicitud->expediente->audiencia as $audiencia){
-//                                $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
                                 $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
                                 $audiencia->documentos()->with('clasificacionArchivo')->get();
                             }
                             $solicitudes[]=$solicitud;
+                            return view("buzon.buzon", compact('solicitudes'));
+                        }else{
+                            return view("buzon.solicitud")->with("Error","No se encontró información del folio");
                         }
+                    }else{
+                        return view("buzon.solicitud")->with("Error","No se encontró información del folio");
                     }
-                    return view("buzon.buzon", compact('solicitudes'));
                 }else{
                     return view("buzon.solicitud")->with("Error","Correo del que ingresas no coincide con el token");
                 }
@@ -145,20 +153,7 @@ class BuzonController extends Controller
             return view("buzon.solicitud")->with("Error","La estructura de la liga no es correcta");
         }
     }
-    public function BuzonElectronico(){
-//        Obtenemos todas las solicitudes de la persona
-        $partes = Parte::where("rfc","SAZE941229ED8")->get();
-        $solicitudes = [];
-        foreach($partes as $parte){
-            $solicitud = $parte->solicitud;
-            if($solicitud->expediente != null){
-                $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
-                $solicitud->parte = $parte;
-                $solicitudes[]=$solicitud;
-            }
-        }
-        return view("buzon.buzon", compact('solicitudes'));
-    }
+
     private function getAcciones(Solicitud $solicitud,$partes,$expediente){
 //         Obtenemos las acciones de la solicitud
         $SolicitudAud = $solicitud->audits()->get();
@@ -175,7 +170,6 @@ class BuzonController extends Controller
                 }
             }
         }
-
         $SolicitudAud = $SolicitudAud->sortBy('created_at');
         $audits = array();
         foreach ($SolicitudAud as $audit) {

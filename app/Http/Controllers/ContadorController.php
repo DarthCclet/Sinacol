@@ -127,5 +127,4 @@ class ContadorController extends Controller
     {
         //
     }
-
 }

@@ -54,16 +54,17 @@ class FechaAudienciaService{
                             $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
                             if($disponibilidad != null){
                                 if(self::validarIncidencia($diaHabilCentro["dia"], $sala->id, "App\Sala")){
-                                    $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                                    ->whereRaw('solicitudes.incidencia is not true')
-                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                    $audiencias = Audiencia::where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
                                     ->where("audiencias.hora_inicio",$hora_inicio)
                                     ->where("audiencias.hora_fin",$hora_fin)
-                                    ->where("salas_audiencias.sala_id",$sala->id)
-                                    ->select('audiencias.*')
+                                    ->whereHas("salasAudiencias",function($q) use($sala) {
+                                        return $q->where("sala_id",$sala->id);
+                                    })
+                                    ->whereHas("expediente.solicitud",function($q){
+                                        return $q->whereRaw('incidencia is not true');
+                                    })
                                     ->get();
+
                                     if(count($audiencias) == 0){
                                         $encontroSala=true;
                                         $sala_id = $sala->id;
@@ -82,16 +83,15 @@ class FechaAudienciaService{
                         if($disponibilidad != null){
     //                        Validamos si el conciliador no tiene una incidencia
                             if(self::validarIncidencia($diaHabilCentro["dia"], $conciliador->id, "App\Conciliador")){
-                                $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                                        ->select('audiencias.*')
-                                        ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                                        ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                                        ->whereRaw('solicitudes.incidencia is not true')
-                                        ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                        ->where("audiencias.hora_inicio",$hora_inicio)
-                                        ->where("audiencias.hora_fin",$hora_fin)
-                                        ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                                        ->get();
+                                $audiencias = Audiencia::where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                ->where("audiencias.hora_inicio",$hora_inicio)
+                                ->where("audiencias.hora_fin",$hora_fin)
+                                ->whereHas("expediente.solicitud",function($q){
+                                    return $q->whereRaw('incidencia is not true');
+                                })->whereHas("conciliadoresAudiencias",function($q)use($conciliador){
+                                    return $q->where("conciliador_id",$conciliador->id);
+                                })->get();
+
                                 if(count($audiencias) == 0){
                                     $audienciasQ = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
                                         ->select('audiencias.*')

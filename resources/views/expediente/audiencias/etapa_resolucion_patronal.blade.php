@@ -16,8 +16,8 @@
             height:100% !important;
         }
         .card-header{
-            border: 1px solid #9c2449 !important;
-            background: #9c2449 !important;
+            border: 1px solid {{config('colores.btn-primary-color')}} !important;
+            background: {{config('colores.btn-primary-color')}} !important;
             color: white !important;
             font-size: 65% !important;
             padding: 4px !important;
@@ -512,7 +512,7 @@
                             <div class="col-sm-10 select-reinstalacion" style="display:none">
                                 <select id="concepto_pago_reinstalacion_id" class="form-control conceptosPago">
                                     <option value="">-- Seleccione un concepto de pago</option>
-                                    @foreach($concepto_pago_reinstalacion as $concepto)
+                                    @foreach($concepto_pago_resoluciones as $concepto)
                                         @if($concepto->id == 13 )
                                             <option style="display:none" value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
                                         @else

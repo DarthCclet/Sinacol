@@ -7,7 +7,6 @@
 <!-- ================== BEGIN BASE CSS STYLE ================== -->
 <link href="/assets/css/default/app.min.css" rel="stylesheet" />
 <!-- ================== END BASE CSS STYLE ================== -->
-
 @stack('css')
 <style>
     @if( strpos(env('APP_URL'), 'lxl') )
@@ -20,6 +19,12 @@
     @endif
     .sw-main.sw-theme-default .step-anchor > li.active > a small {
         color: #B38E5D;
+    }
+    .sw-main.sw-theme-default .step-anchor > li.active{
+        background: {{config('colores.btn-primary-color')}} !important
+    }
+    .wizard-steps li.active::after, .wizard-steps li.active::before, .wizard-steps li.current::after, .wizard-steps li.current::before, .wizard-steps li.success::after, .wizard-steps li.success::before {
+        background: {{config('colores.btn-primary-color')}} !important
     }
     .sw-theme-default > ul.step-anchor > li.clickable > a:hover {
         color: white !important;
@@ -80,10 +85,34 @@
         animation: spin 2s linear infinite;
     }
 
+    .wizard-steps li.completed,
+    .wizard-steps li.current,
+    .wizard-steps-extensive li.active,
+    .wizard-steps-extensive li.current {
+        background-color: {{config('colores.btn-primary-color')}} !important;
+        color: #fff
+    }
+
 	@keyframes spin {
 		0% { transform: rotate(0deg); }
 		100% { transform: rotate(360deg); }
 	}
 
-
 </style>
+
+@if(config('colores.default') === 'NO')
+    <style>
+        .header {background-color: {{config('colores.encabezado-color-fondo')}} !important;}
+        .btn-primary {
+            color: {{config('colores.btn-primary-color')}} !important;
+            background-color: {{config('colores.btn-primary-background-color')}} !important;
+            border-color: {{config('colores.btn-primary-border-color')}} !important;
+            box-shadow: {{config('colores.btn-primary-shadow-color')}} !important;
+        }
+        .btn-primary:hover {
+            color: {{config('colores.btn-primary-hover-color')}} !important;
+            background-color: {{config('colores.btn-primary-hover-background-color')}} !important;
+            border-color: {{config('colores.btn-primary-hover-border-color')}} !important;
+        }
+    </style>
+@endif
