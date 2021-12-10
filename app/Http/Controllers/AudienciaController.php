@@ -70,17 +70,33 @@ class AudienciaController extends Controller {
 
     use ValidateRange,
         FechaNotificacion;
+    /**
+     * Días para expiración de solicitudes
+     */
+    const DIAS_EXPIRAR = 44;
 
+    /**
+     * Tipos de contador audiencia
+     */
+    const TIPO_CONTADOR_AUDIENCIA = 3;
+
+    /**
+     * Centro default para contador en solicitud
+     */
+    const CENTRO_DEFAULT_CONTADOR_ID = 1;
     protected $request;
-
+    protected $contadorService;
+    protected $folioService;
     protected $dias_solicitud;
 
-    public function __construct(Request $request,DiasVigenciaSolicitudService $dias) {
+    public function __construct(Request $request, ContadorService $contadorService, FolioService $folioService,DiasVigenciaSolicitudService $dias) {
         if (!$request->is("*buzon/*")) {
             $this->middleware('auth');
         }
         $this->request = $request;
         $this->dias_solicitud = $dias;
+        $this->folioService = $folioService;
+        $this->contadorService = $contadorService;
     }
 
     /**
@@ -89,7 +105,6 @@ class AudienciaController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-//        return Audiencia::all();
         Audiencia::with('conciliador')->get();
         // $solicitud = Solicitud::all();
         // Filtramos los usuarios con los parametros que vengan en el request
@@ -353,7 +368,6 @@ class AudienciaController extends Controller {
         $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
 
         $entidad = ClasificacionArchivo::find(1);
-//        dd($entidad->entidad_emisora);
 
         if ($audiencia->solictud_cancelcacion) {
             $audiencia->justificante_id == null;
@@ -439,7 +453,6 @@ class AudienciaController extends Controller {
         $clasificacion_justificante = ClasificacionArchivo::whereNombre("Otro")->first();
         $fecha_notificador = FechaAudienciaService::calcularFechaNotificador(date("Y-m-d"));
 
-//        Obtenemos a los que no comparecieron
         return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear','tipo_solicitud','clasificacion_justificante','fecha_notificador'));
     }
 
@@ -558,17 +571,6 @@ class AudienciaController extends Controller {
                         $pasa = false;
                     }
                 }
-//                if ($pasa) {
-//                    $conciliadoresAudiencia = array();
-//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-//                            //Buscamos que la hora inicio no este entre una audiencia
-//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-//                        }
-//                    }
-//                }
             }
             if ($pasa) {
                 $conciliador->persona = $conciliador->persona;
@@ -625,17 +627,6 @@ class AudienciaController extends Controller {
                             $pasa = false;
                         }
                     }
-    //                if ($pasa) {
-    //                    $conciliadoresAudiencia = array();
-    //                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-    //                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-    //                            //Buscamos que la hora inicio no este entre una audiencia
-    //                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-    //                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-    //                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-    //                        }
-    //                    }
-    //                }
                 }
                 if ($pasa) {
                     $conciliador->persona = $conciliador->persona;
@@ -860,9 +851,9 @@ class AudienciaController extends Controller {
                     $parte->save();
                 }
             }
-//                obtenemos el domicilio del centro
+            //obtenemos el domicilio del centro
             $domicilio_centro = auth()->user()->centro->domicilio;
-//                obtenemos el domicilio del citado
+            //obtenemos el domicilio del citado
             $partes = $solicitud->partes;
             $domicilio_citado = null;
             foreach ($partes as $parte) {
@@ -1165,9 +1156,7 @@ class AudienciaController extends Controller {
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
             foreach ($audienciasSolicitud as $audiencia) {
-//                if (new Carbon($audiencia->fecha_audiencia) >= now()) {
                 array_push($audiencias, $audiencia);
-//                }
             }
         }
         $arrayEventos = [];
@@ -1891,7 +1880,6 @@ class AudienciaController extends Controller {
      */
     public function GetPartesFisicas($audiencia_id) {
         $audiencia = Audiencia::find($audiencia_id);
-//        dd($audiencia->expediente->solicitud->partes);
         $partes = [];
         foreach ($audiencia->audienciaParte as $audienciaParte) {
             if ($audienciaParte->parte->tipo_persona_id == 1) {
@@ -2004,11 +1992,9 @@ class AudienciaController extends Controller {
 
         ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
         if ($request->nuevaCalendarizacion == "S") {
-//            $id_conciliador = null;
             foreach ($request->asignacion as $value) {
                 SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
             }
-//            $audienciaN->update(["conciliador_id" => $id_conciliador]);
         } else {
             foreach ($audiencia->salasAudiencias as $sala) {
                 SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $sala->sala_id, "solicitante" => $sala->solicitante]);
@@ -2392,9 +2378,7 @@ class AudienciaController extends Controller {
     }
 
     public function GetAudienciaConciliador() {
-//        obtenemos los datos del conciliador
         $conciliador = auth()->user()->persona->conciliador;
-//        obtenemos las audiencias programadas a partir de el día de hoy
         $arrayEventos = [];
         if ($conciliador != null) {
             $audiencias = $conciliador->ConciliadorAudiencia;
@@ -2847,8 +2831,6 @@ class AudienciaController extends Controller {
                     $solicitud->update(["estatus_solicitud_id" => 3, "user_id" => $user_id]);
                     // Se genera archivo de acta de archivado
                     $response = array("tipo" => 1, "response" => $audiencia);
-//                    DB::rollBack();
-//                    dd($solicitantes);
                 }
                 if ($solicitantes && !$citados) {
                     $solicitados = $this->getSolicitados($audiencia);
@@ -3357,8 +3339,6 @@ class AudienciaController extends Controller {
     }
 
     public function uploadJustificante(Request $request) {
-//        DB::beginTransaction();
-//        try {
             $audiencia = Audiencia::find($request->audiencia_id);
             $audiencia->update(["solictud_cancelcacion" => true]);
             $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $request->audiencia_id;
@@ -3379,18 +3359,7 @@ class AudienciaController extends Controller {
                 "firmado" => "false",
                 "clasificacion_archivo_id" => $clasificacion->id,
             ]);
-//            DB::commit();
             return redirect()->back()->with('success', 'Se solicitó la reprogramación');
-//        } catch (\Throwable $e) {
-//            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
-//                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
-//                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
-//            DB::rollback();
-//            if ($this->request->wantsJson()) {
-//                return $this->sendError('Error');
-//            }
-//            return redirect()->back()->with('error', 'No se pudo solicitar la cancelación');
-//        }
     }
 
     /**
@@ -3540,7 +3509,7 @@ class AudienciaController extends Controller {
     }
 
     public function getMinMaxTime(Centro $centro) {
-//        Recorremos las disponibilidades
+        //Recorremos las disponibilidades
         $horaIniciopiv = "23:59:59";
         $horaFinpiv = "00:00:00";
         foreach ($centro->disponibilidades as $disponibilidad) {
@@ -3555,7 +3524,7 @@ class AudienciaController extends Controller {
     }
 
     public function getMinMaxConciliador(Conciliador $conciliador) {
-//        Recorremos las disponibilidades
+        //Recorremos las disponibilidades
         $horaIniciopiv = "23:59:59";
         $horaFinpiv = "00:00:00";
         foreach ($conciliador->disponibilidades as $disponibilidad) {

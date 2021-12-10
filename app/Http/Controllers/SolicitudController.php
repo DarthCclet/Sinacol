@@ -69,7 +69,6 @@ use Illuminate\Support\Facades\File;
 use App\Mail\EnviarNotificacionBuzon;
 use Illuminate\Support\Facades\Mail;
 use App\Services\AudienciaService;
-
 class SolicitudController extends Controller {
 
     use FechaNotificacion;
@@ -103,12 +102,16 @@ class SolicitudController extends Controller {
      * @var Request
      */
     protected $request;
+    protected $folioService;
+    protected $contadorService;
     protected $dias_solicitud;
 
-    public function __construct(Request $request, DiasVigenciaSolicitudService $dias) {
+    public function __construct(Request $request, ContadorService $contadorService, FolioService $folioService,DiasVigenciaSolicitudService $dias) {
         // $this->middleware("auth");
         $this->request = $request;
         $this->dias_solicitud = $dias;
+        $this->folioService = $folioService;
+        $this->contadorService = $contadorService;
     }
 
     public function index() {
@@ -1519,15 +1522,14 @@ class SolicitudController extends Controller {
             DB::beginTransaction();
 
             //Obtenemos los folios de expediente y audiencia
-            $folios = AudienciaService::obtenerFolios();
+            $folios = AudienciaService::obtenerFolios($solicitud,$this->contadorService,$this->folioService);
             if(!$folios["folios"]){
                 DB::rollback();
                 return $this->sendError('Error al confirmar la solicitud', 'Error');
             }
 
             // Generamos el folio del expediente
-            $edo_folio = $solicitud->centro->abreviatura;
-            $folio = $edo_folio . "/CJ/I/" . $folios["expediente"]->anio . "/" . sprintf("%06d", $folios["expediente"]->contador);
+            $folio = $folios['expediente'];
 
             //Modificamos el registro de la solicitud para indicar que se confirma
             $solicitud->update([
@@ -1557,8 +1559,8 @@ class SolicitudController extends Controller {
             $expediente = Expediente::create([
                 "solicitud_id" => $solicitud->id, 
                 "folio" => $folio, 
-                "anio" => $folios["expediente"]->anio, 
-                "consecutivo" => $folios["expediente"]->contador
+                "anio" => date('Y'), 
+                "consecutivo" => $folios["consecutivo_expediente"]
             ]);
 
             // Creamos el registro de la audiencia
@@ -1572,8 +1574,8 @@ class SolicitudController extends Controller {
                 "conciliador_id" => $asignacion["conciliador_id"],
                 "numero_audiencia" => 1,
                 "reprogramada" => false,
-                "anio" => $folios["audiencia"]->anio,
-                "folio" => $folios["audiencia"]->contador,
+                "anio" => date('Y'),
+                "folio" => $folios["audiencia"],
                 "encontro_audiencia" => $asignacion["encontro_audiencia"],
                 "fecha_cita" => $asignacion["fecha_cita"],
                 "etapa_notificacion_id" => $asignacion["etapa_id"],
@@ -1709,6 +1711,15 @@ class SolicitudController extends Controller {
             $audiencia->tipo_solicitud_id = $solicitud->tipo_solicitud_id;
             return $audiencia;
 
+        }catch (FolioExpedienteExistenteException $e) {
+            DB::rollback();
+            // Si hay folio de expediente duplicado entonces aumentamos en 1 el contador
+            $contexto = $e->getContext();
+            Log::error($e->getMessage()." ".$contexto->folio);
+            $this->contadorService->getContador($contexto->anio, self::TIPO_CONTADOR_SOLICITUD, $contexto->solicitud->centro_id);
+            if ($this->request->wantsJson()) {
+                return $this->sendError('Error al confirmar la solicitud', $e->getMessage());
+            }
         }catch(Exception $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensale: " . $e->getMessage() .
