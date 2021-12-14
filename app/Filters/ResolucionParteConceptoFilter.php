@@ -17,7 +17,7 @@ class ResolucionParteConceptoFilter extends Filter
 
     /**
      * Cuando se pasa la abreviatura del centro como parametro
-     * @param $abreviatura
+     * @param array|string $abreviatura Arreglo de abreviatura de centro o una sola abreviatura de centro
      */
     public function handleCentroFilter($abreviatura)
     {
@@ -33,7 +33,7 @@ class ResolucionParteConceptoFilter extends Filter
 
     /**
      * Cuando filtran por conciliadores
-     * @param $conciliadores
+     * @param array|integer $conciliadores Arreglo de ID de conciliadores o un sólo ID de conciliador
      */
     public function handleConciliadoresFilter($conciliadores)
     {

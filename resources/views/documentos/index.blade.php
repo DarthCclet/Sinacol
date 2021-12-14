@@ -30,6 +30,21 @@
         <!-- end panel-heading -->
         <!-- begin panel-body -->
         <div class="panel-body">
+
+
+            <div class="col-sm-3 float-right mb-3">
+                <form class="" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar plantilla" name="nombre_plantilla" value="{{request()->get('nombre_plantilla')}}">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+
+
             @include('documentos._list')
         </div>
     </div>
@@ -39,7 +54,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#data-table-default').DataTable({paging: false,"info":false,responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
+            //$('#data-table-default').DataTable({paging: false,"info":false,responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
         });
         $('.btn-borrar').on('click', function (e) {
             let that = this;
