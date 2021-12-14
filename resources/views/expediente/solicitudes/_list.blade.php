@@ -1401,7 +1401,7 @@
                                         icon: 'success'
                                     });
                                 } else {
-                                    if(data.error != undefined){
+                                    if(data.error == undefined){
                                         swal({
                                             title: 'Correcto',
                                             text: 'Se genero la audiencia con el folio: ' + data.folio + '/' + data.anio + ', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
