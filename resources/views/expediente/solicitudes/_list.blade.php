@@ -2647,7 +2647,7 @@
     $(".dateBirth").datepicker({
         changeMonth: true,
         changeYear: true,
-        yearRange: "c-80:",
+        yearRange: "c:c+1",
         format: 'dd/mm/yyyy',
     });
 
