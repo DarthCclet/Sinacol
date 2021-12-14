@@ -17,7 +17,7 @@
           <div class="form-group">
             <button class="btn btn-primary btn-sm m-l-5"><i class="fa fa-save"></i> Modificar</button>
             <a href="{{ route('plantilla-documento/imprimirPDF',[$plantillaDocumento])}}" class="btn btn-danger btn-sm m-l-5">
-                <i class="fas fa-file-pdf"></i></i> Ver PDF
+                <i class="fas fa-file-pdf"></i> Ver PDF
             </a>
 
           </div>

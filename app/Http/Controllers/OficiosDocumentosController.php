@@ -3,121 +3,84 @@
 namespace App\Http\Controllers;
 
 use App\ClasificacionArchivo;
+use App\Exceptions\PlantillaDocumentoInexistenteException;
 use App\Expediente;
+use App\PlantillaDocumento;
 use App\Services\StringTemplate;
 use App\Traits\GenerateDocument;
-use Dompdf\Dompdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use PhpParser\Node\Expr\Cast\Object_;
+use League\Flysystem\Config;
 
 class OficiosDocumentosController extends Controller
 {
     use GenerateDocument;
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
 
-       
+    /**
+     * ID de clase de documento para el oficio libre (37 = Otros del catálogo "clasificacion_archivos")
+     */
+    const CLASE_DOCUMENTO_ID = 37;
+
+    /**
+     * @var PlantillaDocumento Contiene la plantilla correspondiente al oficio libre.
+     */
+    protected $plantillaDocumento;
+
+    public function __construct() {
+        $nombre_plantilla = config('folios.plantilla_oficio_libre_nombre', 'oficio libre');
+        $this->plantillaDocumento = PlantillaDocumento::where('nombre_plantilla', 'ilike', $nombre_plantilla)->first();
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
+     * Muestra el formato de captura del oficio libre dado el id de expediente.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     public function show($id)
     {
-        $expediente = Expediente::find($id);
-        if($expediente != null){
-
-            $plantilla['plantilla_header'] = view('documentos._header_documentos_default');
+        $plantilla_documento = $this->plantillaDocumento;
+        if($expediente = Expediente::find($id)){
+            $plantilla['plantilla_header'] = "";
             $plantilla['plantilla_body'] = view('documentos._body_documentos_default');
-            $plantilla['plantilla_footer'] = view('documentos._footer_documentos_default');
-            
-            return view('documentos.oficios.index', compact('plantilla','id'));
-        }else{
-            return redirect()->route('solicitudes.index')->with('error', 'No existe el expediente');
+            $plantilla['plantilla_footer'] = "";
+            return view('documentos.oficios.index', compact('plantilla','id', 'plantilla_documento'));
         }
+        return redirect()->route('solicitudes.index')->with('error', 'No existe el expediente');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Imprime en PDF el oficio libre
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @throws \Symfony\Component\Debug\Exception\FatalThrowableError
      */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
     public function imprimirPDF(Request $request)
     {
         $idExpediente =isset($request->id) ? $request->id :1;
         $nombre_documento =isset($request->nombre_documento) ? $request->nombre_documento : "Oficio";
         // $idExpediente =1;
         $datos = $request->all();
-        
+
         $html = $this->renderDocumento($datos,$idExpediente);
         if($request->type == "generate"){
-            $solicitud = $this->guardarDocumento($idExpediente,$html,37,$nombre_documento);
+            $solicitud = $this->guardarDocumento($idExpediente,$html,self::CLASE_DOCUMENTO_ID,$nombre_documento);
             return redirect()->route('solicitudes.consulta', ['id' => $solicitud->id]);
         }
         return $this->sendResponse($html, "Correcto"); // plantilla 2 para header y footer
     }
 
+    /**
+     * Guarda el oficio libre en la BD
+     * @param integer $idExpediente ID del expediente
+     * @param string $html Cadena html del contenido del expediente
+     * @param integer $tipo_archivo_id ID del tipo de archivo
+     * @param string $nombre_documento Cadena del nombre del documento
+     * @return mixed
+     * @throws \Symfony\Component\Debug\Exception\FatalThrowableError
+     */
     public function guardarDocumento($idExpediente, $html, $tipo_archivo_id,$nombre_documento) {
         $solicitud = Expediente::find($idExpediente)->solicitud;
         $tipoArchivo = ClasificacionArchivo::find($tipo_archivo_id);
@@ -129,7 +92,11 @@ class OficiosDocumentosController extends Controller
         $nombreArchivo = $this->eliminar_acentos(str_replace(" ", "", $nombreArchivo));
         $path = $directorio . "/" . $nombreArchivo . $archivo->id . '.pdf';
         $fullPath = storage_path('app/' . $directorio) . "/" . $nombreArchivo . $archivo->id . '.pdf';
-        $this->renderPDF($html,1, $fullPath);
+
+        $plantilla = PlantillaDocumento::where('nombre_plantilla', 'OFICIO ESPECIAL')->first();
+        $plantilla_id = ($plantilla) ? $plantilla->id : 1;
+
+        $this->renderPDF($html, $plantilla_id, $fullPath);
 
         $archivo->update([
             "nombre" => $nombre_documento,
@@ -143,7 +110,14 @@ class OficiosDocumentosController extends Controller
         ]);
         return $solicitud;
     }
-    
+
+    /**
+     * Genera la cadena html correspondiente a la plantilla y el contenido del documento
+     * @param array $request Arreglo de variables placeholder que componen el documento
+     * @param integer $id ID del expediente
+     * @return string Cadena HTML
+     * @throws \Symfony\Component\Debug\Exception\FatalThrowableError
+     */
     private function renderDocumento(array $request,$id)
     {
         $expediente = Expediente::find($id);
@@ -166,13 +140,11 @@ class OficiosDocumentosController extends Controller
                     <body>
                     ";
             $end = "</body></html>";
-    
-            // $header = '<div class="header">' . $request['oficio-header'] . '</div>';
+
             $body = '<div class="body">' . $request['oficio-body']. '</div>';
-            $footer = '<div class="footer">' . $request['oficio-footer'] . '</div>';
-    
-            $blade = $style . $body . $footer . $end;
-            // $html = StringTemplate::renderPlantillaPlaceholders($blade, $vars);
+
+            $blade = $style . $body . $end;
+
             $html = StringTemplate::renderOficioPlaceholders($blade, $vars);
         }else{
             $html = 'No existe expediente';

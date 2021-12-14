@@ -31,6 +31,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use NumberFormatter;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -303,6 +304,7 @@ trait GenerateDocument
             }
             $vars[strtolower('fecha_actual')] = $this->formatoFecha(Carbon::now(),1);
             $vars[strtolower('hora_actual')] = $this->formatoFecha(Carbon::now(),2);
+            $vars[strtolower('clave_nomenclatura')] = $this->nomenclaturaDocumento($idPlantilla);
           }
           //dd($vars);
           $vars = Arr::except($vars, ['conciliador_persona']);
@@ -367,9 +369,8 @@ trait GenerateDocument
      */
     public function getFooter($id)
     {
-        $html = '';
         $config = PlantillaDocumento::find($id);
-        $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
+        $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> <style>body{border: thin solid white;} .clave-nomenclatura{ position:absolute; top:0px; right:0px; margin-right:1cm; font-size: small;}</style> </head> <body>';
         if(!$config){
             $html .= view('documentos._footer_documentos_default');
         }
@@ -377,7 +378,9 @@ trait GenerateDocument
             $html .= $config->plantilla_footer;
           }
         $html .= "</body></html>";
-        return StringTemplate::renderPlantillaPlaceholders($html,[]);
+        $vars = [];
+        $vars[strtolower('clave_nomenclatura')] = $this->nomenclaturaDocumento($id);
+        return StringTemplate::renderPlantillaPlaceholders($html,$vars);
     }
 
     private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento)
@@ -1589,6 +1592,35 @@ trait GenerateDocument
 
 		return $cadena;
 	}
+
+    /**
+     * Devuelve la cadena de clave de nomenclatura para un documento. Esto para el "control" documental
+     * del CFCRL
+     *
+     * @param $plantilla_id
+     * @return string
+     */
+	public function nomenclaturaDocumento($plantilla_id){
+
+        $plantilla = Cache::remember('plantilla_'.$plantilla_id, 600, function () use ($plantilla_id) {
+            return PlantillaDocumento::find($plantilla_id);
+        });
+
+        if(!$plantilla->clave_nomenclatura){
+            return '';
+        }
+
+        $timestamp = date("YmdHis");
+        $nomenclatura = $plantilla->clave_nomenclatura;
+        $visto_veces = Cache::increment($nomenclatura.$timestamp);
+
+        if($visto_veces > 1) {
+            $timestamp =  $timestamp.($visto_veces -1);
+        }
+
+        return sprintf('<div class="clave-nomenclatura">%s/%s</div>', $nomenclatura, $timestamp);
+    }
+
     /*
     Convertir fechas yyyy-mm-dd hh to dd de Monthname de yyyy
     */

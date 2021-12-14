@@ -3,7 +3,10 @@
 
 namespace App\Filters;
 
-
+/**
+ * Métodos para filtrar consultas mediante la petición HTTP de AudienciaParte
+ * @package App\Filters
+ */
 class AudienciaParteFilter extends Filter
 {
     /**
@@ -17,13 +20,12 @@ class AudienciaParteFilter extends Filter
 
     /**
      * Cuando se pasa el centro_id como parametro
-     * @param $centro_id
+     * @param array|integer $centro_id Arreglo de IDs de centro o un solo ID de centro
      */
     public function handleCentroIdFilter($centro_id)
     {
         if(empty($centro_id)) return;
         $this->query->whereHas('expediente.audiencia.solicitud', function($q) use($centro_id){
-            //Solo se toman en cuenta los solicitantes
             if(is_array($centro_id)) {
                 $q->whereIn('centro_id', $centro_id);
             }
@@ -35,7 +37,7 @@ class AudienciaParteFilter extends Filter
 
     /**
      * Cuando se pasa la abreviatura del centro como parametro
-     * @param $abreviatura
+     * @param array|string $abreviatura Arreglo de abreviaturas de nombre de centro o una sola abreviatura de nombre
      */
     public function handleCentroFilter($abreviatura)
     {
@@ -51,6 +53,10 @@ class AudienciaParteFilter extends Filter
         }
     }
 
+    /**
+     * Cuando se pasa el objeto de la solicitud como parametro
+     * @param array|integer $objeto_solicitud_id Arreglo de ID de objetos de solicitud o un sólo ID de objeto
+     */
     public function handleObjetoSolicitudIdFilter($objeto_solicitud_id)
     {
         if(is_array($objeto_solicitud_id)){
@@ -76,8 +82,8 @@ class AudienciaParteFilter extends Filter
     }
 
     /**
-     * Cuando filtran por conciliadores
-     * @param $conciliadores
+     * Cuando se pasa como parámetro el ID del conciliador
+     * @param array|integer $conciliadores Arreglo de IDs de conciliadores o un sólo ID de conciliador
      */
     public function handleConciliadoresFilter($conciliadores)
     {

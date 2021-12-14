@@ -2,27 +2,57 @@
 
 namespace App\Filters;
 
+use App\User;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+/**
+ * Métodos para filtrar consultas mediante la petición HTTP
+ * @package App\Filters
+ */
 class Filter
 {
+    /**
+     * @var
+     */
     protected $query;
+
+    /**
+     * @var Request
+     */
     protected $request;
+
+    /**
+     * @var string Nombre de la tabla
+     */
     protected $tableName;
 
+    /**
+     * @var array Arreglo por el que se puede ordenar la consulta
+     */
     protected $valid_sort_by = [
         'created_at',
     ];
 
+    /**
+     * Filter constructor.
+     * @param Builder $query Métodos para construir consultas al modelo en la Base de Datos.
+     * @param Request $request Métodos para obtener parámetros de la petición HTTP
+     */
     public function __construct($query, Request $request)
     {
         $this->query = $query;
         $this->request = $request;
     }
 
+    /**
+     * Agrega los filtros al constructor de consultas
+     * @param bool $ordered Indica si se aplica el ordenado al filtro o no.
+     * @return Builder
+     */
     public function filter($ordered = true)
     {
         $params = collect($this->request->all());
@@ -39,6 +69,11 @@ class Filter
         return $this->query;
     }
 
+    /**
+     * Agrega las relaciones que se deben cargar como eager load
+     * @param $scoutModelClass
+     * @return $this
+     */
     public function searchWith($scoutModelClass)
     {
         $model = new $scoutModelClass;
@@ -62,6 +97,10 @@ class Filter
         return $this;
     }
 
+    /**
+     * Agrega al constructor de consultas el ordenado de campos pasados como parametro
+     * @param array $sortBy Campos por los que se debe ordenar la consulta
+     */
     protected function handleSortByFilter($sortBy)
     {
         if ($this->request->input('dir') !== null && in_array($sortBy, $this->valid_sort_by)) {
@@ -73,6 +112,10 @@ class Filter
         }
     }
 
+    /**
+     * Obtiene el nombre de la tabla en la BD que se va a consultar
+     * @return string
+     */
     protected function getTable() {
         if ($this->tableName) {
             return $this->tableName;
