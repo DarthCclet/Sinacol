@@ -1401,11 +1401,19 @@
                                         icon: 'success'
                                     });
                                 } else {
-                                    swal({
-                                        title: 'Correcto',
-                                        text: 'Se genero la audiencia con el folio: ' + data.folio + '/' + data.anio + ', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
-                                        icon: 'success'
-                                    });
+                                    if(data.error == undefined){
+                                        swal({
+                                            title: 'Correcto',
+                                            text: 'Se genero la audiencia con el folio: ' + data.folio + '/' + data.anio + ', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
+                                            icon: 'success'
+                                        });
+                                    }else{
+                                        swal({
+                                            title: 'Error',
+                                            text: data.mensaje,
+                                            icon: 'error'
+                                        });
+                                    }
                                 }
                             } else {
                                 swal({
@@ -2647,7 +2655,7 @@
     $(".dateBirth").datepicker({
         changeMonth: true,
         changeYear: true,
-        yearRange: "c-80:",
+        yearRange: "c:c+1",
         format: 'dd/mm/yyyy',
     });
 
