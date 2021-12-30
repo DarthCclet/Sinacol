@@ -70,7 +70,7 @@ class HeaderFooterTemplatesController extends Controller
             $plantilla_id = $request->get('plantilla_id');
             $idSolicitante = $request->get('solicitante_id');
             $idSolicitado = $request->get('solicitado_id');
-            $clasificacion_archivo_id = $arrayPlantilla[$plantilla_id];
+            //$clasificacion_archivo_id = $arrayPlantilla[$plantilla_id];
             $html = $this->renderDocumento(
                 $idAudiencia,
                 $idSolicitud,
