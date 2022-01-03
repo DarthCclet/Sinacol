@@ -49,6 +49,7 @@ class AudienciaService{
 
             //Obtenemos el folio y su consecutivo del expediente
             $parametrosFolioExpediente = $solicitud->toArray();
+            $parametrosFolioExpediente['anio'] = date('Y');
             $parametrosFolioExpediente['tipo_contador_id'] = self::TIPO_CONTADOR_SOLICITUD;
             list($consecutivo, $folio) = $folioService->getFolio((object) $parametrosFolioExpediente);
             return array("folios" => true, "expediente" => $folio, "audiencia" => $consecutivo_audiencia,"consecutivo_expediente" => $consecutivo);
