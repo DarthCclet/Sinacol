@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\FolioExpedienteExistenteException;
+use App\Services\ContadorService;
+use App\Services\FolioService;
 use Illuminate\Http\Request;
 use App\Audiencia;
 use App\Conciliador;
@@ -46,6 +49,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
+use App\Services\DiasVigenciaSolicitudService;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\FechaNotificacion;
 use App\Events\RatificacionRealizada;
@@ -66,14 +70,33 @@ class AudienciaController extends Controller {
 
     use ValidateRange,
         FechaNotificacion;
+    /**
+     * Días para expiración de solicitudes
+     */
+    const DIAS_EXPIRAR = 44;
 
+    /**
+     * Tipos de contador audiencia
+     */
+    const TIPO_CONTADOR_AUDIENCIA = 3;
+
+    /**
+     * Centro default para contador en solicitud
+     */
+    const CENTRO_DEFAULT_CONTADOR_ID = 1;
     protected $request;
+    protected $contadorService;
+    protected $folioService;
+    protected $dias_solicitud;
 
-    public function __construct(Request $request) {
+    public function __construct(Request $request, ContadorService $contadorService, FolioService $folioService,DiasVigenciaSolicitudService $dias) {
         if (!$request->is("*buzon/*")) {
             $this->middleware('auth');
         }
         $this->request = $request;
+        $this->dias_solicitud = $dias;
+        $this->folioService = $folioService;
+        $this->contadorService = $contadorService;
     }
 
     /**
@@ -82,7 +105,6 @@ class AudienciaController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-//        return Audiencia::all();
         Audiencia::with('conciliador')->get();
         // $solicitud = Solicitud::all();
         // Filtramos los usuarios con los parametros que vengan en el request
@@ -319,7 +341,7 @@ class AudienciaController extends Controller {
                 array_push($conceptos, $conceptosP);
             }
             array_push($conceptos_pago, ['idCitado' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => ($totalConceptos-$totalDeducciones)]);
-            
+
         }
         // foreach ($audiencia->resolucionPartes as $resolucionParte) {
         //     $totalConceptos = 0;
@@ -346,7 +368,6 @@ class AudienciaController extends Controller {
         $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
 
         $entidad = ClasificacionArchivo::find(1);
-//        dd($entidad->entidad_emisora);
 
         if ($audiencia->solictud_cancelcacion) {
             $audiencia->justificante_id == null;
@@ -431,8 +452,7 @@ class AudienciaController extends Controller {
         }
         $clasificacion_justificante = ClasificacionArchivo::whereNombre("Otro")->first();
         $fecha_notificador = FechaAudienciaService::calcularFechaNotificador(date("Y-m-d"));
-        
-//        Obtenemos a los que no comparecieron
+
         return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear','tipo_solicitud','clasificacion_justificante','fecha_notificador'));
     }
 
@@ -551,17 +571,6 @@ class AudienciaController extends Controller {
                         $pasa = false;
                     }
                 }
-//                if ($pasa) {
-//                    $conciliadoresAudiencia = array();
-//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-//                            //Buscamos que la hora inicio no este entre una audiencia
-//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-//                        }
-//                    }
-//                }
             }
             if ($pasa) {
                 $conciliador->persona = $conciliador->persona;
@@ -618,17 +627,6 @@ class AudienciaController extends Controller {
                             $pasa = false;
                         }
                     }
-    //                if ($pasa) {
-    //                    $conciliadoresAudiencia = array();
-    //                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-    //                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-    //                            //Buscamos que la hora inicio no este entre una audiencia
-    //                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-    //                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-    //                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-    //                        }
-    //                    }
-    //                }
                 }
                 if ($pasa) {
                     $conciliador->persona = $conciliador->persona;
@@ -777,8 +775,8 @@ class AudienciaController extends Controller {
         }
 
         //Obtenemos el contador
-        $ContadorController = new ContadorController();
-        $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
+        $anio = date("Y");
+        $consecutivo_audiencia = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
 
         //Se crea el registro de la audiencia
         $audiencia = Audiencia::create([
@@ -790,8 +788,8 @@ class AudienciaController extends Controller {
                     "conciliador_id" => 1,
                     "numero_audiencia" => 1,
                     "reprogramada" => false,
-                    "anio" => $folio->anio,
-                    "folio" => $folio->contador
+                    "anio" => $anio,
+                    "folio" => $consecutivo_audiencia
         ]);
         $id_conciliador = null;
         foreach ($request->asignacion as $value) {
@@ -838,22 +836,24 @@ class AudienciaController extends Controller {
         DB::beginTransaction();
         try {
             $solicitud = Solicitud::find($request->solicitud_id);
-            $ContadorController = new ContadorController();
-            //Obtenemos el contador
-            $folioC = $ContadorController->getContador(1, $solicitud->centro->id);
-            $edo_folio = $solicitud->centro->abreviatura;
-            $folio = $edo_folio . "/CJ/I/" . $folioC->anio . "/" . sprintf("%06d", $folioC->contador);
+
             //Creamos el expediente de la solicitud
-            $expediente = Expediente::create(["solicitud_id" => $request->solicitud_id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+            //Obtenemos el folio y su consecutivo
+            $anio = date("Y");
+            $parametrosFolioExpediente = $solicitud->toArray();
+            $parametrosFolioExpediente['tipo_contador_id'] = self::TIPO_CONTADOR_SOLICITUD;
+            list($consecutivo, $folio) = $this->folioService->getFolio((object) $parametrosFolioExpediente);
+
+            $expediente = Expediente::create(["solicitud_id" => $request->solicitud_id, "folio" => $folio, "anio" => $anio, "consecutivo" => $consecutivo]);
             foreach ($solicitud->partes as $key => $parte) {
                 if (count($parte->documentos) == 0) {
                     $parte->ratifico = true;
                     $parte->save();
                 }
             }
-//                obtenemos el domicilio del centro
+            //obtenemos el domicilio del centro
             $domicilio_centro = auth()->user()->centro->domicilio;
-//                obtenemos el domicilio del citado
+            //obtenemos el domicilio del citado
             $partes = $solicitud->partes;
             $domicilio_citado = null;
             foreach ($partes as $parte) {
@@ -868,8 +868,10 @@ class AudienciaController extends Controller {
             if ((int) $request->tipo_notificacion_id == 2) {
                 $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro, $domicilio_citado, $request->fecha_audiencia);
             }
+
             //Obtenemos el contador
-            $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+            $consecutivo_audiencia = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
+
             //creamos el registro de la audiencia
             if ($request->fecha_cita == "" || $request->fecha_cita == null) {
                 $fecha_cita = null;
@@ -887,8 +889,8 @@ class AudienciaController extends Controller {
                         "conciliador_id" => 1,
                         "numero_audiencia" => 1,
                         "reprogramada" => false,
-                        "anio" => $folioAudiencia->anio,
-                        "folio" => $folioAudiencia->contador,
+                        "anio" => $anio,
+                        "folio" => $consecutivo_audiencia,
                         "encontro_audiencia" => true,
                         "fecha_cita" => $fecha_cita
             ]);
@@ -932,7 +934,18 @@ class AudienciaController extends Controller {
             event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
             DB::commit();
             return $audiencia;
-        } catch (\Throwable $e) {
+        }
+        catch (FolioExpedienteExistenteException $e) {
+            DB::rollback();
+            // Si hay folio de expediente duplicado entonces aumentamos en 1 el contador
+            $contexto = $e->getContext();
+            Log::error($e->getMessage()." ".$contexto->folio);
+            $this->contadorService->getContador($contexto->anio, self::TIPO_CONTADOR_SOLICITUD, $contexto->solicitud->centro_id);
+            if ($this->request->wantsJson()) {
+                return $this->sendError('Error al confirmar la solicitud', $e->getMessage());
+            }
+        }
+        catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensaje: " . $e->getMessage() .
                     " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
@@ -1143,9 +1156,7 @@ class AudienciaController extends Controller {
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
             foreach ($audienciasSolicitud as $audiencia) {
-//                if (new Carbon($audiencia->fecha_audiencia) >= now()) {
                 array_push($audiencias, $audiencia);
-//                }
             }
         }
         $arrayEventos = [];
@@ -1626,7 +1637,7 @@ class AudienciaController extends Controller {
                                 if($comparecienteCitado != null){
                                     $comparecienteCit = $comparecienteCitado;
                                 }
-                            } 
+                            }
                         }
 
                         //Termina consulta comparecencia de citado
@@ -1869,7 +1880,6 @@ class AudienciaController extends Controller {
      */
     public function GetPartesFisicas($audiencia_id) {
         $audiencia = Audiencia::find($audiencia_id);
-//        dd($audiencia->expediente->solicitud->partes);
         $partes = [];
         foreach ($audiencia->audienciaParte as $audienciaParte) {
             if ($audienciaParte->parte->tipo_persona_id == 1) {
@@ -1936,7 +1946,7 @@ class AudienciaController extends Controller {
             if ($parte->parte->tipo_parte_id == 2) {
                 $solicitados[] = $parte;
             }
-        } 
+        }
         return $solicitados;
     }
 
@@ -1962,8 +1972,9 @@ class AudienciaController extends Controller {
             $multiple = $audiencia->multiple;
         }
         //Obtenemos el contador
-        $ContadorController = new ContadorController();
-        $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
+        $anio = date("Y");
+        $consecutivo_audiencia = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
+
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
         $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
@@ -1975,16 +1986,15 @@ class AudienciaController extends Controller {
             "conciliador_id" => $audiencia->conciliador_id,
             "numero_audiencia" => $n_audiencia,
             "reprogramada" => true,
-            "anio" => $folio->anio,
-            "folio" => $folio->contador
+            "anio" => $anio,
+            "folio" => $consecutivo_audiencia
         ]);
+
         ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
         if ($request->nuevaCalendarizacion == "S") {
-//            $id_conciliador = null;
             foreach ($request->asignacion as $value) {
                 SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
             }
-//            $audienciaN->update(["conciliador_id" => $id_conciliador]);
         } else {
             foreach ($audiencia->salasAudiencias as $sala) {
                 SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $sala->sala_id, "solicitante" => $sala->solicitante]);
@@ -2059,15 +2069,15 @@ class AudienciaController extends Controller {
             $multiple = false;
         }
         if($datos_audiencia['encontro_audiencia']){
-            if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+            if(!$this->dias_solicitud->getSolicitudVigente($audiencia->expediente->solicitud_id, $datos_audiencia["fecha_audiencia"])){
                 DB::rollback();
                 return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
             }
         }
 
         //Obtenemos el contador
-        $ContadorController = new ContadorController();
-        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+        $anio = date("Y");
+        $audiencia_consecutivo = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
         $etapa = \App\EtapaNotificacion::where("etapa", "ilike", "%Cambio de Fecha%")->first();
 
         //creamos el registro de la audiencia
@@ -2081,11 +2091,11 @@ class AudienciaController extends Controller {
                     "conciliador_id" => $datos_audiencia["conciliador_id"],
                     "numero_audiencia" => $n_audiencia,
                     "reprogramada" => true,
-                    "anio" => $folioAudiencia->anio,
-                    "folio" => $folioAudiencia->contador,
+                    "anio" => $anio,
+                    "folio" => $audiencia_consecutivo,
                     "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
                     "etapa_notificacion_id" => $etapa->id
-        ]); 
+        ]);
         if ($datos_audiencia["encontro_audiencia"]) {
             // guardamos la sala y el consiliador a la audiencia
             ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador_id"], "solicitante" => true]);
@@ -2227,8 +2237,10 @@ class AudienciaController extends Controller {
             $multiple = true;
         }
         //Obtenemos el contador
-        $ContadorController = new ContadorController();
-        $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
+
+        $anio = date("Y");
+        $consecutivo_audiencia = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
+
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
         $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
@@ -2240,8 +2252,8 @@ class AudienciaController extends Controller {
             "conciliador_id" => $audiencia->conciliador_id,
             "numero_audiencia" => $n_audiencia,
             "reprogramada" => true,
-            "anio" => $folio->anio,
-            "folio" => $folio->contador
+            "anio" => $anio,
+            "folio" => $consecutivo_audiencia
         ]);
         ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
         foreach ($request->asignacion as $value) {
@@ -2366,9 +2378,7 @@ class AudienciaController extends Controller {
     }
 
     public function GetAudienciaConciliador() {
-//        obtenemos los datos del conciliador
         $conciliador = auth()->user()->persona->conciliador;
-//        obtenemos las audiencias programadas a partir de el día de hoy
         $arrayEventos = [];
         if ($conciliador != null) {
             $audiencias = $conciliador->ConciliadorAudiencia;
@@ -2821,8 +2831,6 @@ class AudienciaController extends Controller {
                     $solicitud->update(["estatus_solicitud_id" => 3, "user_id" => $user_id]);
                     // Se genera archivo de acta de archivado
                     $response = array("tipo" => 1, "response" => $audiencia);
-//                    DB::rollBack();
-//                    dd($solicitantes);
                 }
                 if ($solicitantes && !$citados) {
                     $solicitados = $this->getSolicitados($audiencia);
@@ -2913,16 +2921,18 @@ class AudienciaController extends Controller {
                             $multiple = false;
                         }
                         if($datos_audiencia['encontro_audiencia']){
-                            if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                            if(!$this->dias_solicitud->getSolicitudVigente($solicitud->id, $datos_audiencia["fecha_audiencia"])){
                                 DB::rollback();
                                 return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
                             }
                         }
 
                         //Obtenemos el contador
-                        $ContadorController = new ContadorController();
-                        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+                        $anio = date("Y");
+                        $consecutivo_audiencia = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
+
                         $etapa = \App\EtapaNotificacion::where("etapa", "ilike", "No comparecio el citado")->first();
+
                         //creamos el registro de la audiencia
                         $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
                         $audienciaN = Audiencia::create([
@@ -2934,8 +2944,8 @@ class AudienciaController extends Controller {
                                     "conciliador_id" => $datos_audiencia["conciliador_id"],
                                     "numero_audiencia" => $n_audiencia,
                                     "reprogramada" => false,
-                                    "anio" => $folioAudiencia->anio,
-                                    "folio" => $folioAudiencia->contador,
+                                    "anio" => $anio,
+                                    "folio" => $consecutivo_audiencia,
                                     "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
                                     "etapa_notificacion_id" => $etapa->id
                         ]);
@@ -3041,7 +3051,7 @@ class AudienciaController extends Controller {
                          //Obtenemos a los citados
                          $arrayMultadoNotificacion = [];
                         if($tipo_solicitud_individual->id == $audiencia->expediente->solicitud->tipo_solicitud_id){
-                            
+
                             $tipo_parte = TipoParte::whereNombre("CITADO")->first();
                             $tipo_parte_solicitante = TipoParte::whereNombre("SOLICITANTE")->first();
 
@@ -3141,14 +3151,15 @@ class AudienciaController extends Controller {
                 $multiple = false;
             }
             if($datos_audiencia['encontro_audiencia']){
-                if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                if(!$this->dias_solicitud->getSolicitudVigente($audiencia->expediente->solicitud_id, $datos_audiencia["fecha_audiencia"])){
                     DB::rollback();
                     return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
                 }
             }
             //Obtenemos el contador
-            $ContadorController = new ContadorController();
-            $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+            $anio = date("Y");
+            $consecutivo_audiencia = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
+
             //creamos el registro de la audiencia
             $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
             $audienciaN = Audiencia::create([
@@ -3160,8 +3171,8 @@ class AudienciaController extends Controller {
                         "conciliador_id" => $datos_audiencia["conciliador_id"],
                         "numero_audiencia" => $n_audiencia,
                         "reprogramada" => false,
-                        "anio" => $folioAudiencia->anio,
-                        "folio" => $folioAudiencia->contador,
+                        "anio" => $anio,
+                        "folio" => $consecutivo_audiencia,
                         "encontro_audiencia" => $datos_audiencia["encontro_audiencia"]
             ]);
             if ($datos_audiencia["encontro_audiencia"]) {
@@ -3185,7 +3196,7 @@ class AudienciaController extends Controller {
             $array_comparecientes = [];
             foreach($comparecientes as $compareciente){
                 if($compareciente->parte->tipo_parte_id == 1 || $compareciente->parte->tipo_parte_id == 2){
-                    $array_comparecientes[]=$compareciente->parte; 
+                    $array_comparecientes[]=$compareciente->parte;
                 }else{
                     $parte_representada = Parte::find($compareciente->parte->parte_representada_id);
                     if($parte_representada != null){
@@ -3328,8 +3339,6 @@ class AudienciaController extends Controller {
     }
 
     public function uploadJustificante(Request $request) {
-//        DB::beginTransaction();
-//        try {
             $audiencia = Audiencia::find($request->audiencia_id);
             $audiencia->update(["solictud_cancelcacion" => true]);
             $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $request->audiencia_id;
@@ -3350,18 +3359,7 @@ class AudienciaController extends Controller {
                 "firmado" => "false",
                 "clasificacion_archivo_id" => $clasificacion->id,
             ]);
-//            DB::commit();
             return redirect()->back()->with('success', 'Se solicitó la reprogramación');
-//        } catch (\Throwable $e) {
-//            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
-//                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
-//                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
-//            DB::rollback();
-//            if ($this->request->wantsJson()) {
-//                return $this->sendError('Error');
-//            }
-//            return redirect()->back()->with('error', 'No se pudo solicitar la cancelación');
-//        }
     }
 
     /**
@@ -3511,7 +3509,7 @@ class AudienciaController extends Controller {
     }
 
     public function getMinMaxTime(Centro $centro) {
-//        Recorremos las disponibilidades
+        //Recorremos las disponibilidades
         $horaIniciopiv = "23:59:59";
         $horaFinpiv = "00:00:00";
         foreach ($centro->disponibilidades as $disponibilidad) {
@@ -3526,7 +3524,7 @@ class AudienciaController extends Controller {
     }
 
     public function getMinMaxConciliador(Conciliador $conciliador) {
-//        Recorremos las disponibilidades
+        //Recorremos las disponibilidades
         $horaIniciopiv = "23:59:59";
         $horaFinpiv = "00:00:00";
         foreach ($conciliador->disponibilidades as $disponibilidad) {

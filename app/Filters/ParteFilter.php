@@ -23,17 +23,17 @@ class ParteFilter extends Filter
     ];
 
     /**
-     * Se permite filtrar por el tipo_parte_id
-     * @param $tipo_parte_id
+     * Menaja el filtrado por tipo_parte_id cuando se pasa como parámetro
+     * @param integer $tipo_parte_id ID del tipo parte
      */
     public function handleTipoParteIdFilter($tipo_parte_id)
     {
         $this->query->where('tipo_parte_id',$tipo_parte_id);
     }
 
-     /**
-     * Se permite filtrar por el tipo_parte_id
-     * @param $tipo_parte_id
+    /**
+     * Menaja el filtrado por tipo_persona_id cuando se pasa como parámetro
+     * @param integer $tipo_persona_id ID del tipo de persona
      */
     public function handleTipoPersonaIdFilter($tipo_persona_id)
     {
@@ -41,8 +41,8 @@ class ParteFilter extends Filter
     }
 
     /**
-     * Cuando filtran por conciliadores
-     * @param $conciliadores
+     * Menaja el filtrado por conciliadores cuando se pasa como parámetro
+     * @param array|integer $conciliadores Arreglo de ID de conciliadores o un sólo ID de conciliador
      */
     public function handleConciliadoresFilter($conciliadores)
     {

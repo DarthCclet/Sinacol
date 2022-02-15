@@ -6,8 +6,7 @@ namespace App\Filters;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Implementa las consultas a la base de datos correspondientes a usuario y sus relaciones
- * Class UserFilter
+ * Métodos para filtrar consultas mediante la petición HTTP de Usuario
  * @package App\Filters
  */
 class UserFilter extends Filter
@@ -23,10 +22,9 @@ class UserFilter extends Filter
         'updated_at',
     ];
 
-
     /**
      * Se permite filtrar por el centro_id
-     * @param $centro_id
+     * @param integer $centro_id El ID del centro
      */
     public function handleCentroIdFilter($centro_id)
     {
@@ -35,7 +33,7 @@ class UserFilter extends Filter
 
     /**
      * Se consulta por abreviatura de centro
-     * @param $abreviatura
+     * @param string $abreviatura La abreviatura del centro
      */
     public function handleCentroFilter($abreviatura)
     {
@@ -46,7 +44,7 @@ class UserFilter extends Filter
 
     /**
      * Se consulta por nombre
-     * @param $nombre
+     * @param string $nombre El nombre de la persona o un fragmento del nombre
      */
     public function handleNombreFilter($nombre)
     {
@@ -57,7 +55,7 @@ class UserFilter extends Filter
 
     /**
      * Se consulta por primer apellido
-     * @param $nombre
+     * @param string $nombre El primer apellido completo o un fragmento
      */
     public function handlePrimerApellidoFilter($nombre)
     {
@@ -68,7 +66,7 @@ class UserFilter extends Filter
 
     /**
      * Se consulta por rol
-     * @param $nombre
+     * @param string $nombre El nombre del rol completo o un fragmento del nombre
      */
     public function handleRolFilter($nombre)
     {

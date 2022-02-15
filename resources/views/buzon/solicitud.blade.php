@@ -4,12 +4,12 @@
 
 @include('includes.component.datatables')
 @section('content')
-	<div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: #9d2449 !important; top: 20%;bottom: 20%;">
+	<div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: {{(config('colores.default')=='SI')?'#9d2449':config('colores.encabezado-color-fondo')}} !important; top: 20%;bottom: 20%;">
             <!-- begin brand -->
             <div class="login-header" align="center">
                 <div class="brand">
                     <span>
-                        <img src="{{asset('assets/img/logo/LogoEncabezado.png')}}" width="360px">
+                        <img src="{{config('logotipos.logotipo-encabezado')}}" width="360px">
                     </span>
                     <small>Acceso al Buzón electrónico</small>
                 </div>
@@ -56,6 +56,9 @@
                     </div>
                     <div class="form-group m-b-20">
                         <input type="password" class="form-control form-control-lg" placeholder="Contraseña" id="password_buzon" name="password_buzon"/>
+                    </div>
+                    <div class="form-group m-b-20">
+                        <input type="text" class="form-control form-control-lg" placeholder="Ingrese su folio de expediente" name="folio" id="folio_modal"/>
                     </div>
                     <div class="login-buttons">
                         <button class="btn btn-primary btn-block btn-lg" id="btnIngresar">Ingresar</button>
@@ -106,6 +109,7 @@
                                     icon: 'success'
                                 });
                             }else{
+                                $("#folio_modal").val($("#folio").val());
                                 $("#modal-acceso").modal("show");
                             }
                         }catch(error){

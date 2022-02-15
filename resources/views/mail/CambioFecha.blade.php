@@ -7,10 +7,10 @@
             }
             .btn{
                 color: #fff !important;
-                background-color: #9D2449 !important;
-                border-color: #9D2449 !important;
-                border: 2px solid #9D2449 !important;
-                box-shadow: 0 0 0 0 #9D2449 !important;
+                background-color: {{(config('colores.default')=='SI')?'#9D2449':config('colores.btn-primary-color')}} !important;
+                border-color: {{(config('colores.default')=='SI')?'#9D2449':config('colores.btn-primary-color')}} !important;
+                border: 2px solid {{(config('colores.default')=='SI')?'#9D2449':config('colores.btn-primary-color')}} !important;
+                box-shadow: 0 0 0 0 {{(config('colores.default')=='SI')?'#9D2449':config('colores.btn-primary-color')}} !important;
                 display: inline-block;
                 text-align: center;
                 vertical-align: middle;
@@ -39,7 +39,7 @@
                 font-weight: 400;
                 line-height: 1.5;
                 text-align: center;">
-        <div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: #9d2449; padding: 0px;">
+        <div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: {{(config('colores.default')=='SI')?'#9d2449':config('colores.encabezado-color-fondo')}}; padding: 0px;">
             <!-- begin brand -->
             <div class="login-header" align="center" style="padding:10px;">
                 <div class="brand">
@@ -79,7 +79,7 @@
                         </table>
                         <br><br>
                         <table class="table" style="border-collapse: collapse;border: 1px;width:90%;">
-                            <tr style="background-color: #9d244947">
+                            <tr style="background-color: {{config('colores.btn-primary-color')}}">
                                 <th>Tipo de parte</th>
                                 <th>Nombre</th>
                                 <th>Conciliador</th>
@@ -118,7 +118,7 @@
                             @endforeach
                         </table>
                     </center>
-                </p>         
+                </p>
                 <p>
                     <small>
                         En caso de no poder ver el mensaje de forma correcta te invitamos a consultar la información en tu buzón electrónico dando click <a href="{{route('solicitud_buzon')}}">Aqui</a>

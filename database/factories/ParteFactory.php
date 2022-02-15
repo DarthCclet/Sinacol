@@ -21,7 +21,7 @@ $factory->define(Parte::class, function (Faker $faker) {
     // al ser catalogos se mada a llamar de forma aleatoria
     //  tipoParte, genero, tipo persona, nacionalidad y estado
     //  ya que se segura que existen registros al generar la migracion
-    $tipo_parte = TipoParte::whereIn('id',[1,2])->inRandomOrder()->first();
+    //$tipo_parte = TipoParte::whereIn('id',[1,2])->inRandomOrder()->first();
     if(rand(1,0) == 0){
         $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first()->id;
     }else{
@@ -42,7 +42,7 @@ $factory->define(Parte::class, function (Faker $faker) {
         'solicitud_id' => function(){
             return factory(\App\Solicitud::class)->create()->id;
         },
-        'tipo_parte_id' => $tipo_parte->id,
+        //'tipo_parte_id' => $tipo_parte->id,
         'genero_id' => ($tipo_persona->abreviatura == 'F') ? $genero->id : null,
         'tipo_persona_id' => $tipo_persona->id,
         'nacionalidad_id' => $nacionalidad->id,

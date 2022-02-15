@@ -3,7 +3,10 @@
 
 namespace App\Filters;
 
-
+/**
+ * Métodos para filtrar consultas de Audiencia
+ * @package App\Filters
+ */
 class AudienciaFilter extends Filter
 {
     /**
@@ -16,7 +19,7 @@ class AudienciaFilter extends Filter
 
     /**
      * Cuando se pasa el centro_id como parametro
-     * @param $centro_id
+     * @param array|integer $centro_id Arreglo de IDs de centros o un sólo ID de centro
      */
     public function handleCentroIdFilter($centro_id)
     {
@@ -30,7 +33,7 @@ class AudienciaFilter extends Filter
 
     /**
      * Cuando se pasa la abreviatura del centro como parametro
-     * @param $abreviatura
+     * @param array|string $abreviatura Arreglo de abreviaturas o abreviatura del nombre del centro
      */
     public function handleCentroFilter($abreviatura)
     {
@@ -47,7 +50,7 @@ class AudienciaFilter extends Filter
 
     /**
      * Cuando se pasa como parámetro el objeto_id de la solicitud
-     * @param $objeto_id
+     * @param integer $objeto_id ID del objeto de la solicitud
      */
     public function handleObjetoIdFilter($objeto_id)
     {
@@ -56,7 +59,7 @@ class AudienciaFilter extends Filter
 
     /**
      * Cuando se pasa como parámetro el objeto de la solicitud
-     * @param $objeto
+     * @param string $objeto Nombre del objeto de la solicitud
      */
     public function handleObjetoFilter($objeto)
     {
@@ -66,7 +69,7 @@ class AudienciaFilter extends Filter
 
     /**
      * Cuando filtran por conciliadores
-     * @param $conciliadores
+     * @param array|integer $conciliadores Arreglo de ID de conciliadores o un sólo ID de conciliador
      */
     public function handleConciliadoresFilter($conciliadores)
     {

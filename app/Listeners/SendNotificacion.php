@@ -122,7 +122,7 @@ class SendNotificacion
                         )
                     );
                 }
-                Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
+                //Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
                 //Buscamos a los demandados
                 $demandados = self::getSolicitados($audiencia,$tipo_notificacion,$event->parte_id);
                 $etapa_notificacion_null = EtapaNotificacion::whereEtapa("No comparecio el citado")->first();
@@ -220,7 +220,7 @@ class SendNotificacion
             }
         }catch (\GuzzleHttp\Exception\RequestException $e){
             DB::rollBack();
-            $response = $e->getResponse();
+            //$response = $e->getResponse();
             //$respuesta = $response->getBody()->getContents();
             //Log::error("Error en respuesta al enviar datos a signo: Respuesta SIGNO status: ". $response->getStatusCode()." => ".$respuesta);
         }

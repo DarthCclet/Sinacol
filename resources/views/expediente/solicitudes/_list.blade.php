@@ -9,8 +9,8 @@
     #ui-datepicker-div {z-index:9999 !important}
     .selectedButton{
         color: #fff !important;
-        background-color: #9D2449 !important;
-        border-color: #9D2449 !important;
+        background-color: {{config('colores.btn-primary-color')}} !important;
+        border-color: {{config('colores.btn-primary-color')}} !important;
     }
 </style>
 
@@ -1401,11 +1401,19 @@
                                         icon: 'success'
                                     });
                                 } else {
-                                    swal({
-                                        title: 'Correcto',
-                                        text: 'Se genero la audiencia con el folio: ' + data.folio + '/' + data.anio + ', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
-                                        icon: 'success'
-                                    });
+                                    if(data.error == undefined){
+                                        swal({
+                                            title: 'Correcto',
+                                            text: 'Se genero la audiencia con el folio: ' + data.folio + '/' + data.anio + ', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
+                                            icon: 'success'
+                                        });
+                                    }else{
+                                        swal({
+                                            title: 'Error',
+                                            text: data.mensaje,
+                                            icon: 'error'
+                                        });
+                                    }
                                 }
                             } else {
                                 swal({
@@ -1488,21 +1496,29 @@
                     },
                     success: function (data) {
                         try {
-
+                            console.log(data);
                             if (data != null && data != "") {
-                                $("#modal-aviso-resolucion-inmediata").modal("hide");
-                                $("#modalRatificacion").modal("hide");
-                                swal({
-                                    title: 'Correcto',
-                                    text: 'Solicitud confirmada correctamente',
-                                    icon: 'success'
-                                });
-                                if (data.tipo_solicitud_id == 1) {
-                                    window.location.href = "/guiaAudiencia/" + data.id;
-                                } else if (data.tipo_solicitud_id == 2) {
-                                    window.location.href = "/guiaPatronal/" + data.id;
-                                } else {
-                                    window.location.href = "/resolucionColectiva/" + data.id;
+                                if(data.error === undefined){
+                                    $("#modal-aviso-resolucion-inmediata").modal("hide");
+                                    $("#modalRatificacion").modal("hide");
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Solicitud confirmada correctamente',
+                                        icon: 'success'
+                                    });
+                                    if (data.tipo_solicitud_id == 1) {
+                                        window.location.href = "/guiaAudiencia/" + data.id;
+                                    } else if (data.tipo_solicitud_id == 2) {
+                                        window.location.href = "/guiaPatronal/" + data.id;
+                                    } else {
+                                        window.location.href = "/resolucionColectiva/" + data.id;
+                                    }
+                                }else{
+                                    swal({
+                                        title: 'Error',
+                                        text: data.mensaje,
+                                        icon: 'error'
+                                    });
                                 }
                             } else {
                                 swal({
@@ -2458,7 +2474,7 @@
         }else{
             swal({
                 title: 'Error',
-                text: 'La confirmaci&oacute;n de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
+                text: 'La confirmación de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
                 icon: 'warning'
             });
         }
@@ -2639,7 +2655,7 @@
     $(".dateBirth").datepicker({
         changeMonth: true,
         changeYear: true,
-        yearRange: "c-80:",
+        yearRange: "c:c+1",
         format: 'dd/mm/yyyy',
     });
 

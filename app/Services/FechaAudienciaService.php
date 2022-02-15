@@ -54,16 +54,17 @@ class FechaAudienciaService{
                             $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
                             if($disponibilidad != null){
                                 if(self::validarIncidencia($diaHabilCentro["dia"], $sala->id, "App\Sala")){
-                                    $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
-                                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
-                                    ->whereRaw('solicitudes.incidencia is not true')
-                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                    $audiencias = Audiencia::where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
                                     ->where("audiencias.hora_inicio",$hora_inicio)
                                     ->where("audiencias.hora_fin",$hora_fin)
-                                    ->where("salas_audiencias.sala_id",$sala->id)
-                                    ->select('audiencias.*')
+                                    ->whereHas("salasAudiencias",function($q) use($sala) {
+                                        return $q->where("sala_id",$sala->id);
+                                    })
+                                    ->whereHas("expediente.solicitud",function($q){
+                                        return $q->whereRaw('incidencia is not true');
+                                    })
                                     ->get();
+
                                     if(count($audiencias) == 0){
                                         $encontroSala=true;
                                         $sala_id = $sala->id;

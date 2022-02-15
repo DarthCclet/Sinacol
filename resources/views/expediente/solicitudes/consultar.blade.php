@@ -42,7 +42,7 @@
         max-height: 400px;
     }
     .wizard-steps li.active, .wizard-steps li.current, .wizard-steps li.success {
-        background-color: #9D2449;
+        background-color: {{config('colores.btn-primary-color')}};
         color: #fff;
         height: 70px !important;
         top: 0;

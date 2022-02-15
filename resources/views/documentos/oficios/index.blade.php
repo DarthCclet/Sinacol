@@ -13,9 +13,16 @@
     </ol>
     <div class="panel panel-default">
         <!-- begin panel-body -->
+        @if($plantilla_documento)
         <div class="panel-body">
             @include('documentos.oficios.editor')
         </div>
+        @else
+            <div class="panel-body">
+                <h2 class="alert-warning alert">No se ha configurado correctamente la plantilla base de este proceso. <br>
+                    <small>Favor de solicitar a su área técnica la correcta configuración del proceso de Oficio Libre en el archivo de ambiente (.env)</small></h2>
+            </div>
+        @endif
     </div>
 
 @endsection

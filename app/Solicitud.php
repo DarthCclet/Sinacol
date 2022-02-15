@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Exceptions\FolioSolicitudExistenteException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\AppendPolicies;
@@ -234,4 +235,21 @@ class Solicitud extends Model implements Auditable
     {
         return $this->belongsTo(User::class, 'captura_user_id');
     }
+
+    /**
+     * @inheritDoc
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        // Antes de crear la solicitud revisamos si el folio ya existe en otro expediente
+        static::creating(function ($model) {
+            // Si existe ya el folioenviamos excepción
+            if(self::whereFolio($model->folio)->whereAnio($model->anio)->first()){
+                throw new FolioSolicitudExistenteException($model);
+            }
+        });
+    }
+
 }
