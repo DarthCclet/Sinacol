@@ -7,6 +7,7 @@ use App\Conciliador;
 use App\Audiencia;
 use App\Incidencia;
 use App\Solicitud;
+use App\RolConciliador;
 use Carbon\Carbon;
 use App\Traits\ValidateRange;
 use Illuminate\Support\Facades\DB;
@@ -75,55 +76,116 @@ class FechaAudienciaService{
                         }
                     }
                 }
-                foreach($conciliadores as $conciliadorE){
-                    //Validamos que la hora de inicio del conciliador no sea igual a la hora de inicio de la audiencia
-                    if(self::validarHoraComida($conciliadorE,$hora_inicio,$hora_fin)){
-                        $conciliador = Conciliador::find($conciliadorE->id);
-                        $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
-                        if($disponibilidad != null){
-    //                        Validamos si el conciliador no tiene una incidencia
-                            if(self::validarIncidencia($diaHabilCentro["dia"], $conciliador->id, "App\Conciliador")){
-                                $audiencias = Audiencia::where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                ->where("audiencias.hora_inicio",$hora_inicio)
-                                ->where("audiencias.hora_fin",$hora_fin)
-                                ->whereHas("expediente.solicitud",function($q){
-                                    return $q->whereRaw('incidencia is not true');
-                                })->whereHas("conciliadoresAudiencias",function($q)use($conciliador){
-                                    return $q->where("conciliador_id",$conciliador->id);
-                                })->get();
-
-                                if(count($audiencias) == 0){
-                                    $audienciasQ = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                                        ->select('audiencias.*')
-                                        ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                        ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                                        ->orderBy('audiencias.hora_fin', 'asc')
-                                        ->get();
-                                    if(count($audienciasQ) > 0){
-                                        $choca_audiencia = false;
-                                        foreach($audienciasQ as $audienciaQ){
-                                            $hora_inicio_audiencia = $audienciaQ->hora_inicio;
-                                            $hora_fin_audiencia = $audienciaQ->hora_fin;
-                                            $hora_inicio_audiencia_nueva = $hora_inicio;
-                                            $hora_fin_audiencia_nueva = $hora_fin;
-                                            if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
-                                                $choca_audiencia = true;
-                                            }
-                                        }
-                                        if(!$choca_audiencia){
-                                            $encontroConciliador = true;
-                                            $conciliador_id = $conciliador->id;
-                                            break;
-                                        }
-                                    }else{
-                                        $encontroConciliador = true;
-                                        $conciliador_id = $conciliador->id;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                // baja
+                $centroApoyo = Centro::find($centro->id);
+                $valCentro = $centroApoyo->apoyo_virtual;
+                if ($virtual && $valCentro) {
+                  //baja
+                  // Nos traemos el pull de conciliadores con rol Conciliador de Apoyo
+                  $conciliadoresCom = self::obtenerConciliadoresComodin();
+                  foreach ($conciliadoresCom as $conciliadorC) {
+                    if(self::validarHoraComida($conciliadorC,$hora_inicio,$hora_fin)){
+                      $conciliador = Conciliador::find($conciliadorC->conciliador_id);
+                      $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
+                      if($disponibilidad != null){
+        //                        Validamos si el conciliador no tiene una incidencia
+                          if(self::validarIncidencia($diaHabilCentro["dia"], $conciliador->id, "App\Conciliador")){
+                              $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                      ->select('audiencias.*')
+                                      ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                      ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                      ->whereRaw('solicitudes.incidencia is not true')
+                                      ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                      ->where("audiencias.hora_inicio",$hora_inicio)
+                                      ->where("audiencias.hora_fin",$hora_fin)
+                                      ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                      ->get();
+                              if(count($audiencias) == 0){
+                                  $audienciasQ = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                      ->select('audiencias.*')
+                                      ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                      ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                      ->orderBy('audiencias.hora_fin', 'asc')
+                                      ->get();
+                                  if(count($audienciasQ) > 0){
+                                      $choca_audiencia = false;
+                                      foreach($audienciasQ as $audienciaQ){
+                                          $hora_inicio_audiencia = $audienciaQ->hora_inicio;
+                                          $hora_fin_audiencia = $audienciaQ->hora_fin;
+                                          $hora_inicio_audiencia_nueva = $hora_inicio;
+                                          $hora_fin_audiencia_nueva = $hora_fin;
+                                          if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
+                                              $choca_audiencia = true;
+                                          }
+                                      }
+                                      if(!$choca_audiencia){
+                                          $encontroConciliador = true;
+                                          $conciliador_id = $conciliador->id;
+                                          break;
+                                      }
+                                  }else{
+                                      $encontroConciliador = true;
+                                      $conciliador_id = $conciliador->id;
+                                      break;
+                                  }
+                              }
+                          }
+                      }
                     }
+                  }
+                } else {
+                  $conciliadores = self::obtenerConciliadores($centro,$rol);
+                  foreach($conciliadores as $conciliadorE){
+                      //Validamos que la hora de inicio del conciliador no sea igual a la hora de inicio de la audiencia
+                      if(self::validarHoraComida($conciliadorE,$hora_inicio,$hora_fin)){
+                          $conciliador = Conciliador::find($conciliadorE->id);
+                          $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
+                          if($disponibilidad != null){
+      //                        Validamos si el conciliador no tiene una incidencia
+                              if(self::validarIncidencia($diaHabilCentro["dia"], $conciliador->id, "App\Conciliador")){
+                                  $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                          ->select('audiencias.*')
+                                          ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                          ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                          ->whereRaw('solicitudes.incidencia is not true')
+                                          ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                          ->where("audiencias.hora_inicio",$hora_inicio)
+                                          ->where("audiencias.hora_fin",$hora_fin)
+                                          ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                          ->get();
+                                  if(count($audiencias) == 0){
+                                      $audienciasQ = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                          ->select('audiencias.*')
+                                          ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                          ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                          ->orderBy('audiencias.hora_fin', 'asc')
+                                          ->get();
+                                      if(count($audienciasQ) > 0){
+                                          $choca_audiencia = false;
+                                          foreach($audienciasQ as $audienciaQ){
+                                              $hora_inicio_audiencia = $audienciaQ->hora_inicio;
+                                              $hora_fin_audiencia = $audienciaQ->hora_fin;
+                                              $hora_inicio_audiencia_nueva = $hora_inicio;
+                                              $hora_fin_audiencia_nueva = $hora_fin;
+                                              if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
+                                                  $choca_audiencia = true;
+                                              }
+                                          }
+                                          if(!$choca_audiencia){
+                                              $encontroConciliador = true;
+                                              $conciliador_id = $conciliador->id;
+                                              break;
+                                          }
+                                      }else{
+                                          $encontroConciliador = true;
+                                          $conciliador_id = $conciliador->id;
+                                          break;
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  }
                 }
                 if($encontroSala && $encontroConciliador){
                     $horaInicioSalaDisponible = $hora_inicio;
@@ -725,7 +787,8 @@ class FechaAudienciaService{
         }
         $conciliadores = Centro::find($centro->id)->conciliadores()->whereHas('rolesConciliador',function($q) use ($rol){
             return $q->where('rol_atencion_id',$rol->id);
-        })->orderBy('orden','asc')->get();
+        // })->orderBy('orden','asc')->get();
+        })->inRandomOrder()->get();
 
         return $conciliadores;
     }
@@ -759,7 +822,7 @@ class FechaAudienciaService{
     public static function calcularFechaNotificador($fecha){
         $fecha_d = new Carbon($fecha);
         $fecha_nueva = $fecha_d;
-        $num = 0; 
+        $num = 0;
         for ($i = 1; $i <= 50; $i++) {
             $fecha_nueva = $fecha_nueva->addDay();
             if(!$fecha_nueva->isWeekend()){
@@ -771,7 +834,7 @@ class FechaAudienciaService{
         }
         return $fecha_nueva->format("d/m/Y");
     }
-    
+
     public static function validarFechasAsignables(Solicitud $solicitud,$fecha_solicitada){
         if($solicitud->tipo_solicitud_id == 1){
             $dt = new Carbon($solicitud->created_at);
@@ -784,5 +847,13 @@ class FechaAudienciaService{
         }else{
             return 1;
         }
+    }
+
+    // baja
+    public static function obtenerConciliadoresComodin(){
+      // Obtenemos los conciliadores de apoyo para atender audiencias virtuales
+       $conciliadores = RolConciliador::whereRolAtencionId(4)->inRandomOrder()->get();
+
+      return $conciliadores;
     }
 }
