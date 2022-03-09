@@ -7,6 +7,7 @@ use App\Conciliador;
 use App\Audiencia;
 use App\Incidencia;
 use App\Solicitud;
+use App\RolConciliador;
 use Carbon\Carbon;
 use App\Traits\ValidateRange;
 use Illuminate\Support\Facades\DB;
