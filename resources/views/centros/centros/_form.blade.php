@@ -41,10 +41,10 @@
     </div>
     <div class=" col-md-4 ">
         <div class="form-group">
-            <label for="centro[sedes_multiples]" class="control-label">Centro de apoyo virtual</label>
+            <label for="centro[sedes_multiples]" class="control-label">Centro requiere apoyo virtual</label>
             <input type="checkbox" {{isset($centro) && $centro->apoyo_virtual ? 'checked' : ''}} value="true" data-render="switchery" data-theme="default" id="centro[apoyo_virtual]" name='centro[apoyo_virtual]'/>
             {!! $errors->first('centro.apoyo_virtual', '<span class=text-danger>:message</span>') !!}
-            <p class="help-block">Marcar si el centro apoya de forma virtual a otros</p>
+            <p class="help-block">Marcar si el centro recibe apoyo de conciliadores en otros centros</p>
         </div>
     </div>
     @include('includes.component.map',['identificador' => '', 'instancia' => '2','domicilio'=>isset($centro->domicilio) ? $centro->domicilio : null,'needsMaps'=>"true"])
