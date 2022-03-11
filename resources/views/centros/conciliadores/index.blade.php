@@ -293,6 +293,7 @@
 
 @push('scripts')
     <script type="text/javascript">
+    var xPermisoCA = {{$permisoCA}};
         $(document).ready(function() {
             $(".horas").datetimepicker({
                 format: "HH:mm"
@@ -754,6 +755,7 @@
                         if (data.data.data != null && data.data.data != "") {
                             var table = '';
                             $.each(data.data.data, function(index, element) {
+                              if (element.id==1||element.id==2||element.id==3||(element.id==4&&parseInt(xPermisoCA)==1)) {
                                 table += '<tr>';
                                 table += '   <td class="with-checkbox">';
                                 table +=
@@ -768,6 +770,7 @@
                                 table += '   </td>';
                                 table += '   <td>' + element.nombre + '</td>';
                                 table += '</tr>';
+                              }
                             });
                             $("#table-roles tbody").html(table);
                         } else {

@@ -870,7 +870,9 @@ trait GenerateDocument
                     $cp =  ($dom_centro['cp'] !== null)? 'C.P. '.$dom_centro['cp'] :"";
                     $referencias =  ($dom_centro['referencias'] !== null)? $dom_centro['referencias'] :"";
                     $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
-                    $centro['domicilio_completo'] = mb_strtoupper($vialidad. $num.', '.$colonia.', '.$municipio.', '.$estado.', '.$cp.', '.$referencias);                    $contacto_centro = new JsonResponse($contacto_centro);
+                    $centro['domicilio_completo'] = mb_strtoupper($vialidad. $num.', '.$colonia.', '.$municipio.', '.$estado.', '.$cp);
+                    // $centro['domicilio_completo'] = mb_strtoupper($vialidad. $num.', '.$colonia.', '.$municipio.', '.$estado.', '.$cp.', '.$referencias);
+                    $contacto_centro = new JsonResponse($contacto_centro);
                     $contacto_centro = json_decode($contacto_centro->content(),true);
                     foreach ($contacto_centro as $contacto ) {
                       if($contacto['tipo_contacto_id'] == 1 || $contacto['tipo_contacto_id'] == 2 ){

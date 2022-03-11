@@ -28,7 +28,7 @@
             <label for="centro[sedes_multiples]" class="control-label">Multiples sedes</label>
             <input type="checkbox" {{isset($centro) && $centro->sedes_multiples ? 'checked' : ''}} value="true" data-render="switchery" data-theme="default" id="centro[sedes_multiples]" name='centro[sedes_multiples]'/>
             {!! $errors->first('centro.sedes_multiples', '<span class=text-danger>:message</span>') !!}
-            <p class="help-block">Es la duración promedio de una audiencia</p>
+            <p class="help-block">Marcar si el centro tiene más de una sede</p>
         </div>
     </div>
     <div class=" col-md-4 ">
@@ -37,6 +37,14 @@
             {!! Form::select('centro[tipo_atencion_centro_id]', isset($tipo_atencion_centro) ? $tipo_atencion_centro  : [] , isset($centro) && $centro->tipo_atencion_centro_id ? $centro->tipo_atencion_centro_id : null, ['id'=>'tipo_atencion_centro_id','required','placeholder' => 'Seleccione una opción', 'class' => 'form-control']);  !!}
             {!! $errors->first('centro.tipo_atencion_centro_id', '<span class=text-danger>:message</span>') !!}
             <p class="help-block">Tipo de atenci&oacute;n del centro</p>
+        </div>
+    </div>
+    <div class=" col-md-4 ">
+        <div class="form-group">
+            <label for="centro[sedes_multiples]" class="control-label">Centro requiere apoyo virtual</label>
+            <input type="checkbox" {{isset($centro) && $centro->apoyo_virtual ? 'checked' : ''}} value="true" data-render="switchery" data-theme="default" id="centro[apoyo_virtual]" name='centro[apoyo_virtual]'/>
+            {!! $errors->first('centro.apoyo_virtual', '<span class=text-danger>:message</span>') !!}
+            <p class="help-block">Marcar si el centro recibe apoyo de conciliadores en otros centros</p>
         </div>
     </div>
     @include('includes.component.map',['identificador' => '', 'instancia' => '2','domicilio'=>isset($centro->domicilio) ? $centro->domicilio : null,'needsMaps'=>"true"])

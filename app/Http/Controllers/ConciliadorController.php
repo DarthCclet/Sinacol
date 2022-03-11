@@ -29,7 +29,8 @@ class ConciliadorController extends Controller
      */
     public function index()
     {
-        //Conciliador::with('persona','centro')->get();
+        $permisoCA = (auth()->user()->id==132?1:0);
+        Conciliador::with('persona','centro')->get();
 
         // Filtramos las salas con los parametros que vengan en el request
         $conciliadores = (new CatalogoFilter(Conciliador::query(), $this->request))
@@ -54,7 +55,7 @@ class ConciliadorController extends Controller
         if ($this->request->wantsJson()){
             return $this->sendResponse($conciliadores, 'SUCCESS');
         }
-        return view('centros.conciliadores.index', compact('conciliadores'));
+        return view('centros.conciliadores.index', compact('conciliadores', 'permisoCA'));
     }
 
     /**
