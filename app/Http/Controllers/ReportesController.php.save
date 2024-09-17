@@ -28,7 +28,7 @@ class ReportesController extends Controller
      * @var array
      */
     protected $noImp = ['AGU','BCN','BCS','CAM','CAMOE','COA','COL','CHH','CDMX','GUA','GRO','JAL','MIC','MOR','NAY','NLE','OAX','PUE','QUE',
-        'ROO','SIN','SON','TAM','TAB','VER','YUC','ZAC','OCCFCRL','TLA'];
+        'ROO','SIN','SON','TAM','TAB','TLA', 'VER','YUC','ZAC','OCCFCRL'];
     /**
      * Centros implementados en etapa 1
      * @var array
@@ -378,7 +378,7 @@ class ReportesController extends Controller
         $conveniosRatificacion = $reportesService->conveniosRatificacion($this->request);
         $conveniosRatificacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet(
             $spreadsheet,
-            'Convenios Voluntarios'
+            'Convenios confirmación'
         );
         $spreadsheet->addSheet($conveniosRatificacionWorkSheet, 6);
         $excelReportesService->conveniosRatificacion(

@@ -3955,9 +3955,9 @@
     });
 
     $("#btnAgregarFechaPago").on("click",function(){
-        if(listaConfigFechas.length < 6){
+        if(listaConfigFechas.length < 13){
             var hoy = new Date();
-            var _45dias = hoy.setDate(hoy.getDate() + 180);
+            var _45dias = hoy.setDate(hoy.getDate() + 540);
             // var unMes = hoy.setMonth(hoy.getMonth() + 1);
             let fechaP = $("#fecha_pago").val().split("/");
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);

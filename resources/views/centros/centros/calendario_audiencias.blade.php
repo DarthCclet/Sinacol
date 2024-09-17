@@ -395,7 +395,7 @@
                                     $("#tipoAsignacionCambiar").val(2);
                                 }
                                 $("#audiencia_id").val(audiencia_id);
-                                $("#spanFolio").text(data.folio+"/"+data.anio);
+                                $("#spanFolio").text(data.expediente.folio);
                                 $("#virtual").val(data.virtual);
                                 if(fuente == "NoCalendarizada"){
                                     $("#tableAudienciaSuccess").hide();

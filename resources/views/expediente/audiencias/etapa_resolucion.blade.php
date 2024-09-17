@@ -3455,7 +3455,7 @@
                     }
                 });
 
-                if(countOtro>=10){
+                if(countOtro>=21){
                     error = true;
                     errorMsj = 'No es posible registrar más conceptos personalizados';
                 }
@@ -4032,9 +4032,9 @@
     });
 
     $("#btnAgregarFechaPago").on("click",function(){
-        if(listaConfigFechas.length < 6){
+        if(listaConfigFechas.length < 240){
             var hoy = new Date();
-            var _45dias = hoy.setDate(hoy.getDate() + 180);
+            var _45dias = hoy.setDate(hoy.getDate() + 730);
             // var unMes = hoy.setMonth(hoy.getMonth() + 1);
             let fechaP = $("#fecha_pago").val().split("/");
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
@@ -4088,7 +4088,7 @@
                 swal({title: 'Error',text: 'La fecha de pago no puede exceder 45 d&iacute;as',icon: 'warning'});
             }
         }else{
-            swal({title: 'Error',text: 'El número máximo de pagos permitidos es cinco.' ,icon: 'warning'});
+            swal({title: 'Error',text: 'El número máximo de pagos permitidos es un chinco.' ,icon: 'warning'});
         }
     });
 
